@@ -11,7 +11,7 @@ def test_checked_in_manifest_is_valid_and_inventory_is_complete():
     state = load_manifest()
     assert state.error is None
     assert state.manifest is not None
-    assert len(state.manifest.capabilities) == 80
+    assert len(state.manifest.capabilities) == 84
     assert {item.status for item in state.manifest.capabilities} == set(CapabilityStatus)
     assert all(item.evidence.code or item.evidence.tests or item.evidence.docs for item in state.manifest.capabilities)
     assert all(not item.gaps for item in state.manifest.capabilities if item.status == "IMPLEMENTED")
@@ -20,16 +20,16 @@ def test_checked_in_manifest_is_valid_and_inventory_is_complete():
 def test_capability_filters_and_summary_counts(client):
     response = client.get(
         "/api/v1/system/capabilities",
-        params=[("status", "NOT_IMPLEMENTED"), ("priority", "P0")],
+        params=[("status", "BLOCKED_EXTERNAL"), ("priority", "P0")],
     )
     assert response.status_code == 200
     body = response.json()
-    assert body["summary"]["total"] == 80
+    assert body["summary"]["total"] == 84
     assert body["summary"]["matching"] == len(body["capabilities"])
-    assert sum(body["summary"]["by_status"].values()) == 80
-    assert sum(body["summary"]["by_priority"].values()) == 80
+    assert sum(body["summary"]["by_status"].values()) == 84
+    assert sum(body["summary"]["by_priority"].values()) == 84
     assert body["capabilities"]
-    assert all(item["status"] == "NOT_IMPLEMENTED" for item in body["capabilities"])
+    assert all(item["status"] == "BLOCKED_EXTERNAL" for item in body["capabilities"])
     assert all(item["priority"] == "P0" for item in body["capabilities"])
 
 

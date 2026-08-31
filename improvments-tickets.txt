@@ -1,0 +1,2860 @@
+CTF AI PLATFORM
+P0 DEVELOPER IMPLEMENTATION SPECIFICATION
+Version 1.0 — Technical Alpha → AI Alpha
+Product: CTF AI Platform
+Scope: P0 / Critical Improvements
+Purpose: Convert the current working CTF Technical Alpha into a safe, testable, AI-ready platform while preserving the CTF methodology, Human Authority, Creation Memory, Creation Genealogy, Evidence integrity and provider independence.
+
+0. IMPLEMENTATION PRINCIPLES
+The following principles are mandatory for every P0 implementation.
+
+Principle 1 — CTF remains authoritative
+The AI model must never own:
+
+CTF workflow state;
+
+Human Gates;
+
+Human Decisions;
+
+Value Boundaries;
+
+confirmation of Evidence;
+
+confirmation of Reality;
+
+commitment;
+
+final attribution;
+
+final transformation claims.
+
+The correct architecture remains:
+
+User / Human
+→ CTF Rule Engine
+→ Creation Memory
+→ Context Compiler
+→ Consequentiality Engine
+→ Model Router
+→ AI Provider
+→ Schema / Grounding / Safety Validation
+→ Human Gate
+→ Creation Memory
+
+Principle 2 — AI output is always provisional
+Every AI-created domain object must enter the system as:
+
+PROPOSED
+
+or
+
+CANDIDATE
+
+Never directly as:
+
+CONFIRMED
+
+SELECTED
+
+ACTIVE
+
+COMPLETED
+
+Principle 3 — Fail closed for critical reasoning
+If an operation requires T3 capability:
+
+T3 unavailable
+
+must result in:
+
+AI_CAPABILITY_UNAVAILABLE
+
+and not:
+
+T3 → T2
+
+or:
+
+T3 → T1.
+
+Principle 4 — No whole-project prompt dumping
+Only the minimum sufficient information required for an operation may be sent to an AI provider.
+
+Principle 5 — Unknown is a valid CTF state
+The system must prefer:
+
+UNKNOWN
+
+UNVERIFIED
+
+NOT_PROVIDED
+
+INSUFFICIENT_EVIDENCE
+
+over fabricated information.
+
+P0 EXECUTION ORDER
+The recommended implementation order is:
+
+CTF-001 — Operation-Specific Context Compiler
+
+CTF-002 — Consequentiality Engine
+
+CTF-003 — AI Grounding Contract
+
+CTF-004 — Non-Fabrication Guard
+
+CTF-011 — Raw Telemetry Isolation
+
+CTF-005 — CTF AI Golden Evaluation Framework
+
+CTF-006 — Full R0→R1 Fake-AI E2E Test
+
+CTF-007 — Universal Idempotency Coverage
+
+CTF-008 — Universal Confirmed-Record Immutability
+
+CTF-009 — Attribution Safety
+
+CTF-010 — Kill Assumption Calibration
+
+CTF-014 — PostgreSQL Integration Verification
+
+CTF-015 — MinIO/S3 Integration Verification
+
+CTF-013 — Production Malware and Content Safety
+
+CTF-012 — Durable Document Worker
+
+CTF-016 — Coordinated Backup and Restore
+
+Infrastructure tasks may be developed in parallel after CTF-001–004 are stable.
+
+CTF-001 — OPERATION-SPECIFIC CONTEXT COMPILER
+Priority
+P0 — CRITICAL
+
+This should be the first development task.
+
+Current implementation
+Relevant current files:
+
+packages/ctf_domain/model_router.py
+
+Current class:
+
+ContextCompiler
+
+Current behavior essentially accepts:
+
+constitution;
+
+operation policy;
+
+authority rules;
+
+complete Creation Memory;
+
+latest Evidence;
+
+user input;
+
+output schema.
+
+Relevant current runtime:
+
+packages/ctf_domain/ai_runtime.py
+
+Inside:
+
+AIExecutionService.execute()
+
+the current implementation performs conceptually:
+
+memory = deepcopy(project.memory)
+evidence = all_evidence[-50:]
+and sends that compiled structure to the provider.
+
+This is acceptable for the current Alpha but not acceptable for real AI operation.
+
+Product problem
+As Creation Memory grows, an AI operation could receive information that is:
+
+irrelevant;
+
+unnecessarily sensitive;
+
+stale;
+
+from a later CTF stage;
+
+outside the operation's authority;
+
+expensive in tokens;
+
+potentially biasing.
+
+Example:
+
+QUESTION_REFRAME
+
+does not need:
+
+Roadmap;
+
+Transformation;
+
+Realized Value;
+
+Commitments;
+
+unrelated Evidence.
+
+Required architecture
+Introduce an explicit:
+
+ContextPolicyRegistry
+
+and make context selection operation-specific.
+
+Recommended structure:
+
+PromptRegistry
+      |
+      v
+ContextPolicyRegistry
+      |
+      v
+ContextCompiler
+      |
+      v
+CompiledContext
+New files
+Create:
+
+packages/ctf_domain/context_policy.py
+
+Create:
+
+prompts/context-policies.yaml
+
+Create tests:
+
+apps/api/tests/test_context_compiler.py
+
+Files to modify
+Modify:
+
+packages/ctf_domain/model_router.py
+
+Remove or deprecate the current simple ContextCompiler.
+
+Modify:
+
+packages/ctf_domain/ai_runtime.py
+
+Inject the new compiler.
+
+Modify:
+
+prompts/registry.yaml
+
+Add:
+
+context_policy_version: "1.0"
+context_policies: prompts/context-policies.yaml
+Modify:
+
+docs/architecture.md
+
+Modify:
+
+docs/capability-status.yaml
+
+Modify:
+
+tests/verify_assets.py
+
+so all 55 registered AI operations must resolve to a context policy.
+
+Proposed classes
+@dataclass(frozen=True, slots=True)
+class ContextPolicy:
+    operation: str
+    version: str
+
+    memory_roots: tuple[str, ...]
+    resource_kinds: tuple[str, ...]
+    allowed_statuses: tuple[str, ...]
+
+    evidence_limit: int
+    include_user_input: bool
+    include_request_context: bool
+
+    allowed_request_context_keys: tuple[str, ...]
+
+    excluded_resource_kinds: tuple[str, ...]
+    max_resource_items: int
+class ContextPolicyRegistry:
+
+    def __init__(self, path: Path | None = None):
+        ...
+
+    def get(self, operation: str) -> ContextPolicy:
+        ...
+
+    def operations(self) -> list[str]:
+        ...
+@dataclass(frozen=True, slots=True)
+class ContextManifest:
+    policy_version: str
+    operation: str
+    memory_version: int
+    included_memory_roots: tuple[str, ...]
+    included_resource_refs: tuple[str, ...]
+    included_evidence_refs: tuple[str, ...]
+    excluded_resource_kinds: tuple[str, ...]
+    estimated_tokens: int
+@dataclass(frozen=True, slots=True)
+class CompiledContext:
+    payload: dict[str, Any]
+    manifest: ContextManifest
+class ContextCompiler:
+
+    def __init__(
+        self,
+        repository: InMemoryRepository,
+        registry: ContextPolicyRegistry,
+    ):
+        ...
+
+    def compile(
+        self,
+        *,
+        project: Project,
+        operation: str,
+        constitution: str,
+        policy: str,
+        authority_rules: str,
+        user_input: str,
+        request_context: dict[str, Any],
+        output_schema: dict[str, Any],
+        max_input_tokens: int,
+    ) -> CompiledContext:
+        ...
+Context Policy rules
+Example:
+
+QUESTION_REFRAME:
+  version: "1.0"
+
+  memory_roots:
+    - reality
+    - question
+    - perception
+
+  resource_kinds:
+    - REALITY
+    - QUESTION
+    - PERCEPTION
+
+  allowed_statuses:
+    - CONFIRMED
+    - SELECTED
+    - ACTIVE
+    - PROPOSED
+
+  evidence_limit: 5
+
+  include_user_input: true
+  include_request_context: true
+
+  allowed_request_context_keys:
+    - focus
+    - selected_ids
+
+  excluded_resource_kinds:
+    - REALITY_EVENT
+    - EXECUTION_EVENT
+
+  max_resource_items: 20
+For:
+
+ATTRIBUTION
+
+the context may include:
+
+BASELINE;
+
+OBSERVATION;
+
+VALUE_EVIDENCE;
+
+COUNTERFACTUAL;
+
+ADOPTION;
+
+relevant EVIDENCE;
+
+selected REALIZED_VALUE.
+
+Mandatory coverage
+Every one of the current 55 registered AI operations must have one explicit Context Policy.
+
+No default:
+
+allow_all_memory
+
+policy is permitted.
+
+Missing context policy must cause:
+
+AI_CONTEXT_POLICY_NOT_FOUND
+
+HTTP:
+
+500
+
+during server configuration/verification.
+
+Selection algorithm
+Context selection must be deterministic in P0.
+
+Do not introduce embedding/vector search yet.
+
+Recommended order:
+
+load operation policy;
+
+select allowed memory roots;
+
+resolve referenced resources;
+
+select permitted resource kinds;
+
+filter by status;
+
+select relevant Evidence;
+
+remove excluded kinds;
+
+sanitize request context;
+
+calculate approximate token size;
+
+fail before provider call if over budget.
+
+Input budget handling
+If context exceeds budget:
+
+remove oldest optional evidence;
+
+remove optional resources;
+
+preserve mandatory CTF objects;
+
+recalculate;
+
+fail if still too large.
+
+Error:
+
+AI_INPUT_BUDGET_EXCEEDED
+
+The compiler must never silently truncate mandatory objects.
+
+AI Run metadata changes
+Extend AI run metadata with:
+
+{
+  "context_policy_version": "1.0",
+  "context_memory_version": 14,
+  "context_resource_count": 7,
+  "context_evidence_count": 4,
+  "context_estimated_tokens": 7821
+}
+Do not persist the complete sensitive prompt unless explicitly required.
+
+Public API changes
+No breaking public endpoint change required.
+
+Recommended addition to:
+
+GET /api/v1/projects/{project_id}/ai/runs
+
+Expose:
+
+context policy version;
+
+counts;
+
+token estimate.
+
+Do not expose full compiled confidential context.
+
+Unit tests
+Create:
+
+apps/api/tests/test_context_compiler.py
+
+Required tests:
+
+test_question_reframe_excludes_roadmap
+test_question_reframe_excludes_transformation
+test_red_team_includes_selected_idea
+test_red_team_includes_assumptions
+test_attribution_includes_baseline
+test_attribution_includes_counterfactual
+test_context_policy_missing_fails_closed
+test_context_excludes_reality_events
+test_request_context_unknown_key_rejected
+test_context_budget_drops_optional_evidence
+test_context_budget_never_drops_mandatory_resource
+test_context_manifest_contains_resource_refs
+Global registry test
+Add:
+
+test_every_registered_ai_operation_has_context_policy
+Expected:
+
+55/55.
+
+Definition of Done
+CTF-001 is DONE when:
+
+all 55 operations have explicit policies;
+
+full project.memory is never sent blindly;
+
+raw resource selection is deterministic;
+
+context manifest is produced;
+
+input budget is enforced;
+
+test captures prove unrelated memory is excluded.
+
+CTF-002 — CONSEQUENTIALITY ENGINE
+Priority
+P0 — CRITICAL
+
+Current implementation
+Current relevant files:
+
+packages/ctf_domain/model_router.py
+
+Current:
+
+ModelRouter.route(operation, consequentiality)
+Current API accepts client-provided consequentiality.
+
+Relevant schemas:
+
+apps/api/app/schemas.py
+
+Current:
+
+class AIExecuteRequest:
+    consequentiality: str = "MEDIUM"
+and:
+
+class RouteRequest:
+    consequentiality: str = "MEDIUM"
+Product problem
+The browser, API client or AI operation must not be allowed to downgrade a critical operation to:
+
+LOW
+
+or:
+
+MEDIUM.
+
+Consequentiality must be a CTF system decision.
+
+New file
+Create:
+
+packages/ctf_domain/consequentiality.py
+
+Proposed types
+class ConsequentialityLevel(StrEnum):
+    LOW = "LOW"
+    MEDIUM = "MEDIUM"
+    HIGH = "HIGH"
+    CRITICAL = "CRITICAL"
+@dataclass(frozen=True, slots=True)
+class ConsequentialityAssessment:
+    level: ConsequentialityLevel
+    required_tier: str
+    reasons: tuple[str, ...]
+    operation_floor: ConsequentialityLevel
+class ConsequentialityEngine:
+
+    def assess(
+        self,
+        *,
+        operation: str,
+        project: Project,
+        requested_level: str | None = None,
+        context: dict[str, Any] | None = None,
+    ) -> ConsequentialityAssessment:
+        ...
+Factors
+Engine should consider:
+
+operation minimum;
+
+current CTF stage;
+
+Human Gate proximity;
+
+non-negotiable value conflict;
+
+kill assumption;
+
+financial commitment;
+
+legal consequence;
+
+regulatory consequence;
+
+safety consequence;
+
+stakeholder harm;
+
+irreversible commitment;
+
+evidence uncertainty;
+
+attribution claim;
+
+transformation claim;
+
+R1 finalization.
+
+Minimum capability rules
+Examples:
+
+CLASSIFICATION                   → minimum T1
+QUESTION_REFRAME                 → minimum T2
+IDEA_BLUEPRINT                   → minimum T2
+KILL_ASSUMPTION_ASSESSMENT      → minimum T3
+RED_TEAM                         → minimum T3
+DECISION_RECOMMENDATION         → minimum T3
+ATTRIBUTION                      → minimum T3
+TRANSFORMATION                   → minimum T3
+R1_GENERATION                    → minimum T3
+Upward-only user request
+Client may request:
+
+HIGH
+
+or:
+
+CRITICAL
+
+but cannot lower system assessment.
+
+Final level:
+
+max(
+    system_assessment,
+    operation_floor,
+    requested_level
+)
+Never:
+
+requested_level
+alone.
+
+Files to modify
+packages/ctf_domain/model_router.py
+
+packages/ctf_domain/ai_runtime.py
+
+apps/api/app/horizontal.py
+
+apps/api/app/schemas.py
+
+apps/api/tests/test_horizontal.py
+
+apps/api/tests/test_ai_runtime.py
+
+docs/openapi.yaml
+
+API schema recommendation
+For backward compatibility retain:
+
+"consequentiality": "HIGH"
+but reinterpret as:
+
+requested consequentiality floor.
+
+In a later major API version rename to:
+
+requested_consequentiality.
+
+AI run metadata
+Store:
+
+{
+  "consequentiality": "CRITICAL",
+  "consequentiality_reasons": [
+    "OPERATION_REQUIRES_T3",
+    "ATTRIBUTION_CLAIM"
+  ]
+}
+Unit tests
+test_client_cannot_lower_red_team_below_critical
+test_client_can_raise_question_to_critical
+test_attribution_routes_to_t3
+test_transformation_routes_to_t3
+test_r1_generation_routes_to_t3
+test_non_negotiable_conflict_is_critical
+test_kill_assumption_event_is_critical
+test_unknown_consequentiality_rejected
+Integration test
+Call:
+
+POST /api/v1/projects/{id}/ai/execute
+
+with:
+
+{
+  "operation": "ATTRIBUTION",
+  "consequentiality": "LOW"
+}
+Expected:
+
+"tier": "T3"
+Definition of Done
+No external caller can lower the CTF-required model capability.
+
+CTF-003 — AI GROUNDING CONTRACT
+Priority
+P0 — CRITICAL
+
+Objective
+Every consequential AI output must declare what information supports it.
+
+New file
+Create:
+
+packages/ctf_domain/grounding.py
+
+Files to modify
+packages/ctf_domain/ai_runtime.py
+
+prompts/schemas.yaml
+
+prompts/registry.yaml
+
+prompts/slices/vs01.yaml
+
+prompts/slices/vs02.yaml
+
+prompts/slices/vs03.yaml
+
+prompts/slices/vs04.yaml
+
+prompts/slices/vs05.yaml
+
+apps/api/tests/test_ai_runtime.py
+
+Create:
+
+apps/api/tests/test_grounding.py
+
+Required AI structure
+Extend common AI output contract.
+
+Recommended structure:
+
+{
+  "status": "PROPOSED",
+  "items": [],
+  "summary": "...",
+  "grounding": {
+    "evidence_refs": [],
+    "memory_refs": [],
+    "assumptions": [],
+    "unknowns": [],
+    "limitations": [],
+    "confidence_class": "MEDIUM"
+  }
+}
+Confidence values
+Allowed:
+
+HIGH
+MEDIUM
+LOW
+INSUFFICIENT_EVIDENCE
+Do not use artificial numerical confidence such as:
+
+87.4%
+
+unless the number comes from an explicit statistical model.
+
+Proposed classes
+@dataclass(frozen=True, slots=True)
+class GroundingIndex:
+    evidence_ids: frozenset[str]
+    resource_ids: frozenset[str]
+    memory_refs: frozenset[str]
+class GroundingValidator:
+
+    def validate(
+        self,
+        *,
+        output: dict[str, Any],
+        compiled_context: CompiledContext,
+        operation: str,
+    ) -> None:
+        ...
+Validation
+Every referenced:
+
+evidence_ref
+
+must:
+
+exist;
+
+belong to the same project;
+
+have been present in compiled context;
+
+not be deleted;
+
+satisfy required evidence status.
+
+Every memory_ref must be valid for the exact Creation Memory version.
+
+Critical operations
+For:
+
+RED_TEAM;
+
+DECISION_RECOMMENDATION;
+
+ATTRIBUTION;
+
+TRANSFORMATION;
+
+R1_GENERATION;
+
+either:
+
+evidence_refs must be non-empty
+
+or:
+
+confidence_class = INSUFFICIENT_EVIDENCE.
+
+Errors
+Introduce:
+
+AI_GROUNDING_INVALID_REFERENCE
+
+AI_GROUNDING_REQUIRED
+
+AI_GROUNDING_CONTEXT_MISMATCH
+
+Tests
+test_grounding_accepts_context_evidence
+test_grounding_rejects_nonexistent_evidence
+test_grounding_rejects_other_project_evidence
+test_grounding_rejects_resource_not_present_in_context
+test_critical_output_requires_grounding
+test_insufficient_evidence_is_valid_grounding_state
+test_grounding_preserves_memory_version
+Definition of Done
+A consequential AI statement cannot enter CTF as a grounded proposal while referencing information the AI was never given.
+
+CTF-004 — NON-FABRICATION GUARD
+Priority
+P0 — CRITICAL
+
+Objective
+Prevent structured AI outputs from silently inventing values.
+
+Important scope limitation
+Do not attempt to create a magical generic hallucination detector.
+
+P0 must use:
+
+structured schemas;
+
+grounding;
+
+explicit unknown states;
+
+deterministic validation;
+
+Golden semantic evaluation.
+
+New file
+Create:
+
+packages/ctf_domain/non_fabrication.py
+
+Optional policy file:
+
+prompts/non-fabrication.yaml
+
+Files to modify
+packages/ctf_domain/ai_runtime.py
+
+prompts/schemas.yaml
+
+all relevant prompt slice files.
+
+Create tests:
+
+apps/api/tests/test_non_fabrication.py
+
+Guarded information classes
+At minimum:
+
+budget;
+
+market size;
+
+TRL;
+
+baseline;
+
+measured result;
+
+KPI value;
+
+causal attribution;
+
+adoption rate;
+
+stakeholder benefit;
+
+regulatory status;
+
+implementation completion;
+
+external factual claims.
+
+Required state model
+Any high-risk factual value should support:
+
+{
+  "value": null,
+  "knowledge_state": "UNKNOWN",
+  "evidence_refs": []
+}
+Allowed knowledge states:
+
+KNOWN
+SUPPORTED
+ESTIMATED
+ASSUMED
+UNKNOWN
+UNVERIFIED
+NOT_PROVIDED
+Example
+Wrong:
+
+{
+  "market_size": "€2.4 billion"
+}
+when no evidence exists.
+
+Correct:
+
+{
+  "market_size": {
+    "value": null,
+    "knowledge_state": "NOT_PROVIDED",
+    "evidence_refs": []
+  }
+}
+Proposed validator
+class NonFabricationGuard:
+
+    def validate(
+        self,
+        *,
+        operation: str,
+        output: dict[str, Any],
+        grounding_index: GroundingIndex,
+    ) -> None:
+        ...
+Execution order
+Inside AIExecutionService:
+
+Provider output
+    ↓
+JSON parse
+    ↓
+JSON Schema validation
+    ↓
+Grounding validation
+    ↓
+Non-Fabrication Guard
+    ↓
+Human Authority Guard
+    ↓
+Accept as AI Proposal
+Error
+Use:
+
+AI_UNGROUNDED_ASSERTION
+
+or:
+
+AI_FABRICATION_RISK
+
+Tests
+test_unknown_budget_is_allowed
+test_unsupported_budget_value_rejected
+test_unknown_market_size_is_allowed
+test_unreferenced_baseline_rejected
+test_unreferenced_trl_rejected
+test_causal_claim_without_basis_rejected
+test_estimate_requires_estimate_label
+test_measured_value_requires_evidence
+CTF-005 — CTF AI GOLDEN EVALUATION FRAMEWORK
+Priority
+P0 — CRITICAL
+
+Product objective
+The current test suite proves that software contracts work.
+
+It does not prove that a real model follows CTF methodology.
+
+CTF therefore needs its own AI benchmark.
+
+Existing assets
+Keep the current:
+
+golden/run.py
+
+golden/scenarios.yaml
+
+golden/scenario.schema.json
+
+golden/report.json
+
+golden/junit.xml
+
+Those should remain the deterministic CTF software Golden Suite.
+
+New directory
+Create:
+
+evals/
+  ctf_ai/
+    scenarios/
+    fixtures/
+    results/
+    scenario.schema.json
+    runner.py
+    scorers.py
+    report.py
+    README.md
+Initial target
+Minimum:
+
+100 AI Golden Cases
+
+before external model acceptance.
+
+Later:
+
+200+.
+
+Scenario structure
+Example:
+
+{
+  "id": "AI-VS02-OPPORTUNITY-001",
+  "operation": "OPPORTUNITY_GENERATION",
+  "stage": "OPPORTUNITY",
+  "required_tier": "T2",
+
+  "fixture": "fixtures/opportunity_001.json",
+
+  "expected": {
+    "must_preserve_unknowns": true,
+    "must_not_propose_solution": true,
+    "must_not_confirm": true
+  },
+
+  "forbidden_patterns": [
+    "CONFIRMED",
+    "decision made"
+  ]
+}
+Evaluation dimensions
+Every relevant scenario should score:
+
+schema compliance;
+
+Human Authority preservation;
+
+Evidence grounding;
+
+non-fabrication;
+
+CTF methodology adherence;
+
+Opportunity/Solution separation;
+
+assumption quality;
+
+Red Team specificity;
+
+value boundary respect;
+
+attribution restraint;
+
+transformation restraint.
+
+Scores
+Recommended normalized score:
+
+0–100
+
+plus individual dimension scores.
+
+Example:
+
+{
+  "model": "qwen2.5:7b",
+  "operation": "IDEA_BLUEPRINT",
+  "score": 86,
+  "schema": 100,
+  "grounding": 90,
+  "methodology": 82,
+  "non_fabrication": 100
+}
+Model tier approval
+Model capability must be earned.
+
+Example:
+
+Model A:
+T1 = APPROVED
+T2 = APPROVED
+T3 = NOT_APPROVED
+T4 = NOT_APPROVED
+Important rule
+FakeProvider
+
+may validate:
+
+orchestration;
+
+schema;
+
+routing;
+
+persistence;
+
+but must never produce a semantic model-quality score.
+
+Test execution modes
+CI mode
+Deterministic structural checks.
+
+Local model mode
+Ollama.
+
+Candidate provider mode
+Configured external provider.
+
+Human review mode
+Selected critical semantic outputs.
+
+New command
+Recommended:
+
+python -m evals.ctf_ai.runner \
+  --provider ollama \
+  --tier T2 \
+  --report evals/ctf_ai/results/latest.json
+CI modification
+Modify:
+
+.github/workflows/verify-assets.yml
+
+Add structural AI evaluation validation only.
+
+Do not put nondeterministic paid model evaluation into every PR build.
+
+Acceptance Criteria
+minimum 100 scenarios;
+
+every critical operation represented;
+
+machine-readable report;
+
+pass/fail thresholds;
+
+explicit model/tier approval.
+
+CTF-006 — FULL R0 → R1 FAKE-AI END-TO-END TEST
+Priority
+P0
+
+Objective
+Prove that the entire CTF Creation Cycle works through actual APIs and application behavior.
+
+Existing files
+Extend:
+
+apps/api/tests/test_full_lifecycle.py
+
+apps/api/tests/test_golden_release.py
+
+New files
+Create:
+
+apps/api/tests/test_e2e_creation_cycle.py
+
+Create fixture:
+
+apps/api/tests/fixtures/full_creation_cycle.json
+
+Frontend later in same ticket:
+
+apps/web/e2e/creation-cycle.spec.ts
+
+Frontend dependency
+Add:
+
+@playwright/test
+
+to:
+
+apps/web/package.json
+
+Add:
+
+"test:e2e": "playwright test"
+Required flow
+Test must perform:
+
+Session
+↓
+Project
+↓
+R0 / Reality
+↓ Gate 1
+Question
+↓ Gate 2
+Perception
+↓ Gate 3
+Evidence
+↓ Gate 4
+Opportunity
+↓ Gate 5
+Spark
+↓ Gate 6
+Idea
+↓ Gate 7
+Assumptions
+↓ Gate 8
+Adversarial Test
+↓ Gate 9
+Value Boundaries
+↓ Gate 10
+Decision
+↓ Gate 11
+Commitment
+↓ Gate 12
+Roadmap
+↓ Gate 13
+Execution
+↓ Gate 14
+Commitment Review
+↓ Gate 15
+Stakeholders
+↓ Gate 16
+Realized Value
+↓ Gate 17
+R1
+↓ Gate 18
+Creation Cycle
+↓ Gate 19
+CLOSE
+Fake AI requirements
+Configure:
+
+AI_PROVIDER=fake
+All registered AI operations used in the scenario must execute through:
+
+AIExecutionService.
+
+Assertions
+At end verify:
+
+Gate 19 is closed;
+
+Creation Cycle is COMPLETED;
+
+R0 still exists;
+
+R1 exists separately;
+
+R0 was not overwritten;
+
+Human Decisions are immutable;
+
+Creation Genealogy is intact;
+
+every AI call has AI Run;
+
+every AI call has cost entry;
+
+Human Gate decisions are Human-owned;
+
+no AI output is CONFIRMED automatically;
+
+memory history exists.
+
+Frontend live-mode requirement
+Playwright must run with:
+
+NEXT_PUBLIC_USE_MOCKS=false
+
+against the live FastAPI backend.
+
+Definition of Done
+One automated scenario proves:
+
+Browser → API → Domain → AI FakeProvider → Persistence → Gate progression → R1
+
+without manually modifying database state.
+
+CTF-007 — UNIVERSAL IDEMPOTENCY COVERAGE
+Priority
+P0
+
+Current implementation
+Primary logic already exists in:
+
+apps/api/app/security.py
+
+through:
+
+security_middleware.
+
+There is also older route-level idempotency logic in:
+
+apps/api/app/common.py
+
+and:
+
+apps/api/app/slices.py.
+
+Product decision
+The security middleware should become the single canonical HTTP idempotency layer.
+
+Avoid maintaining two different idempotency implementations.
+
+Files to modify
+apps/api/app/security.py
+
+packages/ctf_domain/repository.py
+
+apps/api/app/common.py
+
+apps/api/app/slices.py
+
+apps/api/tests/test_security_integrity.py
+
+docs/openapi.yaml
+
+Required behavior
+For all mutating API requests except explicitly documented exemptions:
+
+Header:
+
+Idempotency-Key
+
+must be required in production.
+
+Same key / same request
+Return original response.
+
+Add response header:
+
+Idempotency-Replayed: true
+
+Same key / different request
+Return:
+
+HTTP 409
+
+{
+  "error": {
+    "code": "IDEMPOTENCY_CONFLICT"
+  }
+}
+Repository model
+Recommended internal structure:
+
+@dataclass
+class IdempotencyRecord:
+    scope: str
+    actor_id: str
+    key: str
+    request_fingerprint: str
+    status_code: int
+    response_body: str
+    created_at: str
+For Alpha this may still be represented in snapshot persistence.
+
+Remove route-specific duplicate logic
+After middleware tests pass, remove explicit route-level:
+
+repository.idempotent_get(...)
+repository.idempotent_put(...)
+from routes where middleware already provides equivalent behavior.
+
+Do this carefully and only after regression tests.
+
+Global automated route test
+Generate all mutating endpoints from OpenAPI.
+
+For each endpoint not exempt:
+
+assert:
+
+Idempotency-Key.required == true.
+
+Test matrix
+At minimum cover:
+
+project create;
+
+user input;
+
+memory update;
+
+Gate decision;
+
+resource create;
+
+resource confirm;
+
+supersession;
+
+AI execute;
+
+attachment upload;
+
+document analysis;
+
+ERI ingest;
+
+action status;
+
+revision transition;
+
+delete attachment.
+
+Tests
+test_every_mutating_route_requires_idempotency
+test_same_request_replays
+test_changed_body_conflicts
+test_changed_query_conflicts
+test_idempotency_is_actor_scoped
+test_idempotency_is_route_scoped
+test_failed_5xx_is_not_cached
+test_429_is_not_cached
+CTF-008 — UNIVERSAL CONFIRMED-RECORD IMMUTABILITY
+Priority
+P0
+
+Current implementation
+Relevant:
+
+packages/ctf_domain/service.py
+
+Current policy includes:
+
+IMMUTABLE_WHEN_CONFIRMED
+
+and:
+
+CONFIRMED_STATUSES.
+
+Relevant repository protection:
+
+packages/ctf_domain/repository.py
+
+update_resource() already rejects immutable records.
+
+This needs universal and directly tested coverage.
+
+Recommended new file
+Create:
+
+packages/ctf_domain/resource_policy.py
+
+Move lifecycle policy out of scattered constants.
+
+Proposed policy
+@dataclass(frozen=True)
+class ResourcePolicy:
+    kind: str
+    human_confirmable: bool
+    immutable_after_confirmation: bool
+    supersedable: bool
+Registry
+RESOURCE_POLICIES: dict[str, ResourcePolicy]
+Every domain resource kind must have one policy.
+
+Rule
+After Human confirmation:
+
+record N
+cannot be modified.
+
+Change requires:
+
+record N
+   |
+SUPERSEDED_BY
+   |
+record N+1
+Critical resource kinds
+Direct tests must include at minimum:
+
+REALITY;
+
+QUESTION;
+
+PERCEPTION;
+
+CLAIM;
+
+EVIDENCE;
+
+OPPORTUNITY;
+
+SPARK;
+
+IDEA;
+
+ASSUMPTION where confirmed;
+
+VALUE_BOUNDARY;
+
+HUMAN_DECISION;
+
+COMMITMENT;
+
+ROADMAP;
+
+BASELINE;
+
+REALIZED_VALUE;
+
+TRANSFORMATION;
+
+REALITY_SNAPSHOT;
+
+CREATION_CYCLE.
+
+Repository hardening
+Avoid arbitrary direct mutation of immutable resources.
+
+Domain code that legitimately changes state should use explicit methods rather than ad-hoc:
+
+record.status = ...
+where possible.
+
+Recommended repository methods:
+
+confirm_resource(...)
+supersede_resource(...)
+transition_system_resource(...)
+Tests
+Create:
+
+apps/api/tests/test_resource_immutability.py
+
+Tests:
+
+test_confirmed_resource_cannot_patch[kind]
+test_confirmed_resource_can_be_superseded[kind]
+test_supersession_preserves_old_record
+test_supersession_creates_genealogy_link
+test_ai_cannot_confirm_resource
+test_system_cannot_overwrite_human_confirmed_record
+Use parametrization across all relevant kinds.
+
+CTF-009 — ATTRIBUTION SAFETY
+Priority
+P0
+
+Current relevant files
+packages/ctf_domain/service.py
+
+prompts/slices/vs05.yaml
+
+apps/api/tests/test_vs03_vs05.py
+
+Current ATTRIBUTION prompt already forbids correlation-as-causation.
+
+The domain layer needs stronger enforcement.
+
+New file
+Create:
+
+packages/ctf_domain/attribution.py
+
+Required classification
+class AttributionStrength(StrEnum):
+    OBSERVED_ASSOCIATION = "OBSERVED_ASSOCIATION"
+    PLAUSIBLE_CONTRIBUTION = "PLAUSIBLE_CONTRIBUTION"
+    SUPPORTED_ATTRIBUTION = "SUPPORTED_ATTRIBUTION"
+    INSUFFICIENT_EVIDENCE = "INSUFFICIENT_EVIDENCE"
+Proposed service
+class AttributionPolicy:
+
+    def validate(
+        self,
+        *,
+        project: Project,
+        attribution: dict[str, Any],
+    ) -> None:
+        ...
+Rules
+Strong attribution requires
+valid baseline;
+
+post-intervention observation;
+
+Evidence;
+
+intervention/action reference;
+
+alternative explanation assessment;
+
+Counterfactual or equivalent comparison.
+
+No baseline
+Maximum allowed:
+
+PLAUSIBLE_CONTRIBUTION
+
+or:
+
+INSUFFICIENT_EVIDENCE.
+
+Correlation only
+Cannot produce:
+
+SUPPORTED_ATTRIBUTION.
+
+Unknown counterfactual
+Must lower attribution strength.
+
+Data contract
+Recommended ATTRIBUTION structure:
+
+{
+  "strength": "PLAUSIBLE_CONTRIBUTION",
+  "intervention_refs": [],
+  "baseline_refs": [],
+  "observation_refs": [],
+  "evidence_refs": [],
+  "counterfactual_refs": [],
+  "alternative_explanations": [],
+  "limitations": []
+}
+Files to modify
+packages/ctf_domain/service.py
+
+prompts/schemas.yaml
+
+prompts/slices/vs05.yaml
+
+packages/ctf_domain/ai_runtime.py
+
+Tests
+test_no_baseline_cannot_support_strong_attribution
+test_correlation_does_not_equal_causation
+test_supported_attribution_requires_counterfactual
+test_supported_attribution_requires_evidence
+test_unknown_counterfactual_reduces_strength
+test_valid_attribution_can_be_supported
+CTF-010 — KILL ASSUMPTION CALIBRATION
+Priority
+P0
+
+Product objective
+CTF must identify the assumption which could invalidate the Idea, not merely produce a list of generic risks.
+
+Relevant current files
+prompts/slices/vs03.yaml
+
+Operation:
+
+KILL_ASSUMPTION_ASSESSMENT
+
+Current execution logic also prioritizes Actions with:
+
+validates_kill_assumption = True
+
+inside:
+
+packages/ctf_domain/service.py.
+
+New file
+Create:
+
+packages/ctf_domain/assumption_policy.py
+
+Required assumption structure
+{
+  "statement": "...",
+  "category": "TECHNICAL",
+  "materiality": "CRITICAL",
+  "knowledge_state": "ASSUMED",
+  "evidence_refs": [],
+  "falsification_test": "...",
+  "kill_threshold": "...",
+  "consequence_if_false": "...",
+  "is_kill_assumption": true
+}
+Categories
+Recommended:
+
+TECHNICAL
+ECONOMIC
+MARKET
+ADOPTION
+LEGAL
+REGULATORY
+RESOURCE
+OPERATIONAL
+SAFETY
+VALUE
+DEPENDENCY
+Materiality
+LOW
+MEDIUM
+HIGH
+CRITICAL
+Kill assumption definition
+is_kill_assumption = true
+
+only when failure would materially invalidate:
+
+Idea feasibility;
+
+Value viability;
+
+critical commitment;
+
+legal possibility;
+
+safety acceptability.
+
+Required fields for kill assumption
+If:
+
+"is_kill_assumption": true
+then require:
+
+falsification test;
+
+kill threshold;
+
+consequence if false.
+
+Human authority
+AI may:
+
+PROPOSE_KILL_ASSUMPTION
+
+but Human Gate 8 must confirm or reject the classification.
+
+Files to modify
+packages/ctf_domain/service.py
+
+prompts/schemas.yaml
+
+prompts/slices/vs03.yaml
+
+apps/api/tests/test_vs03_vs05.py
+
+Create:
+
+apps/api/tests/test_kill_assumptions.py
+
+Tests
+test_kill_assumption_requires_falsification_test
+test_kill_assumption_requires_threshold
+test_minor_risk_cannot_be_critical_without_reason
+test_human_confirms_kill_assumption
+test_ai_cannot_confirm_kill_assumption
+test_next_best_action_prioritizes_kill_assumption_validation
+test_invalidated_kill_assumption_triggers_decision_relevant_event
+CTF-011 — RAW TELEMETRY ISOLATION
+Priority
+P0 — SECURITY / AI DATA MINIMIZATION
+
+Current relevant files
+packages/ctf_domain/eri.py
+
+packages/ctf_domain/model_router.py
+
+packages/ctf_domain/ai_runtime.py
+
+apps/api/app/horizontal.py
+
+apps/api/app/schemas.py
+
+Product rule
+Raw KHAL or other ERI telemetry must never be passed directly to an LLM.
+
+Correct flow:
+
+KHAL Raw Measurement
+      ↓
+Normalization
+      ↓
+REALITY_EVENT
+      ↓
+Evidence / Measurement Aggregation
+      ↓
+CTF Evidence Snapshot
+      ↓
+Context Compiler
+      ↓
+AI
+Critical current risk
+AIExecuteRequest.context
+
+is currently an unrestricted:
+
+dict[str, Any].
+
+Generator endpoints may also provide arbitrary body.data as extra AI context.
+
+This needs restriction.
+
+New file
+Create:
+
+packages/ctf_domain/context_safety.py
+
+Proposed type
+class AIRequestContext(BaseModel):
+    focus: str | None = None
+    selected_ids: list[str] = []
+    resource_refs: list[str] = []
+    constraints: list[str] = []
+
+    model_config = ConfigDict(extra="forbid")
+API change
+Replace arbitrary AI request:
+
+"context": {}
+with validated safe request context.
+
+For backward compatibility the field may remain named:
+
+context
+
+but must validate against the new structure.
+
+Hard exclusions
+Context compiler must never include resource kinds:
+
+REALITY_EVENT
+
+raw KHAL payloads;
+
+provider credentials;
+
+ERI connection configuration;
+
+metric provider raw response.
+
+Evidence conversion
+Only normalized verified or candidate CTF Evidence may become AI context.
+
+Tests
+Create:
+
+apps/api/tests/test_ai_context_security.py
+
+Tests:
+
+test_reality_event_never_in_ai_context
+test_khal_raw_measurement_never_in_ai_context
+test_ai_request_context_rejects_unknown_fields
+test_credentials_never_in_ai_context
+test_normalized_evidence_can_enter_context
+test_eri_evidence_preserves_source_provenance
+Most important test:
+
+Use FakeProvider.calls.
+
+Inspect captured messages.
+
+Assert no raw KHAL payload appears.
+
+CTF-012 — DURABLE DOCUMENT WORKER
+Priority
+P0 — INFRASTRUCTURE
+
+Current implementation
+Relevant:
+
+apps/api/app/slices.py
+
+Current endpoint uses:
+
+FastAPI BackgroundTasks
+
+and invokes:
+
+DocumentIntelligenceService.process().
+
+Relevant:
+
+packages/ctf_domain/document_intelligence.py
+
+Current processing is robust locally but not durable across process restarts.
+
+Objective
+A queued document job must survive:
+
+API restart;
+
+worker restart;
+
+transient failure.
+
+New files
+Create:
+
+packages/ctf_domain/job_queue.py
+
+Create:
+
+apps/worker/__init__.py
+
+Create:
+
+apps/worker/main.py
+
+Recommended new integration test:
+
+apps/api/tests/test_document_worker_integration.py
+
+Interface
+class DocumentJobQueue(Protocol):
+
+    def enqueue(
+        self,
+        *,
+        project_id: str,
+        job_id: str,
+    ) -> None:
+        ...
+
+    def claim(self) -> DocumentJob | None:
+        ...
+
+    def complete(self, job_id: str) -> None:
+        ...
+
+    def retry(
+        self,
+        job_id: str,
+        reason: str,
+    ) -> None:
+        ...
+
+    def fail(
+        self,
+        job_id: str,
+        code: str,
+    ) -> None:
+        ...
+Job states
+QUEUED
+CLAIMED
+PROCESSING
+RETRY_WAIT
+COMPLETED
+FAILED
+DEAD_LETTER
+Required job metadata
+{
+  "attempt": 1,
+  "max_attempts": 3,
+  "claimed_at": "...",
+  "lease_expires_at": "...",
+  "last_error": null
+}
+Important repository limitation
+Current PostgreSQL implementation is a snapshot repository and is explicitly not a mature multi-writer architecture.
+
+Therefore P0 worker deployment should initially permit:
+
+one API writer topology + one controlled worker
+
+with cross-process serialization.
+
+Recommended temporary safety mechanism:
+
+PostgreSQL advisory locking around snapshot writes.
+
+This is not the final production database architecture.
+
+The later normalized repository remains a P3 task.
+
+Development fallback
+For local development permit:
+
+InProcessDocumentJobQueue
+
+but system readiness must report:
+
+durable = false
+Production mode
+Production must refuse:
+
+BackgroundTasks
+
+as the durable job mechanism.
+
+API changes
+POST /evidence/analyze-document
+
+continues returning HTTP:
+
+202.
+
+No external contract break.
+
+Retry rules
+Retry:
+
+transient object-store failure;
+
+temporary worker crash.
+
+Do not retry indefinitely:
+
+invalid document;
+
+malware;
+
+unsupported document;
+
+archive bomb;
+
+deterministic parsing failure.
+
+Tests
+test_job_survives_api_restart
+test_worker_reclaims_expired_lease
+test_completed_job_is_idempotent
+test_invalid_document_not_retried_forever
+test_transient_error_retries
+test_retry_limit_enters_dead_letter
+CTF-013 — PRODUCTION MALWARE AND CONTENT SAFETY
+Priority
+P0 — SECURITY
+
+Current implementation
+Relevant:
+
+packages/ctf_domain/malware.py
+
+Already contains:
+
+Noop scanner;
+
+deterministic EICAR test scanner;
+
+ClamAV network scanner.
+
+Relevant upload path:
+
+apps/api/app/common.py
+
+Current production already rejects NOOP configuration.
+
+This is a good foundation.
+
+The missing part is production integration and stronger active-content handling.
+
+Files to modify
+compose.yaml
+
+.env.example
+
+packages/ctf_domain/malware.py
+
+packages/ctf_domain/document_intelligence.py
+
+apps/api/app/common.py
+
+docs/security.md
+
+docs/runbooks.md
+
+docs/capability-status.yaml
+
+New file
+Create:
+
+packages/ctf_domain/content_safety.py
+
+Production scanner
+Add a pinned approved ClamAV container/service to:
+
+compose.yaml.
+
+API should depend on scanner readiness in production.
+
+Fail-closed rule
+Scanner unavailable:
+
+HTTP:
+
+503
+
+Error:
+
+MALWARE_SCANNER_UNAVAILABLE
+
+Attachment must not become:
+
+READY_FOR_LATER_PROCESSING.
+
+Quarantine rule
+Malware detected:
+
+ATTACHMENT.status = QUARANTINED
+Must not be:
+
+downloadable;
+
+parsed;
+
+added to AI context.
+
+Active content safety
+Because CTF accepts:
+
+PDF;
+
+DOCX;
+
+XLSX;
+
+introduce structural active-content inspection.
+
+PDF reject conditions
+Inspect for dangerous features such as:
+
+JavaScript actions;
+
+auto-open actions;
+
+embedded executable content;
+
+unsupported embedded files.
+
+OOXML reject conditions
+Reject or quarantine:
+
+embedded OLE objects;
+
+dangerous external relationships;
+
+encrypted content;
+
+unexpected active content.
+
+Macro-enabled file types such as:
+
+.docm
+
+.xlsm
+
+should remain unsupported unless specifically introduced later.
+
+P0 approach
+P0 may use:
+
+detect + reject/quarantine
+
+instead of implementing a complete document reconstruction/CDR engine.
+
+Tests
+test_production_noop_scanner_refused
+test_eicar_file_quarantined
+test_scanner_unavailable_fails_closed
+test_quarantined_attachment_cannot_download
+test_quarantined_attachment_cannot_analyze
+test_office_archive_bomb_rejected
+test_pdf_active_content_rejected
+test_external_ooxml_relationship_rejected
+CTF-014 — REAL POSTGRESQL INTEGRATION VERIFICATION
+Priority
+P0 — INFRASTRUCTURE
+
+Current implementation
+Relevant:
+
+packages/ctf_domain/repository.py
+
+Current:
+
+SQLAlchemySnapshotRepository
+
+Relevant:
+
+packages/ctf_domain/sqlalchemy_models.py
+
+Relevant:
+
+compose.yaml
+
+PostgreSQL service already exists.
+
+Current direct persistence testing is primarily SQLite-oriented.
+
+Objective
+Prove that the actual configured PostgreSQL topology works.
+
+New test
+Create:
+
+apps/api/tests/test_postgres_integration.py
+
+CI change
+Modify:
+
+.github/workflows/verify-assets.yml
+
+Add PostgreSQL service or compose-based integration job.
+
+Environment
+Use:
+
+CTF_TEST_POSTGRES_URL
+
+Never reuse production DB.
+
+Required scenarios
+Scenario 1
+Create repository.
+
+Create:
+
+session;
+
+project;
+
+resources;
+
+memory;
+
+AI run;
+
+cost entry;
+
+genealogy.
+
+Close repository.
+
+Reopen.
+
+Verify everything.
+
+Scenario 2
+Transaction rollback.
+
+Cause exception inside:
+
+repository.transaction().
+
+Verify no partial state remains.
+
+Scenario 3
+Idempotency persistence across restart.
+
+Scenario 4
+Creation Genealogy persistence across restart.
+
+Scenario 5
+AI runs/cost ledger persistence.
+
+Temporary cross-process safety
+If CTF-012 external worker is activated while snapshot persistence is still used, introduce a PostgreSQL advisory lock for snapshot mutation.
+
+Document this explicitly as transitional architecture.
+
+Acceptance Criteria
+A PostgreSQL integration suite must run in CI, not merely validate configuration.
+
+CTF-015 — REAL MINIO / S3 INTEGRATION VERIFICATION
+Priority
+P0 — INFRASTRUCTURE
+
+Current implementation
+Relevant:
+
+packages/ctf_domain/object_store.py
+
+Current adapters:
+
+LocalObjectStore
+
+S3ObjectStore
+
+Relevant:
+
+compose.yaml
+
+MinIO and bucket initialization already exist.
+
+Objective
+Verify the complete live object-store workflow.
+
+New tests
+Create:
+
+apps/api/tests/test_object_store_integration.py
+
+Required direct tests
+PUT
+GET
+OPEN_STREAM
+DELETE
+PRESIGN_GET
+Required API flow
+Upload
+↓
+Malware scan
+↓
+Store in MinIO
+↓
+Create ATTACHMENT metadata
+↓
+Authorize download
+↓
+Retrieve
+↓
+Delete
+Tenant isolation test
+Create:
+
+Tenant A / Project A.
+
+Tenant B / Project B.
+
+Upload A attachment.
+
+Tenant B attempts:
+
+metadata access;
+
+download;
+
+delete.
+
+Expected:
+
+403 or 404.
+
+Never return presigned URL to unauthorized tenant.
+
+Private bucket requirement
+MinIO bucket must have no anonymous read access.
+
+Current minio-init model should remain private.
+
+Tests
+test_minio_put_get_delete
+test_minio_presigned_url
+test_api_attachment_stored_in_minio
+test_other_tenant_cannot_access_attachment
+test_other_tenant_cannot_receive_presign
+test_deleted_attachment_object_removed
+CI
+Add MinIO integration service/job to:
+
+.github/workflows/verify-assets.yml.
+
+CTF-016 — COORDINATED BACKUP AND RESTORE
+Priority
+P0 — PRODUCTION SAFETY
+
+Objective
+A CTF backup is not valid unless it preserves both:
+
+PostgreSQL state
+
+and:
+
+Object Storage state.
+
+New directory
+Create:
+
+scripts/backup/
+scripts/restore/
+Recommended:
+
+scripts/backup/backup.sh
+scripts/backup/verify_backup.py
+scripts/restore/restore.sh
+scripts/restore/verify_restore.py
+Optional PowerShell equivalents may be added later.
+
+P0 backup strategy
+Use a controlled maintenance-window backup.
+
+Do not attempt complex online distributed snapshots yet.
+
+Recommended procedure:
+
+stop new mutating requests;
+
+stop document workers;
+
+complete or pause active uploads;
+
+dump PostgreSQL;
+
+snapshot/mirror MinIO bucket;
+
+generate backup manifest;
+
+resume services.
+
+Backup manifest
+Create:
+
+backup-manifest.json
+
+Example:
+
+{
+  "format_version": "1.0",
+  "created_at": "...",
+  "ctf_version": "0.1.0",
+  "database": {
+    "file": "ctf.sql.gz",
+    "sha256": "..."
+  },
+  "object_store": {
+    "archive": "ctf-objects.tar.gz",
+    "sha256": "...",
+    "object_count": 37
+  }
+}
+Restore procedure
+validate backup manifest;
+
+restore empty PostgreSQL;
+
+restore empty object bucket;
+
+start API;
+
+run integrity verification.
+
+Restore verification
+Check:
+
+project exists;
+
+R0 exists;
+
+R1 exists;
+
+Creation Cycle exists;
+
+Creation Genealogy links exist;
+
+memory history exists;
+
+AI runs exist;
+
+cost ledger exists;
+
+attachments exist;
+
+attachment checksums match.
+
+Automated restore test
+Create:
+
+apps/api/tests/test_backup_restore_integration.py
+
+or separate integration script.
+
+Scenario:
+
+Create project
+Upload attachment
+Create evidence
+Run AI
+Progress Creation Cycle
+Backup
+Destroy environment
+Restore
+Restart application
+Verify all critical objects
+Acceptance criteria
+A backup is not considered successful simply because pg_dump succeeded.
+
+The restore verification must succeed.
+
+CROSS-CUTTING P0 CHANGES
+Several changes should be implemented once and reused by all P0 tasks.
+
+A. AI EXECUTION PIPELINE AFTER P0
+The target AIExecutionService flow should become:
+
+PromptRegistry.get(operation)
+
+        ↓
+
+ConsequentialityEngine.assess()
+
+        ↓
+
+ModelRouter.route()
+
+        ↓
+
+ContextPolicyRegistry.get(operation)
+
+        ↓
+
+ContextCompiler.compile()
+
+        ↓
+
+Input Budget Check
+
+        ↓
+
+Provider.execute()
+
+        ↓
+
+JSON Parsing
+
+        ↓
+
+JSON Schema Validation
+
+        ↓
+
+GroundingValidator
+
+        ↓
+
+NonFabricationGuard
+
+        ↓
+
+HumanAuthorityGuard
+
+        ↓
+
+Persist AI Run Metadata
+
+        ↓
+
+Return PROPOSED / CANDIDATE Output
+B. AIExecutionService SHOULD BECOME ORCHESTRATOR, NOT POLICY MONOLITH
+Current:
+
+packages/ctf_domain/ai_runtime.py
+
+should remain the orchestration layer.
+
+It should not eventually contain every policy implementation.
+
+Recommended dependencies:
+
+AIExecutionService(
+    repository,
+    provider,
+    prompt_registry,
+    context_registry,
+    context_compiler,
+    consequentiality_engine,
+    model_router,
+    grounding_validator,
+    non_fabrication_guard,
+    cost_ledger,
+)
+C. NEW AI RUN METADATA
+Recommended final AI Run structure:
+
+{
+  "id": "...",
+  "project_id": "...",
+
+  "operation": "ATTRIBUTION",
+
+  "provider": "OLLAMA",
+  "model": "...",
+
+  "prompt_id": "P05-08",
+  "prompt_version": "0.1",
+  "methodology_version": "ctf-full-v1",
+
+  "context_policy_version": "1.0",
+  "context_memory_version": 18,
+
+  "consequentiality": "CRITICAL",
+  "consequentiality_reasons": [],
+
+  "capability": "CRITICAL_REASONING",
+  "tier": "T3",
+  "reasoning_effort": "HIGH",
+
+  "context_resource_count": 8,
+  "context_evidence_count": 5,
+  "context_estimated_tokens": 8200,
+
+  "grounding_valid": true,
+
+  "input_tokens": 8300,
+  "output_tokens": 1100,
+
+  "retry_count": 0,
+
+  "outcome": "SUCCEEDED"
+}
+D. NEW ERROR CODES
+Recommended P0 additions:
+
+AI_CONTEXT_POLICY_NOT_FOUND
+AI_CONTEXT_POLICY_INVALID
+AI_CONTEXT_FIELD_NOT_ALLOWED
+
+AI_CONSEQUENTIALITY_INVALID
+
+AI_GROUNDING_REQUIRED
+AI_GROUNDING_INVALID_REFERENCE
+AI_GROUNDING_CONTEXT_MISMATCH
+
+AI_UNGROUNDED_ASSERTION
+AI_FABRICATION_RISK
+
+AI_CAPABILITY_UNAVAILABLE
+
+DOCUMENT_JOB_RETRY_EXHAUSTED
+DOCUMENT_JOB_LEASE_EXPIRED
+
+UNSAFE_DOCUMENT
+
+BACKUP_INTEGRITY_FAILED
+RESTORE_INTEGRITY_FAILED
+E. P0 TEST SUITE TARGET
+After implementation the following must all pass:
+
+ruff check .
+pytest
+python golden/run.py
+python tests/verify_assets.py
+openapi-spec-validator docs/openapi.yaml
+Plus new integration suites:
+
+PostgreSQL
+MinIO
+Malware
+Document Worker
+Backup/Restore
+AI Golden Structural Evaluation
+Browser E2E
+F. CAPABILITY MANIFEST UPDATE RULE
+Do not change a capability to:
+
+IMPLEMENTED
+
+merely because code exists.
+
+Required meaning:
+
+PARTIAL
+Code exists but production evidence is incomplete.
+
+IMPLEMENTED
+Implementation and direct automated evidence exist.
+
+VALIDATED
+This should eventually become a separate product-quality status for real-model / real-user validation.
+
+For now, preserve the current manifest schema unless intentionally versioning it.
+
+EXTERNAL P0 BLOCKERS — NOT PURE CODING TASKS
+The current product has two important P0-type activities that a developer alone cannot close.
+
+1. Production Model Quality Validation
+Requires:
+
+candidate model;
+
+real AI provider or validated local model;
+
+CTF Golden Evaluation Corpus;
+
+human review;
+
+signed model/tier approval.
+
+Developer responsibility:
+
+build the evaluation framework.
+
+Product/CTF responsibility:
+
+approve the model.
+
+2. External Human Pilot Validation
+Requires:
+
+real participants;
+
+real Creation Cases;
+
+facilitator;
+
+user feedback;
+
+product acceptance decision.
+
+Developer responsibility:
+
+make the platform pilot-ready.
+
+Product team responsibility:
+
+execute and evaluate the pilot.
+
+FINAL P0 RELEASE GATE
+The platform may be called:
+
+“CTF AI Alpha”
+only when all of the following are true:
+
+CTF Integrity
+19 Human Gates remain server-authoritative;
+
+confirmed records are immutable;
+
+supersession works;
+
+Creation Genealogy is preserved;
+
+idempotency covers every consequential mutation.
+
+AI Safety
+55/55 operations have Context Policies;
+
+consequentiality cannot be downgraded by the client;
+
+structured Grounding is enforced;
+
+Non-Fabrication rules are active;
+
+raw telemetry cannot enter LLM context;
+
+T3 never silently falls back.
+
+AI Evaluation
+CTF AI Golden Framework exists;
+
+at least 100 semantic scenarios exist;
+
+FakeProvider E2E works;
+
+local/provider models can be benchmarked independently.
+
+Infrastructure
+PostgreSQL integration passes;
+
+MinIO integration passes;
+
+malware scanning fails closed;
+
+durable document processing exists;
+
+coordinated backup/restore is tested.
+
+End-to-End
+A complete:
+
+R0 → 19 Gates → R1 → Creation Cycle Close
+
+must pass through the live API with Fake AI before external AI is introduced.
+
+RECOMMENDED FIRST DEVELOPMENT SPRINT
+The developer should start with only these four tasks:
+
+Sprint P0-A
+CTF-001 — Context Compiler
+
+CTF-002 — Consequentiality Engine
+
+CTF-003 — Grounding Contract
+
+CTF-004 — Non-Fabrication Guard
+
+The purpose of this sprint is to create the safe AI execution foundation.
+
+Do not begin serious real-model testing before these four are complete.
+
+RECOMMENDED SECOND DEVELOPMENT SPRINT
+Sprint P0-B
+CTF-011 — Raw Telemetry Isolation
+
+CTF-005 — AI Golden Evaluation Framework
+
+CTF-006 — Full Fake-AI R0→R1 E2E
+
+CTF-009 — Attribution Safety
+
+CTF-010 — Kill Assumption Calibration
+
+The purpose is to prove CTF methodology quality rather than only software correctness.
+
+RECOMMENDED THIRD DEVELOPMENT SPRINT
+Sprint P0-C
+CTF-007 — Idempotency
+
+CTF-008 — Universal Immutability
+
+CTF-014 — PostgreSQL
+
+CTF-015 — MinIO
+
+CTF-013 — Malware
+
+CTF-012 — Durable Worker
+
+CTF-016 — Backup/Restore
+
+The purpose is to move from technical Alpha toward a controlled Pilot-grade platform.

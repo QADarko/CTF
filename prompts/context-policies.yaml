@@ -1,0 +1,287 @@
+version: "1.0"
+defaults: &defaults
+  version: "1.0"
+  allowed_statuses: [CONFIRMED, SELECTED, ACTIVE, COMPLETED, PROPOSED, CANDIDATE]
+  include_user_input: true
+  include_request_context: true
+  allowed_request_context_keys: [focus, selected_ids, resource_refs, constraints]
+  excluded_resource_kinds: [REALITY_EVENT, EXECUTION_EVENT, DOCUMENT_CHUNK, ATTACHMENT]
+  max_resource_items: 20
+  evidence_limit: 8
+policies:
+  REALITY_UPDATE:
+    <<: *defaults
+    memory_roots: [reality, question, funding_context]
+    resource_kinds: [REALITY, QUESTION, EVIDENCE]
+    evidence_limit: 6
+  QUESTION_REFRAME:
+    <<: *defaults
+    memory_roots: [reality, question, perception]
+    resource_kinds: [REALITY, QUESTION, PERCEPTION]
+    evidence_limit: 5
+  PERCEPTION_SYNTHESIS:
+    <<: *defaults
+    memory_roots: [reality, question, perception]
+    resource_kinds: [REALITY, QUESTION, PERCEPTION, EVIDENCE]
+    evidence_limit: 6
+  FUNDING_ENTRY_ROUTING:
+    <<: *defaults
+    memory_roots: [funding_context, reality]
+    resource_kinds: [REALITY]
+    evidence_limit: 3
+    max_resource_items: 8
+  DOCUMENT_ENTRY_ROUTING:
+    <<: *defaults
+    memory_roots: [document_provenance, reality]
+    resource_kinds: [REALITY, EVIDENCE]
+    evidence_limit: 4
+  CLAIM_EVIDENCE_ASSESSMENT:
+    <<: *defaults
+    memory_roots: [claims, evidence_ledger, evidence_gaps, reality]
+    resource_kinds: [CLAIM, EVIDENCE, EVIDENCE_GAP, REALITY]
+    evidence_limit: 12
+  DOCUMENT_EVIDENCE_EXTRACTION:
+    <<: *defaults
+    memory_roots: [document_provenance, claims, evidence_ledger]
+    resource_kinds: [CLAIM, EVIDENCE]
+    evidence_limit: 10
+  OPPORTUNITY_GENERATION:
+    <<: *defaults
+    memory_roots: [reality, question, perception, claims, evidence_ledger]
+    resource_kinds: [REALITY, QUESTION, PERCEPTION, CLAIM, EVIDENCE, OPPORTUNITY]
+    evidence_limit: 8
+  SPARK_GENERATION:
+    <<: *defaults
+    memory_roots: [opportunities, reality, question]
+    resource_kinds: [OPPORTUNITY, REALITY, QUESTION, SPARK, EVIDENCE]
+    evidence_limit: 6
+  IDEA_BLUEPRINT:
+    <<: *defaults
+    memory_roots: [sparks, opportunities, reality, ideas]
+    resource_kinds: [SPARK, OPPORTUNITY, IDEA, REALITY, EVIDENCE]
+    evidence_limit: 8
+  IDEA_LOGIC_CHECK:
+    <<: *defaults
+    memory_roots: [ideas, assumptions, evidence_ledger]
+    resource_kinds: [IDEA, ASSUMPTION, EVIDENCE]
+    evidence_limit: 8
+  ASSUMPTION_EXTRACTION:
+    <<: *defaults
+    memory_roots: [ideas, assumptions, evidence_ledger]
+    resource_kinds: [IDEA, ASSUMPTION, EVIDENCE]
+    evidence_limit: 8
+  KILL_ASSUMPTION_ASSESSMENT:
+    <<: *defaults
+    memory_roots: [ideas, assumptions, evidence_ledger]
+    resource_kinds: [IDEA, ASSUMPTION, EVIDENCE]
+    evidence_limit: 8
+  RED_TEAM:
+    <<: *defaults
+    memory_roots: [ideas, assumptions, opportunities, reality]
+    resource_kinds: [IDEA, ASSUMPTION, OPPORTUNITY, REALITY, EVIDENCE]
+    evidence_limit: 8
+  PREMORTEM:
+    <<: *defaults
+    memory_roots: [ideas, assumptions]
+    resource_kinds: [IDEA, ASSUMPTION, EVIDENCE]
+    evidence_limit: 6
+  STRONGEST_COUNTERARGUMENT:
+    <<: *defaults
+    memory_roots: [ideas, assumptions, evidence_ledger]
+    resource_kinds: [IDEA, ASSUMPTION, EVIDENCE]
+    evidence_limit: 8
+  VALUE_BOUNDARY_SUGGESTION:
+    <<: *defaults
+    memory_roots: [ideas, assumptions]
+    resource_kinds: [IDEA, ASSUMPTION, VALUE_BOUNDARY]
+    evidence_limit: 4
+  VALUE_BOUNDARY_TEST:
+    <<: *defaults
+    memory_roots: [ideas, assumptions]
+    resource_kinds: [IDEA, ASSUMPTION, VALUE_BOUNDARY, VALUE_BOUNDARY_TEST]
+    evidence_limit: 6
+  CONSEQUENCE_ANALYSIS:
+    <<: *defaults
+    memory_roots: [ideas, assumptions]
+    resource_kinds: [IDEA, ASSUMPTION, VALUE_BOUNDARY, CONSEQUENCE]
+    evidence_limit: 6
+  DECISION_BRIEF:
+    <<: *defaults
+    memory_roots: [ideas, assumptions, decision_history, evidence_ledger]
+    resource_kinds: [IDEA, ASSUMPTION, VALUE_BOUNDARY, DECISION_BRIEF, EVIDENCE]
+    evidence_limit: 10
+  DECISION_RECOMMENDATION:
+    <<: *defaults
+    memory_roots: [ideas, assumptions, decision_history, evidence_ledger]
+    resource_kinds: [IDEA, ASSUMPTION, VALUE_BOUNDARY, RECOMMENDATION, EVIDENCE]
+    evidence_limit: 10
+  VALIDATION_PLAN:
+    <<: *defaults
+    memory_roots: [ideas, assumptions]
+    resource_kinds: [IDEA, ASSUMPTION, VALIDATION_PLAN, EVIDENCE]
+    evidence_limit: 6
+  REDESIGN_ROUTING:
+    <<: *defaults
+    memory_roots: [ideas, assumptions, decision_history]
+    resource_kinds: [IDEA, ASSUMPTION, HUMAN_DECISION]
+    evidence_limit: 4
+  COMMITMENT_READINESS:
+    <<: *defaults
+    memory_roots: [ideas, decision_history, commitments]
+    resource_kinds: [IDEA, HUMAN_DECISION, COMMITMENT]
+    evidence_limit: 4
+  COMMITMENT_DRAFT:
+    <<: *defaults
+    memory_roots: [ideas, decision_history, commitments]
+    resource_kinds: [IDEA, HUMAN_DECISION, COMMITMENT]
+    evidence_limit: 4
+  COMMITMENT_GAP:
+    <<: *defaults
+    memory_roots: [commitments, ideas]
+    resource_kinds: [COMMITMENT, IDEA]
+    evidence_limit: 4
+  OUTCOME_GENERATION:
+    <<: *defaults
+    memory_roots: [commitments, ideas]
+    resource_kinds: [COMMITMENT, IDEA, OUTCOME]
+    evidence_limit: 4
+  MILESTONE_GENERATION:
+    <<: *defaults
+    memory_roots: [commitments, roadmaps]
+    resource_kinds: [COMMITMENT, OUTCOME, MILESTONE, ROADMAP]
+    evidence_limit: 4
+  ACTION_GENERATION:
+    <<: *defaults
+    memory_roots: [roadmaps, commitments]
+    resource_kinds: [ROADMAP, MILESTONE, ACTION, COMMITMENT]
+    evidence_limit: 4
+  ACTION_TRACE_RENDER:
+    <<: *defaults
+    memory_roots: [roadmaps]
+    resource_kinds: [ACTION, MILESTONE, ROADMAP]
+    evidence_limit: 4
+  NEXT_BEST_ACTION:
+    <<: *defaults
+    memory_roots: [roadmaps, assumptions]
+    resource_kinds: [ACTION, MILESTONE, ASSUMPTION, BLOCKER]
+    evidence_limit: 4
+  BLOCKER_ANALYSIS:
+    <<: *defaults
+    memory_roots: [roadmaps]
+    resource_kinds: [ACTION, BLOCKER, EXECUTION_EVIDENCE]
+    evidence_limit: 6
+  EXECUTION_EVIDENCE_ASSESSMENT:
+    <<: *defaults
+    memory_roots: [evidence_ledger, roadmaps]
+    resource_kinds: [ACTION, EXECUTION_EVIDENCE, EVIDENCE]
+    evidence_limit: 10
+  MILESTONE_VERIFICATION:
+    <<: *defaults
+    memory_roots: [roadmaps, evidence_ledger]
+    resource_kinds: [MILESTONE, ACTION, EXECUTION_EVIDENCE, EVIDENCE]
+    evidence_limit: 8
+  EXECUTION_MATERIALITY:
+    <<: *defaults
+    memory_roots: [roadmaps, assumptions]
+    resource_kinds: [ACTION, EXECUTION_EVIDENCE, ASSUMPTION]
+    evidence_limit: 6
+  ROADMAP_REPLAN:
+    <<: *defaults
+    memory_roots: [roadmaps, commitments]
+    resource_kinds: [ROADMAP, COMMITMENT, ACTION, MILESTONE]
+    evidence_limit: 6
+  REDECISION_TRIGGER:
+    <<: *defaults
+    memory_roots: [decision_history, assumptions]
+    resource_kinds: [HUMAN_DECISION, ASSUMPTION, EXECUTION_EVIDENCE]
+    evidence_limit: 6
+  COMMITMENT_DRIFT:
+    <<: *defaults
+    memory_roots: [commitments, decision_history]
+    resource_kinds: [COMMITMENT, ACTION, HUMAN_DECISION]
+    evidence_limit: 4
+  CREATION_RECORD:
+    <<: *defaults
+    memory_roots: [creation_records, commitments, roadmaps]
+    resource_kinds: [CREATION_RECORD, COMMITMENT, ROADMAP, ACTION]
+    evidence_limit: 4
+  STAKEHOLDER_DISCOVERY:
+    <<: *defaults
+    memory_roots: [value, ideas]
+    resource_kinds: [STAKEHOLDER, IDEA]
+    evidence_limit: 4
+  VALUE_HYPOTHESIS:
+    <<: *defaults
+    memory_roots: [value, ideas]
+    resource_kinds: [VALUE_HYPOTHESIS, STAKEHOLDER, IDEA]
+    evidence_limit: 6
+  METRIC_BASELINE:
+    <<: *defaults
+    memory_roots: [value]
+    resource_kinds: [VALUE_METRIC, BASELINE, VALUE_HYPOTHESIS]
+    evidence_limit: 6
+  VALUE_EVIDENCE:
+    <<: *defaults
+    memory_roots: [value, evidence_ledger]
+    resource_kinds: [VALUE_EVIDENCE, BASELINE, OBSERVATION, EVIDENCE]
+    evidence_limit: 10
+  REALIZED_VALUE:
+    <<: *defaults
+    memory_roots: [value, evidence_ledger]
+    resource_kinds: [REALIZED_VALUE, VALUE_EVIDENCE, BASELINE, OBSERVATION, EVIDENCE]
+    evidence_limit: 10
+  NEGATIVE_EFFECT_SCAN:
+    <<: *defaults
+    memory_roots: [value]
+    resource_kinds: [NEGATIVE_EFFECT, VALUE_EVIDENCE, STAKEHOLDER]
+    evidence_limit: 6
+  VALUE_DISTRIBUTION:
+    <<: *defaults
+    memory_roots: [value]
+    resource_kinds: [REALIZED_VALUE, STAKEHOLDER, VALUE_EVIDENCE]
+    evidence_limit: 6
+  ATTRIBUTION:
+    <<: *defaults
+    memory_roots: [value, evidence_ledger, reality_snapshots]
+    resource_kinds: [BASELINE, OBSERVATION, VALUE_EVIDENCE, COUNTERFACTUAL, ADOPTION, EVIDENCE, REALIZED_VALUE]
+    evidence_limit: 12
+  COUNTERFACTUAL:
+    <<: *defaults
+    memory_roots: [value, evidence_ledger]
+    resource_kinds: [BASELINE, OBSERVATION, COUNTERFACTUAL, EVIDENCE]
+    evidence_limit: 8
+  IMPACT_PATHWAY:
+    <<: *defaults
+    memory_roots: [value]
+    resource_kinds: [IMPACT, ATTRIBUTION, REALIZED_VALUE, EVIDENCE]
+    evidence_limit: 8
+  TRANSFORMATION:
+    <<: *defaults
+    memory_roots: [value, reality_snapshots, creation_cycles]
+    resource_kinds: [TRANSFORMATION, ATTRIBUTION, IMPACT, REALIZED_VALUE, REALITY_SNAPSHOT, EVIDENCE]
+    evidence_limit: 10
+  SUSTAINABILITY:
+    <<: *defaults
+    memory_roots: [value]
+    resource_kinds: [TRANSFORMATION, REALIZED_VALUE, ADOPTION]
+    evidence_limit: 6
+  REALITY_DELTA:
+    <<: *defaults
+    memory_roots: [reality, reality_snapshots]
+    resource_kinds: [REALITY, REALITY_SNAPSHOT, TRANSFORMATION]
+    evidence_limit: 6
+  R1_GENERATION:
+    <<: *defaults
+    memory_roots: [reality, reality_snapshots, creation_cycles, value]
+    resource_kinds: [REALITY, REALITY_SNAPSHOT, TRANSFORMATION, CREATION_CYCLE, EVIDENCE]
+    evidence_limit: 10
+  CYCLE_REVIEW:
+    <<: *defaults
+    memory_roots: [creation_cycles, reality_snapshots, decision_history]
+    resource_kinds: [CREATION_CYCLE, REALITY_SNAPSHOT, HUMAN_DECISION, CREATION_RECORD]
+    evidence_limit: 6
+  NAVIGATION_ROUTER:
+    <<: *defaults
+    memory_roots: [reality, question, ideas, decision_history]
+    resource_kinds: [REALITY, QUESTION, IDEA, HUMAN_DECISION]
+    evidence_limit: 4

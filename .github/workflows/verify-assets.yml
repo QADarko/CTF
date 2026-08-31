@@ -36,6 +36,77 @@ jobs:
         run: python tests/verify_assets.py
       - name: Validate OpenAPI 3.1 contract
         run: openapi-spec-validator docs/openapi.yaml
+      - name: Structural AI golden evaluation
+        run: python -m evals.ctf_ai.runner --provider structural --report evals/ctf_ai/results/latest.json
+
+  postgres-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: ctf_test
+          POSTGRES_USER: ctf
+          POSTGRES_PASSWORD: ctf-test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ctf -d ctf_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      CTF_TEST_POSTGRES_URL: postgresql+psycopg://ctf:ctf-test@localhost:5432/ctf_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install --disable-pip-version-check -e ".[test]"
+      - run: pytest apps/api/tests/test_postgres_integration.py -q
+
+  minio-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      minio:
+        image: minio/minio:latest
+        command: server /data --console-address ":9001"
+        env:
+          MINIO_ROOT_USER: ctf
+          MINIO_ROOT_PASSWORD: ctf-test-password
+        ports:
+          - 9000:9000
+        options: --health-cmd "true" --health-interval 5s --health-timeout 5s --health-retries 5
+    env:
+      CTF_OBJECT_STORE: minio
+      CTF_BUCKET: ctf-private
+      S3_ENDPOINT: http://localhost:9000
+      MINIO_ROOT_USER: ctf
+      MINIO_ROOT_PASSWORD: ctf-test-password
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install --disable-pip-version-check -e ".[test]"
+      - name: Wait for MinIO
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:9000/minio/health/live >/dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "MinIO did not become ready" >&2
+          exit 1
+      - name: Create private bucket
+        run: |
+          docker run --rm --network host minio/mc:latest sh -ec "mc alias set ctf http://localhost:9000 ctf ctf-test-password && mc mb --ignore-existing ctf/ctf-private && mc anonymous set none ctf/ctf-private"
+      - run: pytest apps/api/tests/test_object_store_integration.py -q
       - name: Upload Python and golden reports
         if: always()
         uses: actions/upload-artifact@v4

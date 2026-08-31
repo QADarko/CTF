@@ -28,9 +28,11 @@ The browser cannot set `current_stage`. AI cannot confirm a gate. A gate transac
 - **Rule engine (T0):** gates, state transitions, dependency eligibility, stale-version checks, genealogy references, evidence requirements, mandatory escalation, arithmetic and deduplication.
 - **Creation Memory:** versioned structured state separate from conversation history. Confirmed records are immutable or superseded, never silently rewritten.
 - **Creation Genealogy:** persisted links created with each object. Explanations may render links but may not invent them.
-- **Prompt Registry / Context Compiler:** stable constitution + operation policy + schema precede minimum relevant dynamic context.
-- **Model Router:** T0 deterministic; T1 efficient extraction; T2 standard reasoning; T3 critical reasoning; T4 selective independent verification. No vertical slice calls a provider directly.
-- **Document Intelligence:** parse once, structure, chunk, index, retrieve and extract scoped evidence with document/page/section provenance.
+- **Prompt Registry / Context Compiler:** stable constitution + operation policy + schema precede a `ContextPolicyRegistry` that selects only the memory roots, resource kinds, statuses and Evidence allowed for that operation. The compiler emits a `ContextManifest` and never dumps whole-project memory. Raw `REALITY_EVENT` telemetry, credentials and excluded kinds cannot enter the compiled payload.
+- **Consequentiality Engine:** the system, not the client, decides LOW/MEDIUM/HIGH/CRITICAL. A caller may raise the floor but cannot lower an operation such as `RED_TEAM` or `ATTRIBUTION` below its CTF minimum.
+- **Grounding and non-fabrication:** consequential AI output must cite compiled-context evidence or declare `INSUFFICIENT_EVIDENCE`. High-risk factual fields use explicit knowledge states (`UNKNOWN`, `NOT_PROVIDED`, `ESTIMATED`, …) instead of bare invented values.
+- **Model Router:** T0 deterministic; T1 efficient extraction; T2 standard reasoning; T3 critical reasoning; T4 selective independent verification. No vertical slice calls a provider directly. T3 never silently falls back to T2/T1.
+- **Document Intelligence:** parse once, structure, chunk, index, retrieve and extract scoped evidence with document/page/section provenance. Document jobs are queued; local development may use an in-process queue (`durable=false`) while production refuses FastAPI `BackgroundTasks` as the durable mechanism. Active PDF/OOXML content is rejected before parsing.
 - **Object storage:** private attachment bucket; authorized retrieval or short-lived signed URLs; no predictable public URLs.
 - **ERI:** provider abstraction for manual, document and KHAL reality. KHAL supports V1 OBSERVE and VERIFY only.
 - **Audit/telemetry:** workflow, gate, AI provider/model/prompt/methodology, token/cost, attachment and ERI events.

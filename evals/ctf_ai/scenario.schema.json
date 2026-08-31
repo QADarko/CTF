@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["id", "operation", "stage", "required_tier", "expected"],
+  "additionalProperties": true,
+  "properties": {
+    "id": { "type": "string" },
+    "operation": { "type": "string" },
+    "stage": { "type": "string" },
+    "required_tier": { "type": "string", "enum": ["T1", "T2", "T3", "T4"] },
+    "fixture": { "type": "string" },
+    "expected": {
+      "type": "object",
+      "required": ["must_not_confirm"],
+      "properties": {
+        "must_preserve_unknowns": { "type": "boolean" },
+        "must_not_propose_solution": { "type": "boolean" },
+        "must_not_confirm": { "type": "boolean" },
+        "must_ground": { "type": "boolean" },
+        "must_respect_value_boundary": { "type": "boolean" }
+      }
+    },
+    "forbidden_patterns": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

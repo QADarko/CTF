@@ -1,15 +1,17 @@
 from __future__ import annotations
 
 import json
+import os
 from collections import deque
 from collections.abc import Callable
 from typing import Annotated, Any
 
-from fastapi import APIRouter, BackgroundTasks, Depends, Header, Query
+from fastapi import APIRouter, BackgroundTasks, Depends, Query
 
 from packages.ctf_domain.ai_runtime import AIExecutionService
 from packages.ctf_domain.document_intelligence import DocumentIntelligenceService
-from packages.ctf_domain.errors import require
+from packages.ctf_domain.errors import DomainError, require
+from packages.ctf_domain.job_queue import create_document_job_queue
 from packages.ctf_domain.models import AnonymousSession, Gate, new_id
 from packages.ctf_domain.object_store import object_store
 from packages.ctf_domain.repository import repository
@@ -22,6 +24,7 @@ from .schemas import ActionStatus, ResourceConfirm, ResourceCreate, ResourcePatc
 router = APIRouter(prefix="/api/v1/projects")
 service = CTFService(repository)
 document_intelligence = DocumentIntelligenceService(repository, object_store)
+document_queue = create_document_job_queue(repository)
 ai_execution = AIExecutionService.from_env(repository)
 
 
@@ -78,21 +81,13 @@ def create_resource(
     kind: str,
     body: ResourceCreate,
     session: Annotated[AnonymousSession, Depends(current_session)],
-    idempotency_key: Annotated[str | None, Header()] = None,
 ) -> dict[str, Any]:
     project = owned_project(project_id, session)
     kind = kind.upper()
-    scope = f"{project.id}:resource:{kind}"
-    cached = repository.idempotent_get(scope, session.id, idempotency_key)
-    if cached:
-        return cached
     with repository.transaction():
-        record = service.create_resource(
+        return service.create_resource(
             project, kind, dict(body.data), body.expected_version, body.provenance
-        )
-        result = record.public()
-        repository.idempotent_put(scope, session.id, idempotency_key, result)
-        return result
+        ).public()
 
 
 @router.get("/{project_id}/resources/{kind}")
@@ -208,7 +203,11 @@ def _make_create(kind: str, ai_operation: str | None = None) -> Callable[..., di
                 user_input=str(body.data.get("prompt") or json.dumps(body.data)),
                 consequentiality=body.consequentiality,
                 prompt_version=body.prompt_version,
-                extra_context=body.data,
+                extra_context={
+                    key: body.data[key]
+                    for key in ("focus", "selected_ids", "resource_refs", "constraints")
+                    if key in body.data
+                },
             )
             persisted = []
             for item in result["output"]["items"]:
@@ -314,6 +313,12 @@ def analyze_document(
     project = owned_project(project_id, session)
     attachment = repository.get_resource(project, body.data.get("attachment_id"), "ATTACHMENT")
     require(
+        attachment.status != "QUARANTINED",
+        "ATTACHMENT_NOT_READY",
+        "Quarantined attachments cannot be analyzed.",
+        409,
+    )
+    require(
         attachment.status in {"READY_FOR_LATER_PROCESSING", "ANALYZED"}
         and attachment.data.get("malware_scan", {}).get("status") == "CLEAN",
         "ATTACHMENT_NOT_READY",
@@ -327,10 +332,8 @@ def analyze_document(
                 and existing.data.get("attachment_checksum_sha256")
                 == attachment.data["checksum_sha256"]
             ):
-                if existing.status in {"QUEUED", "PROCESSING"}:
-                    background_tasks.add_task(
-                        document_intelligence.process, project.id, existing.id
-                    )
+                if existing.status in {"QUEUED", "PROCESSING", "CLAIMED", "RETRY_WAIT"}:
+                    _schedule_document_job(background_tasks, project.id, existing.id)
                 return existing.public()
         job = repository.create_resource(
             project,
@@ -357,8 +360,21 @@ def analyze_document(
             status="QUEUED",
             provenance="SYSTEM",
         )
-    background_tasks.add_task(document_intelligence.process, project.id, job.id)
+    _schedule_document_job(background_tasks, project.id, job.id)
     return job.public()
+
+
+def _schedule_document_job(background_tasks: BackgroundTasks, project_id: str, job_id: str) -> None:
+    document_queue.enqueue(project_id=project_id, job_id=job_id)
+    if document_queue.durable:
+        return
+    if os.getenv("APP_ENV", "").strip().lower() in {"production", "prod"}:
+        raise DomainError(
+            "DOCUMENT_WORKER_NOT_DURABLE",
+            "Production refuses in-process BackgroundTasks as the durable document worker.",
+            503,
+        )
+    background_tasks.add_task(document_intelligence.process, project_id, job_id)
 
 
 @router.get("/{project_id}/document-jobs/{job_id}")

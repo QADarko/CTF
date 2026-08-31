@@ -192,7 +192,7 @@ def ready() -> dict[str, object]:
         persistence_ok = False
     object_ok = True
     try:
-        object_store.backend
+        _ = object_store.backend
     except Exception:  # noqa: BLE001
         object_ok = False
     ready_now = persistence_ok and object_ok

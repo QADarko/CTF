@@ -41,6 +41,20 @@ services:
       start_period: 10s
     networks: [ctf-internal]
 
+  clamav:
+    image: clamav/clamav:1.4.2
+    profiles: [malware]
+    restart: unless-stopped
+    ports:
+      - "3310:3310"
+    healthcheck:
+      test: ["CMD-SHELL", "clamdscan --version || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 60s
+    networks: [ctf-internal]
+
   minio-init:
     image: minio/mc:latest
     restart: "no"

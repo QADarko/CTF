@@ -15,6 +15,29 @@ common: &candidate
     summary:
       type: string
       maxLength: 4000
+    grounding:
+      type: object
+      additionalProperties: false
+      required: [confidence_class]
+      properties:
+        evidence_refs:
+          type: array
+          items: {type: string}
+        memory_refs:
+          type: array
+          items: {type: string}
+        assumptions:
+          type: array
+          items: {type: string}
+        unknowns:
+          type: array
+          items: {type: string}
+        limitations:
+          type: array
+          items: {type: string}
+        confidence_class:
+          type: string
+          enum: [HIGH, MEDIUM, LOW, INSUFFICIENT_EVIDENCE]
 
 reality_update: *candidate
 question_candidates: *candidate

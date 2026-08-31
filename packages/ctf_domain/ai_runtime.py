@@ -15,9 +15,13 @@ import yaml
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import SchemaError, ValidationError
 
+from .consequentiality import ConsequentialityEngine
+from .context_policy import CompiledContext, ContextCompiler, ContextPolicyRegistry
 from .errors import DomainError, require
-from .model_router import AICostLedger, ContextCompiler, ModelRouter, Route
+from .grounding import GroundingIndex, GroundingValidator, index_from_compiled
+from .model_router import AICostLedger, ModelRouter, Route
 from .models import Project, new_id, now_iso
+from .non_fabrication import NonFabricationGuard
 from .repository import InMemoryRepository
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -455,6 +459,14 @@ class FakeProvider:
                         }
                     ],
                     "summary": "Non-production deterministic fixture.",
+                    "grounding": {
+                        "evidence_refs": [],
+                        "memory_refs": [],
+                        "assumptions": [],
+                        "unknowns": [],
+                        "limitations": ["Deterministic fixture; no model reasoning."],
+                        "confidence_class": "INSUFFICIENT_EVIDENCE",
+                    },
                 }
             )
             return ProviderResult(
@@ -528,13 +540,23 @@ class AIExecutionService:
         registry: PromptRegistry | None = None,
         router: ModelRouter | None = None,
         config: RuntimeConfig | None = None,
+        context_registry: ContextPolicyRegistry | None = None,
+        context_compiler: ContextCompiler | None = None,
+        consequentiality_engine: ConsequentialityEngine | None = None,
+        grounding_validator: GroundingValidator | None = None,
+        non_fabrication_guard: NonFabricationGuard | None = None,
     ) -> None:
         self.repo = repo
         self.provider = provider
         self.registry = registry or PromptRegistry()
         self.router = router or ModelRouter()
         self.config = config or RuntimeConfig.from_env()
-        self.compiler = ContextCompiler()
+        self.context_registry = context_registry or ContextPolicyRegistry()
+        self.context_registry.require_coverage(self.registry.operations())
+        self.compiler = context_compiler or ContextCompiler(repo, self.context_registry)
+        self.consequentiality_engine = consequentiality_engine or ConsequentialityEngine()
+        self.grounding_validator = grounding_validator or GroundingValidator()
+        self.non_fabrication_guard = non_fabrication_guard or NonFabricationGuard()
         self.ledger = AICostLedger(repo)
 
     @classmethod
@@ -660,7 +682,13 @@ class AIExecutionService:
         extra_context: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         prompt = self.registry.get(operation, prompt_version)
-        route = self._route(prompt, consequentiality)
+        assessment = self.consequentiality_engine.assess(
+            operation=prompt.operation,
+            project=project,
+            requested_level=consequentiality,
+            context=extra_context,
+        )
+        route = self._route(prompt, assessment.level.value)
         require(bool(self.provider), "AI_PROVIDER_NOT_CONFIGURED", "No AI provider is configured.", 503)
         if self.provider.name == "OLLAMA":
             allowed = route.tier in {"T1", "T2"}
@@ -674,19 +702,19 @@ class AIExecutionService:
             )
         model = self.config.models.get(route.tier)
         require(bool(model), "AI_MODEL_NOT_CONFIGURED", f"No model is configured for {route.tier}.", 503)
-        evidence = [item.public() for item in self.repo.list_resources(project, "EVIDENCE")][-50:]
-        memory = deepcopy(project.memory)
-        if extra_context:
-            memory["request_context"] = deepcopy(extra_context)
-        context = self.compiler.compile(
+        compiled: CompiledContext = self.compiler.compile(
+            project=project,
+            operation=prompt.operation,
             constitution=self.registry.constitution,
             policy=prompt.policy,
             authority_rules="AI creates PROPOSED/CANDIDATE output only. Never decide gates or confirm Human-owned records.",
-            memory=memory,
-            evidence=evidence,
             user_input=user_input,
-            schema=prompt.output_schema,
+            request_context=deepcopy(extra_context or {}),
+            output_schema=prompt.output_schema,
+            max_input_tokens=route.max_input_tokens,
         )
+        context = compiled.payload
+        grounding_index: GroundingIndex = index_from_compiled(compiled)
         input_tokens = (
             self._tokens(context)
             + self._tokens(
@@ -749,6 +777,14 @@ class AIExecutionService:
                 "error": None,
                 "created_at": now_iso(),
                 "completed_at": None,
+                "context_policy_version": compiled.manifest.policy_version,
+                "context_memory_version": compiled.manifest.memory_version,
+                "context_resource_count": len(compiled.manifest.included_resource_refs),
+                "context_evidence_count": len(compiled.manifest.included_evidence_refs),
+                "context_estimated_tokens": compiled.manifest.estimated_tokens,
+                "consequentiality": assessment.level.value,
+                "consequentiality_reasons": list(assessment.reasons),
+                "grounding_valid": False,
             }
             self.repo.ai_runs.append(run)
             self.repo.audit(project.id, "ai_run_started", "SYSTEM", {"run_id": run["id"], "operation": prompt.operation})
@@ -807,8 +843,19 @@ class AIExecutionService:
                 parsed = json.loads(result.content)
                 require(isinstance(parsed, dict), "AI_OUTPUT_INVALID", "AI output must be a JSON object.", 422)
                 Draft202012Validator(prompt.output_schema).validate(parsed)
+                self.grounding_validator.validate(
+                    output=parsed,
+                    compiled_context=compiled,
+                    operation=prompt.operation,
+                )
+                self.non_fabrication_guard.validate(
+                    operation=prompt.operation,
+                    output=parsed,
+                    grounding_index=grounding_index,
+                )
                 self._safe_authority_check(parsed)
                 output = parsed
+                run["grounding_valid"] = True
                 break
             except (json.JSONDecodeError, ValidationError, DomainError) as exc:
                 if isinstance(exc, DomainError) and exc.code != "AI_OUTPUT_INVALID":

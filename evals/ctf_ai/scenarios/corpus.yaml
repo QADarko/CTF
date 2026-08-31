@@ -1,0 +1,1431 @@
+scenarios:
+- id: AI-REALITY_UPDATE-001
+  operation: REALITY_UPDATE
+  stage: REALITY
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-REALITY_UPDATE-002
+  operation: REALITY_UPDATE
+  stage: REALITY
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-QUESTION_REFRAME-001
+  operation: QUESTION_REFRAME
+  stage: QUESTION
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: true
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-QUESTION_REFRAME-002
+  operation: QUESTION_REFRAME
+  stage: QUESTION
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: true
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-PERCEPTION_SYNTHESIS-001
+  operation: PERCEPTION_SYNTHESIS
+  stage: PERCEPTION
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-PERCEPTION_SYNTHESIS-002
+  operation: PERCEPTION_SYNTHESIS
+  stage: PERCEPTION
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-FUNDING_ENTRY_ROUTING-001
+  operation: FUNDING_ENTRY_ROUTING
+  stage: START
+  required_tier: T1
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-FUNDING_ENTRY_ROUTING-002
+  operation: FUNDING_ENTRY_ROUTING
+  stage: START
+  required_tier: T1
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-DOCUMENT_ENTRY_ROUTING-001
+  operation: DOCUMENT_ENTRY_ROUTING
+  stage: START
+  required_tier: T1
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-DOCUMENT_ENTRY_ROUTING-002
+  operation: DOCUMENT_ENTRY_ROUTING
+  stage: START
+  required_tier: T1
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-CLAIM_EVIDENCE_ASSESSMENT-001
+  operation: CLAIM_EVIDENCE_ASSESSMENT
+  stage: EVIDENCE
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-CLAIM_EVIDENCE_ASSESSMENT-002
+  operation: CLAIM_EVIDENCE_ASSESSMENT
+  stage: EVIDENCE
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-DOCUMENT_EVIDENCE_EXTRACTION-001
+  operation: DOCUMENT_EVIDENCE_EXTRACTION
+  stage: EVIDENCE
+  required_tier: T1
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-DOCUMENT_EVIDENCE_EXTRACTION-002
+  operation: DOCUMENT_EVIDENCE_EXTRACTION
+  stage: EVIDENCE
+  required_tier: T1
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-OPPORTUNITY_GENERATION-001
+  operation: OPPORTUNITY_GENERATION
+  stage: OPPORTUNITY
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: true
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-OPPORTUNITY_GENERATION-002
+  operation: OPPORTUNITY_GENERATION
+  stage: OPPORTUNITY
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: true
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-SPARK_GENERATION-001
+  operation: SPARK_GENERATION
+  stage: SPARK
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-SPARK_GENERATION-002
+  operation: SPARK_GENERATION
+  stage: SPARK
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-IDEA_BLUEPRINT-001
+  operation: IDEA_BLUEPRINT
+  stage: IDEA
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-IDEA_BLUEPRINT-002
+  operation: IDEA_BLUEPRINT
+  stage: IDEA
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-IDEA_LOGIC_CHECK-001
+  operation: IDEA_LOGIC_CHECK
+  stage: IDEA
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-IDEA_LOGIC_CHECK-002
+  operation: IDEA_LOGIC_CHECK
+  stage: IDEA
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-ASSUMPTION_EXTRACTION-001
+  operation: ASSUMPTION_EXTRACTION
+  stage: ASSUMPTIONS
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-ASSUMPTION_EXTRACTION-002
+  operation: ASSUMPTION_EXTRACTION
+  stage: ASSUMPTIONS
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-KILL_ASSUMPTION_ASSESSMENT-001
+  operation: KILL_ASSUMPTION_ASSESSMENT
+  stage: ASSUMPTIONS
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-KILL_ASSUMPTION_ASSESSMENT-002
+  operation: KILL_ASSUMPTION_ASSESSMENT
+  stage: ASSUMPTIONS
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-RED_TEAM-001
+  operation: RED_TEAM
+  stage: ADVERSARIAL
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: true
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-RED_TEAM-002
+  operation: RED_TEAM
+  stage: ADVERSARIAL
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: true
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-PREMORTEM-001
+  operation: PREMORTEM
+  stage: ADVERSARIAL
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-PREMORTEM-002
+  operation: PREMORTEM
+  stage: ADVERSARIAL
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-STRONGEST_COUNTERARGUMENT-001
+  operation: STRONGEST_COUNTERARGUMENT
+  stage: ADVERSARIAL
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-STRONGEST_COUNTERARGUMENT-002
+  operation: STRONGEST_COUNTERARGUMENT
+  stage: ADVERSARIAL
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-VALUE_BOUNDARY_SUGGESTION-001
+  operation: VALUE_BOUNDARY_SUGGESTION
+  stage: VALUES
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-VALUE_BOUNDARY_SUGGESTION-002
+  operation: VALUE_BOUNDARY_SUGGESTION
+  stage: VALUES
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-VALUE_BOUNDARY_TEST-001
+  operation: VALUE_BOUNDARY_TEST
+  stage: VALUES
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-VALUE_BOUNDARY_TEST-002
+  operation: VALUE_BOUNDARY_TEST
+  stage: VALUES
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-CONSEQUENCE_ANALYSIS-001
+  operation: CONSEQUENCE_ANALYSIS
+  stage: VALUES
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-CONSEQUENCE_ANALYSIS-002
+  operation: CONSEQUENCE_ANALYSIS
+  stage: VALUES
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-DECISION_BRIEF-001
+  operation: DECISION_BRIEF
+  stage: DECISION
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-DECISION_BRIEF-002
+  operation: DECISION_BRIEF
+  stage: DECISION
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-DECISION_RECOMMENDATION-001
+  operation: DECISION_RECOMMENDATION
+  stage: DECISION
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: true
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-DECISION_RECOMMENDATION-002
+  operation: DECISION_RECOMMENDATION
+  stage: DECISION
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: true
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-VALIDATION_PLAN-001
+  operation: VALIDATION_PLAN
+  stage: DECISION
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-VALIDATION_PLAN-002
+  operation: VALIDATION_PLAN
+  stage: DECISION
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-REDESIGN_ROUTING-001
+  operation: REDESIGN_ROUTING
+  stage: DECISION
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-REDESIGN_ROUTING-002
+  operation: REDESIGN_ROUTING
+  stage: DECISION
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-COMMITMENT_READINESS-001
+  operation: COMMITMENT_READINESS
+  stage: COMMITMENT
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-COMMITMENT_READINESS-002
+  operation: COMMITMENT_READINESS
+  stage: COMMITMENT
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-COMMITMENT_DRAFT-001
+  operation: COMMITMENT_DRAFT
+  stage: COMMITMENT
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-COMMITMENT_DRAFT-002
+  operation: COMMITMENT_DRAFT
+  stage: COMMITMENT
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-COMMITMENT_GAP-001
+  operation: COMMITMENT_GAP
+  stage: COMMITMENT
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-COMMITMENT_GAP-002
+  operation: COMMITMENT_GAP
+  stage: COMMITMENT
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-OUTCOME_GENERATION-001
+  operation: OUTCOME_GENERATION
+  stage: OUTCOMES
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-OUTCOME_GENERATION-002
+  operation: OUTCOME_GENERATION
+  stage: OUTCOMES
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-MILESTONE_GENERATION-001
+  operation: MILESTONE_GENERATION
+  stage: MILESTONES
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-MILESTONE_GENERATION-002
+  operation: MILESTONE_GENERATION
+  stage: MILESTONES
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-ACTION_GENERATION-001
+  operation: ACTION_GENERATION
+  stage: ACTIONS
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-ACTION_GENERATION-002
+  operation: ACTION_GENERATION
+  stage: ACTIONS
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-ACTION_TRACE_RENDER-001
+  operation: ACTION_TRACE_RENDER
+  stage: EXECUTION
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-ACTION_TRACE_RENDER-002
+  operation: ACTION_TRACE_RENDER
+  stage: EXECUTION
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-NEXT_BEST_ACTION-001
+  operation: NEXT_BEST_ACTION
+  stage: EXECUTION
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-NEXT_BEST_ACTION-002
+  operation: NEXT_BEST_ACTION
+  stage: EXECUTION
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-BLOCKER_ANALYSIS-001
+  operation: BLOCKER_ANALYSIS
+  stage: EXECUTION
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-BLOCKER_ANALYSIS-002
+  operation: BLOCKER_ANALYSIS
+  stage: EXECUTION
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-EXECUTION_EVIDENCE_ASSESSMENT-001
+  operation: EXECUTION_EVIDENCE_ASSESSMENT
+  stage: EXECUTION
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-EXECUTION_EVIDENCE_ASSESSMENT-002
+  operation: EXECUTION_EVIDENCE_ASSESSMENT
+  stage: EXECUTION
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-MILESTONE_VERIFICATION-001
+  operation: MILESTONE_VERIFICATION
+  stage: EXECUTION
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-MILESTONE_VERIFICATION-002
+  operation: MILESTONE_VERIFICATION
+  stage: EXECUTION
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-EXECUTION_MATERIALITY-001
+  operation: EXECUTION_MATERIALITY
+  stage: REALITY_FEEDBACK
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-EXECUTION_MATERIALITY-002
+  operation: EXECUTION_MATERIALITY
+  stage: REALITY_FEEDBACK
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-ROADMAP_REPLAN-001
+  operation: ROADMAP_REPLAN
+  stage: REPLAN
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-ROADMAP_REPLAN-002
+  operation: ROADMAP_REPLAN
+  stage: REPLAN
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-REDECISION_TRIGGER-001
+  operation: REDECISION_TRIGGER
+  stage: REALITY_FEEDBACK
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-REDECISION_TRIGGER-002
+  operation: REDECISION_TRIGGER
+  stage: REALITY_FEEDBACK
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-COMMITMENT_DRIFT-001
+  operation: COMMITMENT_DRIFT
+  stage: EXECUTION
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-COMMITMENT_DRIFT-002
+  operation: COMMITMENT_DRIFT
+  stage: EXECUTION
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-CREATION_RECORD-001
+  operation: CREATION_RECORD
+  stage: CREATION
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-CREATION_RECORD-002
+  operation: CREATION_RECORD
+  stage: CREATION
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-STAKEHOLDER_DISCOVERY-001
+  operation: STAKEHOLDER_DISCOVERY
+  stage: VALUE_STAKEHOLDERS
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-STAKEHOLDER_DISCOVERY-002
+  operation: STAKEHOLDER_DISCOVERY
+  stage: VALUE_STAKEHOLDERS
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-VALUE_HYPOTHESIS-001
+  operation: VALUE_HYPOTHESIS
+  stage: VALUE_HYPOTHESES
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-VALUE_HYPOTHESIS-002
+  operation: VALUE_HYPOTHESIS
+  stage: VALUE_HYPOTHESES
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-METRIC_BASELINE-001
+  operation: METRIC_BASELINE
+  stage: METRICS
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-METRIC_BASELINE-002
+  operation: METRIC_BASELINE
+  stage: METRICS
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-VALUE_EVIDENCE-001
+  operation: VALUE_EVIDENCE
+  stage: VALUE_EVIDENCE
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-VALUE_EVIDENCE-002
+  operation: VALUE_EVIDENCE
+  stage: VALUE_EVIDENCE
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-REALIZED_VALUE-001
+  operation: REALIZED_VALUE
+  stage: VALUE_ASSESSMENT
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-REALIZED_VALUE-002
+  operation: REALIZED_VALUE
+  stage: VALUE_ASSESSMENT
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-NEGATIVE_EFFECT_SCAN-001
+  operation: NEGATIVE_EFFECT_SCAN
+  stage: VALUE_ASSESSMENT
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-NEGATIVE_EFFECT_SCAN-002
+  operation: NEGATIVE_EFFECT_SCAN
+  stage: VALUE_ASSESSMENT
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-VALUE_DISTRIBUTION-001
+  operation: VALUE_DISTRIBUTION
+  stage: VALUE_ASSESSMENT
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-VALUE_DISTRIBUTION-002
+  operation: VALUE_DISTRIBUTION
+  stage: VALUE_ASSESSMENT
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-ATTRIBUTION-001
+  operation: ATTRIBUTION
+  stage: ATTRIBUTION
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: true
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-ATTRIBUTION-002
+  operation: ATTRIBUTION
+  stage: ATTRIBUTION
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: true
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-COUNTERFACTUAL-001
+  operation: COUNTERFACTUAL
+  stage: ATTRIBUTION
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-COUNTERFACTUAL-002
+  operation: COUNTERFACTUAL
+  stage: ATTRIBUTION
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-IMPACT_PATHWAY-001
+  operation: IMPACT_PATHWAY
+  stage: IMPACT
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-IMPACT_PATHWAY-002
+  operation: IMPACT_PATHWAY
+  stage: IMPACT
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-TRANSFORMATION-001
+  operation: TRANSFORMATION
+  stage: TRANSFORMATION
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: true
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-TRANSFORMATION-002
+  operation: TRANSFORMATION
+  stage: TRANSFORMATION
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: true
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-SUSTAINABILITY-001
+  operation: SUSTAINABILITY
+  stage: TRANSFORMATION
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-SUSTAINABILITY-002
+  operation: SUSTAINABILITY
+  stage: TRANSFORMATION
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-REALITY_DELTA-001
+  operation: REALITY_DELTA
+  stage: NEW_REALITY
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-REALITY_DELTA-002
+  operation: REALITY_DELTA
+  stage: NEW_REALITY
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-R1_GENERATION-001
+  operation: R1_GENERATION
+  stage: NEW_REALITY
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: true
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-R1_GENERATION-002
+  operation: R1_GENERATION
+  stage: NEW_REALITY
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: true
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-CYCLE_REVIEW-001
+  operation: CYCLE_REVIEW
+  stage: CYCLE_REVIEW
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-CYCLE_REVIEW-002
+  operation: CYCLE_REVIEW
+  stage: CYCLE_REVIEW
+  required_tier: T3
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-NAVIGATION_ROUTER-001
+  operation: NAVIGATION_ROUTER
+  stage: ANY
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made
+- id: AI-NAVIGATION_ROUTER-002
+  operation: NAVIGATION_ROUTER
+  stage: ANY
+  required_tier: T2
+  fixture: fixtures/opportunity_001.json
+  expected:
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_not_confirm: true
+    must_ground: false
+  forbidden_patterns:
+  - CONFIRMED
+  - decision made

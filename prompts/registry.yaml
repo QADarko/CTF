@@ -2,6 +2,8 @@ registry_version: "0.1"
 methodology_version: "ctf-full-v1"
 constitution: prompts/constitution.md
 schemas: prompts/schemas.yaml
+context_policy_version: "1.0"
+context_policies: prompts/context-policies.yaml
 rules:
   structured_output_required: true
   max_schema_retries: 1

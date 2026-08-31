@@ -11,6 +11,7 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Depends, File, Header, UploadFile
 from fastapi.responses import StreamingResponse
 
+from packages.ctf_domain.content_safety import ContentSafetyInspector
 from packages.ctf_domain.errors import DomainError, require
 from packages.ctf_domain.malware import create_malware_scanner
 from packages.ctf_domain.models import AnonymousSession
@@ -51,12 +52,7 @@ def create_anonymous_session(body: SessionCreate) -> dict[str, Any]:
 def create_project(
     body: ProjectCreate,
     session: Annotated[AnonymousSession, Depends(current_session)],
-    idempotency_key: Annotated[str | None, Header()] = None,
 ) -> dict[str, Any]:
-    scope = "create_project"
-    cached = repository.idempotent_get(scope, session.id, idempotency_key)
-    if cached:
-        return cached
     with repository.transaction():
         project = repository.create_project(
             session,
@@ -65,9 +61,7 @@ def create_project(
             body.initial_input,
             body.source,
         )
-        result = project.public()
-        repository.idempotent_put(scope, session.id, idempotency_key, result)
-        return result
+        return project.public()
 
 
 @router.get("/projects/{project_id}")
@@ -98,13 +92,8 @@ def submit_input(
     project_id: str,
     body: UserInput,
     session: Annotated[AnonymousSession, Depends(current_session)],
-    idempotency_key: Annotated[str | None, Header()] = None,
 ) -> dict[str, Any]:
     project = owned_project(project_id, session)
-    scope = f"{project.id}:input"
-    cached = repository.idempotent_get(scope, session.id, idempotency_key)
-    if cached:
-        return cached
     with repository.transaction():
         repository.check_version(project, body.expected_version)
         message = repository.create_resource(
@@ -119,14 +108,12 @@ def submit_input(
             provenance="USER",
             immutable=True,
         )
-        result = {
+        return {
             "message": message.public(),
             "project_version": project.version,
             "stage": project.stage,
             "note": "Input persisted; no external AI call is configured.",
         }
-        repository.idempotent_put(scope, session.id, idempotency_key, result)
-        return result
 
 
 @router.post("/projects/{project_id}/memory/operations", status_code=201)
@@ -162,15 +149,10 @@ def decide_gate(
     gate_id: str,
     body: GateDecision,
     session: Annotated[AnonymousSession, Depends(current_session)],
-    idempotency_key: Annotated[str | None, Header()] = None,
 ) -> dict[str, Any]:
     project = owned_project(project_id, session)
-    scope = f"{project.id}:gate:{gate_id}"
-    cached = repository.idempotent_get(scope, session.id, idempotency_key)
-    if cached:
-        return cached
     with repository.transaction():
-        result = service.decide_gate(
+        return service.decide_gate(
             project,
             gate_id,
             body.decision,
@@ -178,8 +160,6 @@ def decide_gate(
             body.expected_version,
             body.actor_type,
         )
-        repository.idempotent_put(scope, session.id, idempotency_key, result)
-        return result
 
 
 @router.post("/projects/{project_id}/transitions/revise")
@@ -293,6 +273,7 @@ async def upload_attachment(
         require(content.startswith(b"%PDF"), "INVALID_INPUT", "Invalid PDF signature.")
     if suffix in {".docx", ".xlsx"}:
         require(content.startswith(b"PK"), "INVALID_INPUT", "Invalid Office document signature.")
+    ContentSafetyInspector().inspect(safe_filename, content)
     tenant_scope = hashlib.sha256(project.tenant_id.encode()).hexdigest()[:20]
     object_key = f"{tenant_scope}/{project.id}/{secrets.token_hex(24)}{suffix}"
     scanner = create_malware_scanner()

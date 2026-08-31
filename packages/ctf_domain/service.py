@@ -3,6 +3,8 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import Any
 
+from .assumption_policy import AssumptionPolicy
+from .attribution import AttributionPolicy
 from .errors import DomainError, require
 from .models import Gate, Project, ResourceRecord, new_id, now_iso
 from .repository import InMemoryRepository
@@ -243,9 +245,16 @@ class CTFService:
             409,
         )
         require(not record.immutable, "IMMUTABLE_RECORD", "This record is already confirmed.", 409)
+        from .resource_policy import RESOURCE_POLICIES
+
+        policy = RESOURCE_POLICIES.get(record.kind)
+        if policy is not None:
+            require(policy.human_confirmable, "HUMAN_AUTHORITY_REQUIRED", f"{record.kind} is not human-confirmable.", 403)
         self.repo.check_version(project, expected_version)
         record.status = "CONFIRMED"
-        record.immutable = record.kind in IMMUTABLE_WHEN_CONFIRMED
+        record.immutable = record.kind in IMMUTABLE_WHEN_CONFIRMED or bool(
+            policy and policy.immutable_after_confirmation
+        )
         record.data["confirmation"] = "CONFIRMED"
         record.data["confirmed_at"] = now_iso()
         record.version += 1
@@ -278,7 +287,11 @@ class CTFService:
                 f"{kind} confirmation is Human-owned.",
                 403,
             )
-        if kind == "EVIDENCE":
+        if kind == "ASSUMPTION":
+            AssumptionPolicy().validate(data, actor_type="AI" if provenance == "CTF" else "HUMAN")
+        elif kind == "ATTRIBUTION":
+            AttributionPolicy().validate(project=project, attribution=data, repo=self.repo)
+        elif kind == "EVIDENCE":
             require(data.get("statement"), "INVALID_INPUT", "Evidence requires a statement.")
             source_id = data.get("source_id")
             if source_id:

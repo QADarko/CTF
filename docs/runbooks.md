@@ -141,6 +141,19 @@ validated models are deliberately configured.
 - Quarterly restore into an isolated environment, validate checksums and run project/attachment/genealogy integrity checks.
 - Test that deleted/expired tenant data is not unintentionally revived into production.
 
+## Coordinated backup and restore
+
+A backup is valid only when PostgreSQL state and object storage state are captured together.
+
+1. Stop new mutating requests and document workers.
+2. Complete or pause active uploads.
+3. Run `scripts/backup/backup.sh`.
+4. Confirm `scripts/backup/verify_backup.py` validates `backup-manifest.json` checksums for both `ctf.sql.gz` and `ctf-objects.tar.gz`.
+5. Restore into an empty database and empty bucket with `scripts/restore/restore.sh`.
+6. Run `scripts/restore/verify_restore.py` and require project, R0, R1, genealogy, memory history, AI runs, cost ledger and attachment checksums.
+
+`pg_dump` alone is not a successful CTF backup.
+
 ## Release and rollback
 
 1. Validate OpenAPI, prompt registry, golden schema, Compose config and checklists in CI.

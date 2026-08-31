@@ -1,0 +1,5 @@
+{
+  "name": "full_creation_cycle",
+  "entry_family": "CREATION",
+  "expected_gates": 19
+}

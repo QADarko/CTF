@@ -1,0 +1,1118 @@
+{
+  "mode": "structural",
+  "scenario_count": 110,
+  "passed": 110,
+  "failed": 0,
+  "threshold": 100,
+  "model_tier_approval": {
+    "FAKE": {
+      "T1": "N/A",
+      "T2": "N/A",
+      "T3": "N/A",
+      "T4": "N/A",
+      "semantic": false
+    }
+  },
+  "results": [
+    {
+      "id": "AI-REALITY_UPDATE-001",
+      "operation": "REALITY_UPDATE",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-REALITY_UPDATE-002",
+      "operation": "REALITY_UPDATE",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-QUESTION_REFRAME-001",
+      "operation": "QUESTION_REFRAME",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-QUESTION_REFRAME-002",
+      "operation": "QUESTION_REFRAME",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-PERCEPTION_SYNTHESIS-001",
+      "operation": "PERCEPTION_SYNTHESIS",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-PERCEPTION_SYNTHESIS-002",
+      "operation": "PERCEPTION_SYNTHESIS",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-FUNDING_ENTRY_ROUTING-001",
+      "operation": "FUNDING_ENTRY_ROUTING",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-FUNDING_ENTRY_ROUTING-002",
+      "operation": "FUNDING_ENTRY_ROUTING",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-DOCUMENT_ENTRY_ROUTING-001",
+      "operation": "DOCUMENT_ENTRY_ROUTING",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-DOCUMENT_ENTRY_ROUTING-002",
+      "operation": "DOCUMENT_ENTRY_ROUTING",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-CLAIM_EVIDENCE_ASSESSMENT-001",
+      "operation": "CLAIM_EVIDENCE_ASSESSMENT",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-CLAIM_EVIDENCE_ASSESSMENT-002",
+      "operation": "CLAIM_EVIDENCE_ASSESSMENT",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-DOCUMENT_EVIDENCE_EXTRACTION-001",
+      "operation": "DOCUMENT_EVIDENCE_EXTRACTION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-DOCUMENT_EVIDENCE_EXTRACTION-002",
+      "operation": "DOCUMENT_EVIDENCE_EXTRACTION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-OPPORTUNITY_GENERATION-001",
+      "operation": "OPPORTUNITY_GENERATION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-OPPORTUNITY_GENERATION-002",
+      "operation": "OPPORTUNITY_GENERATION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-SPARK_GENERATION-001",
+      "operation": "SPARK_GENERATION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-SPARK_GENERATION-002",
+      "operation": "SPARK_GENERATION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-IDEA_BLUEPRINT-001",
+      "operation": "IDEA_BLUEPRINT",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-IDEA_BLUEPRINT-002",
+      "operation": "IDEA_BLUEPRINT",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-IDEA_LOGIC_CHECK-001",
+      "operation": "IDEA_LOGIC_CHECK",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-IDEA_LOGIC_CHECK-002",
+      "operation": "IDEA_LOGIC_CHECK",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-ASSUMPTION_EXTRACTION-001",
+      "operation": "ASSUMPTION_EXTRACTION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-ASSUMPTION_EXTRACTION-002",
+      "operation": "ASSUMPTION_EXTRACTION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-KILL_ASSUMPTION_ASSESSMENT-001",
+      "operation": "KILL_ASSUMPTION_ASSESSMENT",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-KILL_ASSUMPTION_ASSESSMENT-002",
+      "operation": "KILL_ASSUMPTION_ASSESSMENT",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-RED_TEAM-001",
+      "operation": "RED_TEAM",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-RED_TEAM-002",
+      "operation": "RED_TEAM",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-PREMORTEM-001",
+      "operation": "PREMORTEM",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-PREMORTEM-002",
+      "operation": "PREMORTEM",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-STRONGEST_COUNTERARGUMENT-001",
+      "operation": "STRONGEST_COUNTERARGUMENT",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-STRONGEST_COUNTERARGUMENT-002",
+      "operation": "STRONGEST_COUNTERARGUMENT",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-VALUE_BOUNDARY_SUGGESTION-001",
+      "operation": "VALUE_BOUNDARY_SUGGESTION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-VALUE_BOUNDARY_SUGGESTION-002",
+      "operation": "VALUE_BOUNDARY_SUGGESTION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-VALUE_BOUNDARY_TEST-001",
+      "operation": "VALUE_BOUNDARY_TEST",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-VALUE_BOUNDARY_TEST-002",
+      "operation": "VALUE_BOUNDARY_TEST",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-CONSEQUENCE_ANALYSIS-001",
+      "operation": "CONSEQUENCE_ANALYSIS",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-CONSEQUENCE_ANALYSIS-002",
+      "operation": "CONSEQUENCE_ANALYSIS",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-DECISION_BRIEF-001",
+      "operation": "DECISION_BRIEF",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-DECISION_BRIEF-002",
+      "operation": "DECISION_BRIEF",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-DECISION_RECOMMENDATION-001",
+      "operation": "DECISION_RECOMMENDATION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-DECISION_RECOMMENDATION-002",
+      "operation": "DECISION_RECOMMENDATION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-VALIDATION_PLAN-001",
+      "operation": "VALIDATION_PLAN",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-VALIDATION_PLAN-002",
+      "operation": "VALIDATION_PLAN",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-REDESIGN_ROUTING-001",
+      "operation": "REDESIGN_ROUTING",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-REDESIGN_ROUTING-002",
+      "operation": "REDESIGN_ROUTING",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-COMMITMENT_READINESS-001",
+      "operation": "COMMITMENT_READINESS",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-COMMITMENT_READINESS-002",
+      "operation": "COMMITMENT_READINESS",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-COMMITMENT_DRAFT-001",
+      "operation": "COMMITMENT_DRAFT",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-COMMITMENT_DRAFT-002",
+      "operation": "COMMITMENT_DRAFT",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-COMMITMENT_GAP-001",
+      "operation": "COMMITMENT_GAP",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-COMMITMENT_GAP-002",
+      "operation": "COMMITMENT_GAP",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-OUTCOME_GENERATION-001",
+      "operation": "OUTCOME_GENERATION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-OUTCOME_GENERATION-002",
+      "operation": "OUTCOME_GENERATION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-MILESTONE_GENERATION-001",
+      "operation": "MILESTONE_GENERATION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-MILESTONE_GENERATION-002",
+      "operation": "MILESTONE_GENERATION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-ACTION_GENERATION-001",
+      "operation": "ACTION_GENERATION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-ACTION_GENERATION-002",
+      "operation": "ACTION_GENERATION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-ACTION_TRACE_RENDER-001",
+      "operation": "ACTION_TRACE_RENDER",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-ACTION_TRACE_RENDER-002",
+      "operation": "ACTION_TRACE_RENDER",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-NEXT_BEST_ACTION-001",
+      "operation": "NEXT_BEST_ACTION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-NEXT_BEST_ACTION-002",
+      "operation": "NEXT_BEST_ACTION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-BLOCKER_ANALYSIS-001",
+      "operation": "BLOCKER_ANALYSIS",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-BLOCKER_ANALYSIS-002",
+      "operation": "BLOCKER_ANALYSIS",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-EXECUTION_EVIDENCE_ASSESSMENT-001",
+      "operation": "EXECUTION_EVIDENCE_ASSESSMENT",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-EXECUTION_EVIDENCE_ASSESSMENT-002",
+      "operation": "EXECUTION_EVIDENCE_ASSESSMENT",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-MILESTONE_VERIFICATION-001",
+      "operation": "MILESTONE_VERIFICATION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-MILESTONE_VERIFICATION-002",
+      "operation": "MILESTONE_VERIFICATION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-EXECUTION_MATERIALITY-001",
+      "operation": "EXECUTION_MATERIALITY",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-EXECUTION_MATERIALITY-002",
+      "operation": "EXECUTION_MATERIALITY",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-ROADMAP_REPLAN-001",
+      "operation": "ROADMAP_REPLAN",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-ROADMAP_REPLAN-002",
+      "operation": "ROADMAP_REPLAN",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-REDECISION_TRIGGER-001",
+      "operation": "REDECISION_TRIGGER",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-REDECISION_TRIGGER-002",
+      "operation": "REDECISION_TRIGGER",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-COMMITMENT_DRIFT-001",
+      "operation": "COMMITMENT_DRIFT",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-COMMITMENT_DRIFT-002",
+      "operation": "COMMITMENT_DRIFT",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-CREATION_RECORD-001",
+      "operation": "CREATION_RECORD",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-CREATION_RECORD-002",
+      "operation": "CREATION_RECORD",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-STAKEHOLDER_DISCOVERY-001",
+      "operation": "STAKEHOLDER_DISCOVERY",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-STAKEHOLDER_DISCOVERY-002",
+      "operation": "STAKEHOLDER_DISCOVERY",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-VALUE_HYPOTHESIS-001",
+      "operation": "VALUE_HYPOTHESIS",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-VALUE_HYPOTHESIS-002",
+      "operation": "VALUE_HYPOTHESIS",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-METRIC_BASELINE-001",
+      "operation": "METRIC_BASELINE",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-METRIC_BASELINE-002",
+      "operation": "METRIC_BASELINE",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-VALUE_EVIDENCE-001",
+      "operation": "VALUE_EVIDENCE",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-VALUE_EVIDENCE-002",
+      "operation": "VALUE_EVIDENCE",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-REALIZED_VALUE-001",
+      "operation": "REALIZED_VALUE",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-REALIZED_VALUE-002",
+      "operation": "REALIZED_VALUE",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-NEGATIVE_EFFECT_SCAN-001",
+      "operation": "NEGATIVE_EFFECT_SCAN",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-NEGATIVE_EFFECT_SCAN-002",
+      "operation": "NEGATIVE_EFFECT_SCAN",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-VALUE_DISTRIBUTION-001",
+      "operation": "VALUE_DISTRIBUTION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-VALUE_DISTRIBUTION-002",
+      "operation": "VALUE_DISTRIBUTION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-ATTRIBUTION-001",
+      "operation": "ATTRIBUTION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-ATTRIBUTION-002",
+      "operation": "ATTRIBUTION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-COUNTERFACTUAL-001",
+      "operation": "COUNTERFACTUAL",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-COUNTERFACTUAL-002",
+      "operation": "COUNTERFACTUAL",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-IMPACT_PATHWAY-001",
+      "operation": "IMPACT_PATHWAY",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-IMPACT_PATHWAY-002",
+      "operation": "IMPACT_PATHWAY",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-TRANSFORMATION-001",
+      "operation": "TRANSFORMATION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-TRANSFORMATION-002",
+      "operation": "TRANSFORMATION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-SUSTAINABILITY-001",
+      "operation": "SUSTAINABILITY",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-SUSTAINABILITY-002",
+      "operation": "SUSTAINABILITY",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-REALITY_DELTA-001",
+      "operation": "REALITY_DELTA",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-REALITY_DELTA-002",
+      "operation": "REALITY_DELTA",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-R1_GENERATION-001",
+      "operation": "R1_GENERATION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-R1_GENERATION-002",
+      "operation": "R1_GENERATION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-CYCLE_REVIEW-001",
+      "operation": "CYCLE_REVIEW",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-CYCLE_REVIEW-002",
+      "operation": "CYCLE_REVIEW",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-NAVIGATION_ROUTER-001",
+      "operation": "NAVIGATION_ROUTER",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-NAVIGATION_ROUTER-002",
+      "operation": "NAVIGATION_ROUTER",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    }
+  ]
+}

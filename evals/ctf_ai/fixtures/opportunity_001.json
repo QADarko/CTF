@@ -1,0 +1,8 @@
+{
+  "stage": "OPPORTUNITY",
+  "memory": {
+    "reality": {"summary": "Service continuity is fragmented."},
+    "question": {"text": "How might continuity be preserved?"}
+  },
+  "unknowns": ["budget", "market_size"]
+}

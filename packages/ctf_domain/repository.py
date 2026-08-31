@@ -438,6 +438,8 @@ class SQLAlchemySnapshotRepository(InMemoryRepository):
 
         if database_url.startswith("postgresql://"):
             database_url = database_url.replace("postgresql://", "postgresql+psycopg://", 1)
+        self._database_url = database_url
+        self._uses_postgres = "postgresql" in database_url
         connect_args = {"check_same_thread": False} if database_url.startswith("sqlite") else {}
         self.database_url = database_url
         self._engine = create_engine(database_url, pool_pre_ping=True, connect_args=connect_args)
@@ -555,6 +557,10 @@ class SQLAlchemySnapshotRepository(InMemoryRepository):
         from .sqlalchemy_models import RepositorySnapshotRow
 
         with Session(self._engine) as session:
+            if getattr(self, "_uses_postgres", False):
+                from sqlalchemy import text
+
+                session.execute(text("SELECT pg_advisory_lock(:k)"), {"k": 871423})
             row = session.get(RepositorySnapshotRow, self.SNAPSHOT_ID)
             if row is None:
                 row = RepositorySnapshotRow(
@@ -569,6 +575,11 @@ class SQLAlchemySnapshotRepository(InMemoryRepository):
                 row.payload = self._payload()
                 row.updated_at = datetime.now(UTC)
             session.commit()
+            if getattr(self, "_uses_postgres", False):
+                from sqlalchemy import text
+
+                session.execute(text("SELECT pg_advisory_unlock(:k)"), {"k": 871423})
+                session.commit()
 
     def _state_changed(self) -> None:
         if self._transaction_depth == 0:

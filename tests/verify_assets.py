@@ -42,6 +42,15 @@ def verify_required_assets() -> None:
         "docs/requirements-traceability.md",
         "prompts/constitution.md",
         "prompts/schemas.yaml",
+        "prompts/context-policies.yaml",
+        "prompts/non-fabrication.yaml",
+        "evals/ctf_ai/runner.py",
+        "evals/ctf_ai/scenario.schema.json",
+        "evals/ctf_ai/scenarios/corpus.yaml",
+        "scripts/backup/backup.sh",
+        "scripts/backup/verify_backup.py",
+        "scripts/restore/restore.sh",
+        "scripts/restore/verify_restore.py",
         ".github/workflows/verify-assets.yml",
         ".env.fake-ai.example",
         ".env.local-ai.example",
@@ -105,6 +114,16 @@ def verify_prompt_registry() -> None:
             assert prompt["output_schema"] in schemas, (
                 f"{prompt['id']} references missing schema {prompt['output_schema']}"
             )
+    policies = load_yaml(registry.get("context_policies", "prompts/context-policies.yaml"))
+    policy_ops = {str(name).upper() for name in policies.get("policies", {})}
+    registered_ops = {
+        str(prompt["operation"]).upper()
+        for metadata in slices.values()
+        for prompt in load_yaml(metadata["file"]).get("prompts", [])
+    }
+    missing_policies = registered_ops - policy_ops
+    assert not missing_policies, f"Missing context policies: {sorted(missing_policies)}"
+    assert not policies.get("defaults", {}).get("allow_all_memory")
 
 
 def verify_golden_suite() -> None:

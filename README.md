@@ -18,7 +18,7 @@ prompt-registry, contract and verification assets.
 ## Architecture status
 
 The checked-in `docs/capability-status.yaml` is the evidence-backed capability
-inventory. Its 80 entries distinguish `IMPLEMENTED`, `PARTIAL`,
+inventory. Its 84 entries distinguish `IMPLEMENTED`, `PARTIAL`,
 `NOT_IMPLEMENTED`, `BLOCKED_EXTERNAL`, and `DEFERRED_V1`; an implemented label
 requires direct repository evidence. The web header opens the same Architecture
 Status view. Mock mode uses the dated checked-in snapshot, while live mode reads:

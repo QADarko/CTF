@@ -1,0 +1,25 @@
+version: "1.0"
+high_risk_fields:
+  - budget
+  - market_size
+  - trl
+  - baseline
+  - measured_result
+  - measured_value
+  - kpi_value
+  - causal_attribution
+  - causal_claim
+  - adoption_rate
+  - stakeholder_benefit
+  - regulatory_status
+  - implementation_completion
+  - external_fact
+  - external_factual_claim
+allowed_knowledge_states:
+  - KNOWN
+  - SUPPORTED
+  - ESTIMATED
+  - ASSUMED
+  - UNKNOWN
+  - UNVERIFIED
+  - NOT_PROVIDED

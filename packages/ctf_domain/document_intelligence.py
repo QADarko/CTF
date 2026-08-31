@@ -293,6 +293,9 @@ PARSERS: dict[str, DocumentParser] = {
 
 
 def parse_document(filename: str, content: bytes) -> ParsedDocument:
+    from .content_safety import ContentSafetyInspector
+
+    ContentSafetyInspector().inspect(filename, content)
     if len(content) > MAX_ATTACHMENT_BYTES:
         raise DocumentProcessingError(
             "DOCUMENT_LIMIT_EXCEEDED", "Attachment exceeds the 20 MiB safety limit."

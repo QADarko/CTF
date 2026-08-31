@@ -42,7 +42,21 @@ def runtime(repo, responses, *, config=None, router=None):
 
 
 def valid_output(**item):
-    return json.dumps({"status": "PROPOSED", "items": [item], "summary": "safe"})
+    return json.dumps(
+        {
+            "status": "PROPOSED",
+            "items": [item],
+            "summary": "safe",
+            "grounding": {
+                "evidence_refs": [],
+                "memory_refs": [],
+                "assumptions": [],
+                "unknowns": [],
+                "limitations": [],
+                "confidence_class": "INSUFFICIENT_EVIDENCE",
+            },
+        }
+    )
 
 
 def test_prompt_registry_loads_and_rejects_unknown_operation():

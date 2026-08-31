@@ -6,11 +6,11 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Depends, Query
 
 from packages.ctf_domain.ai_runtime import AIExecutionService
+from packages.ctf_domain.consequentiality import ConsequentialityEngine
 from packages.ctf_domain.eri import ERIService
 from packages.ctf_domain.errors import require
 from packages.ctf_domain.model_router import (
     AICostLedger,
-    ContextCompiler,
     ModelRouter,
     route_public,
 )
@@ -29,7 +29,7 @@ from .schemas import (
 
 router = APIRouter(prefix="/api/v1")
 model_router = ModelRouter()
-context_compiler = ContextCompiler()
+consequentiality_engine = ConsequentialityEngine()
 cost_ledger = AICostLedger(repository)
 eri = ERIService.from_env(repository)
 ai_execution = AIExecutionService.from_env(repository)
@@ -41,7 +41,15 @@ def resolve_route(
     body: RouteRequest,
     _: Annotated[AnonymousSession, Depends(current_session)],
 ) -> dict[str, Any]:
-    return route_public(model_router.route(body.operation, body.consequentiality))
+    assessment = consequentiality_engine.assess(
+        operation=body.operation,
+        requested_level=body.consequentiality,
+    )
+    public = route_public(model_router.route(body.operation, assessment.level.value))
+    public["consequentiality"] = assessment.level.value
+    public["consequentiality_reasons"] = list(assessment.reasons)
+    public["required_tier"] = assessment.required_tier
+    return public
 
 
 @router.get("/ai/routes")
@@ -82,7 +90,7 @@ def execute_ai(
         user_input=body.user_input,
         consequentiality=body.consequentiality,
         prompt_version=body.prompt_version,
-        extra_context=body.context,
+        extra_context=body.context.model_dump(),
     )
     if body.persist_as:
         kind = body.persist_as.upper()

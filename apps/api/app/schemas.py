@@ -5,6 +5,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
+from packages.ctf_domain.context_safety import AIRequestContext
+
 
 class SessionCreate(BaseModel):
     tenant_id: str = "public"
@@ -86,7 +88,7 @@ class AIExecuteRequest(BaseModel):
     user_input: str = Field(min_length=1, max_length=50_000)
     consequentiality: str = "MEDIUM"
     prompt_version: str | None = None
-    context: dict[str, Any] = Field(default_factory=dict)
+    context: AIRequestContext = Field(default_factory=AIRequestContext)
     persist_as: str | None = None
     expected_version: int | None = None
 

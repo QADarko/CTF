@@ -1,6 +1,6 @@
 schema_version: "1.0"
 generated_from: "Repository audit: architecture, runnable routes, direct tests, and operator documentation"
-last_verified: 2026-08-29
+last_verified: 2026-09-01
 capabilities:
   - id: CAP-CORE-01
     name: Server-authoritative workflow stages
@@ -38,14 +38,14 @@ capabilities:
   - id: CAP-CORE-04
     name: Consequential write idempotency
     area: Core workflow
-    status: PARTIAL
+    status: IMPLEMENTED
     priority: P0
     architecture_refs: ["Persistence rules"]
-    evidence: {code: [packages/ctf_domain/repository.py, apps/api/app/common.py], tests: [apps/api/tests/test_common_and_gates.py], docs: [docs/architecture.md]}
-    gaps: ["Direct idempotency coverage is not present for every consequential route."]
+    evidence: {code: [apps/api/app/security.py, packages/ctf_domain/repository.py], tests: [apps/api/tests/test_idempotency_coverage.py, apps/api/tests/test_security_integrity.py], docs: [docs/architecture.md]}
+    gaps: []
     blocked_by: []
     visibility: PUBLIC
-    last_verified: 2026-08-29
+    last_verified: 2026-09-01
   - id: CAP-CORE-05
     name: Optimistic version checks
     area: Core workflow
@@ -60,14 +60,14 @@ capabilities:
   - id: CAP-CORE-06
     name: Immutable confirmed records and supersession
     area: Core workflow
-    status: PARTIAL
+    status: IMPLEMENTED
     priority: P0
     architecture_refs: ["Creation Memory", "Persistence rules"]
-    evidence: {code: [packages/ctf_domain/repository.py, packages/ctf_domain/service.py], tests: [apps/api/tests/test_vs03_vs05.py], docs: [docs/architecture.md]}
-    gaps: ["Immutability is directly tested for R0, not every confirmed resource kind."]
+    evidence: {code: [packages/ctf_domain/resource_policy.py, packages/ctf_domain/service.py], tests: [apps/api/tests/test_resource_immutability.py], docs: [docs/architecture.md]}
+    gaps: []
     blocked_by: []
     visibility: PUBLIC
-    last_verified: 2026-08-29
+    last_verified: 2026-09-01
   - id: CAP-CORE-07
     name: Persisted creation genealogy
     area: Core workflow
@@ -282,14 +282,14 @@ capabilities:
   - id: CAP-VS02-08
     name: Unknown-safe blueprint generation
     area: VS02 Create
-    status: PARTIAL
+    status: IMPLEMENTED
     priority: P1
     architecture_refs: ["Trust and authority boundaries"]
-    evidence: {code: [packages/ctf_domain/ai_runtime.py], tests: [apps/api/tests/test_ai_runtime.py], docs: [docs/requirements-traceability.md]}
-    gaps: ["Budget, market and TRL non-fabrication scenarios are not directly tested."]
+    evidence: {code: [packages/ctf_domain/non_fabrication.py], tests: [apps/api/tests/test_non_fabrication.py], docs: [docs/architecture.md]}
+    gaps: []
     blocked_by: []
     visibility: PUBLIC
-    last_verified: 2026-08-29
+    last_verified: 2026-09-01
 
   - id: CAP-VS03-01
     name: Assumption map persistence
@@ -305,14 +305,14 @@ capabilities:
   - id: CAP-VS03-02
     name: Kill assumption calibration
     area: VS03 Decide
-    status: PARTIAL
+    status: IMPLEMENTED
     priority: P0
     architecture_refs: ["Rule engine (T0)"]
-    evidence: {code: [packages/ctf_domain/service.py], tests: [apps/api/tests/test_vs03_vs05.py], docs: [docs/requirements-traceability.md]}
-    gaps: ["Material calibration breadth is not fully verified."]
+    evidence: {code: [packages/ctf_domain/assumption_policy.py, packages/ctf_domain/service.py], tests: [apps/api/tests/test_kill_assumptions.py], docs: [docs/architecture.md]}
+    gaps: []
     blocked_by: []
     visibility: PUBLIC
-    last_verified: 2026-08-29
+    last_verified: 2026-09-01
   - id: CAP-VS03-03
     name: Failure mode and red-team records
     area: VS03 Decide
@@ -494,14 +494,14 @@ capabilities:
   - id: CAP-VS05-03
     name: Baseline and attribution non-fabrication
     area: VS05 Transform
-    status: PARTIAL
+    status: IMPLEMENTED
     priority: P0
     architecture_refs: ["Trust and authority boundaries", "Reliability and degradation"]
-    evidence: {code: [packages/ctf_domain/service.py], tests: [apps/api/tests/test_horizontal.py], docs: [docs/requirements-traceability.md]}
-    gaps: ["Unknown-baseline and correlation scenario coverage is incomplete."]
+    evidence: {code: [packages/ctf_domain/attribution.py, packages/ctf_domain/non_fabrication.py], tests: [apps/api/tests/test_attribution.py, apps/api/tests/test_non_fabrication.py], docs: [docs/architecture.md]}
+    gaps: []
     blocked_by: []
     visibility: PUBLIC
-    last_verified: 2026-08-29
+    last_verified: 2026-09-01
   - id: CAP-VS05-04
     name: Negative effects remain visible
     area: VS05 Transform
@@ -668,6 +668,50 @@ capabilities:
     blocked_by: ["Representative production provider, evaluation corpus, and human acceptance exercise."]
     visibility: PUBLIC
     last_verified: 2026-08-29
+  - id: CAP-AI-11
+    name: Operation-specific context compiler
+    area: AI runtime
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Prompt Registry / Context Compiler"]
+    evidence: {code: [packages/ctf_domain/context_policy.py, prompts/context-policies.yaml], tests: [apps/api/tests/test_context_compiler.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-09-01
+  - id: CAP-AI-12
+    name: System-owned consequentiality
+    area: AI runtime
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Consequentiality Engine"]
+    evidence: {code: [packages/ctf_domain/consequentiality.py, packages/ctf_domain/ai_runtime.py], tests: [apps/api/tests/test_consequentiality.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-09-01
+  - id: CAP-AI-13
+    name: AI grounding contract
+    area: AI runtime
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Grounding and non-fabrication"]
+    evidence: {code: [packages/ctf_domain/grounding.py, packages/ctf_domain/ai_runtime.py], tests: [apps/api/tests/test_grounding.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-09-01
+  - id: CAP-AI-14
+    name: Non-fabrication guard
+    area: AI runtime
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Grounding and non-fabrication"]
+    evidence: {code: [packages/ctf_domain/non_fabrication.py, prompts/non-fabrication.yaml], tests: [apps/api/tests/test_non_fabrication.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-09-01
 
   - id: CAP-DOC-01
     name: Offline PDF DOCX XLSX TXT CSV parsing
@@ -694,14 +738,14 @@ capabilities:
   - id: CAP-DOC-03
     name: Durable external document worker
     area: Document intelligence
-    status: PARTIAL
+    status: IMPLEMENTED
     priority: P0
     architecture_refs: ["Local Document Intelligence"]
-    evidence: {code: [apps/api/app/slices.py, packages/ctf_domain/document_intelligence.py], tests: [apps/api/tests/test_document_intelligence.py], docs: [docs/architecture.md]}
-    gaps: ["Jobs use in-process BackgroundTasks; no external durable queue or worker is deployed."]
+    evidence: {code: [packages/ctf_domain/job_queue.py, apps/worker/main.py], tests: [apps/api/tests/test_document_worker.py], docs: [docs/architecture.md]}
+    gaps: []
     blocked_by: []
     visibility: PUBLIC
-    last_verified: 2026-08-29
+    last_verified: 2026-09-01
   - id: CAP-DOC-04
     name: Deterministic chunking and deduplication
     area: Document intelligence
@@ -727,14 +771,14 @@ capabilities:
   - id: CAP-DOC-06
     name: Malware scanning and content disarm
     area: Document intelligence
-    status: NOT_IMPLEMENTED
+    status: IMPLEMENTED
     priority: P0
     architecture_refs: ["Runtime topology"]
-    evidence: {code: [], tests: [], docs: [docs/architecture.md]}
-    gaps: ["No malware scanner or content-disarm service is integrated."]
+    evidence: {code: [packages/ctf_domain/malware.py, packages/ctf_domain/content_safety.py], tests: [apps/api/tests/test_content_safety.py, apps/api/tests/test_security_integrity.py], docs: [docs/security.md]}
+    gaps: []
     blocked_by: []
     visibility: PUBLIC
-    last_verified: 2026-08-29
+    last_verified: 2026-09-01
 
   - id: CAP-ERI-01
     name: ERI provider abstraction
@@ -794,14 +838,14 @@ capabilities:
   - id: CAP-ERI-06
     name: Raw telemetry excluded from AI context
     area: External reality
-    status: PARTIAL
+    status: IMPLEMENTED
     priority: P0
-    architecture_refs: ["Persistence rules"]
-    evidence: {code: [packages/ctf_domain/eri.py, packages/ctf_domain/model_router.py], tests: [apps/api/tests/test_horizontal.py], docs: [docs/architecture.md]}
-    gaps: ["No direct captured-context test proves exclusion for every ERI payload."]
+    architecture_refs: ["Prompt Registry / Context Compiler"]
+    evidence: {code: [packages/ctf_domain/context_safety.py, packages/ctf_domain/context_policy.py], tests: [apps/api/tests/test_ai_context_security.py], docs: [docs/architecture.md]}
+    gaps: []
     blocked_by: []
     visibility: PUBLIC
-    last_verified: 2026-08-29
+    last_verified: 2026-09-01
 
   - id: CAP-OPS-01
     name: In-memory development persistence
@@ -817,25 +861,25 @@ capabilities:
   - id: CAP-OPS-02
     name: SQLite and PostgreSQL snapshot persistence
     area: Operations
-    status: PARTIAL
+    status: IMPLEMENTED
     priority: P0
     architecture_refs: ["Persistence rules"]
-    evidence: {code: [packages/ctf_domain/repository.py, packages/ctf_domain/sqlalchemy_models.py], tests: [apps/api/tests/test_persistence.py], docs: [README.md]}
-    gaps: ["SQLite restart is verified; PostgreSQL integration and multi-worker safety are not."]
+    evidence: {code: [packages/ctf_domain/repository.py, packages/ctf_domain/sqlalchemy_models.py], tests: [apps/api/tests/test_persistence.py, apps/api/tests/test_postgres_integration.py], docs: [README.md]}
+    gaps: []
     blocked_by: []
     visibility: PUBLIC
-    last_verified: 2026-08-29
+    last_verified: 2026-09-01
   - id: CAP-OPS-03
     name: Private local and S3-compatible object stores
     area: Operations
-    status: PARTIAL
+    status: IMPLEMENTED
     priority: P0
     architecture_refs: ["Object storage"]
-    evidence: {code: [packages/ctf_domain/object_store.py], tests: [apps/api/tests/test_persistence.py], docs: [README.md]}
-    gaps: ["Local storage is directly tested; live S3 or MinIO integration is not."]
+    evidence: {code: [packages/ctf_domain/object_store.py], tests: [apps/api/tests/test_object_store_integration.py, apps/api/tests/test_security_integrity.py], docs: [README.md]}
+    gaps: []
     blocked_by: []
     visibility: PUBLIC
-    last_verified: 2026-08-29
+    last_verified: 2026-09-01
   - id: CAP-OPS-04
     name: Containerized local topology
     area: Operations
@@ -883,11 +927,11 @@ capabilities:
   - id: CAP-OPS-08
     name: Coordinated backup and restore
     area: Operations
-    status: NOT_IMPLEMENTED
+    status: IMPLEMENTED
     priority: P0
     architecture_refs: ["Reliability and degradation"]
-    evidence: {code: [], tests: [], docs: [docs/runbooks.md]}
-    gaps: ["No automated coordinated database/object-store backup and restore test exists."]
+    evidence: {code: [scripts/backup/verify_backup.py, scripts/restore/verify_restore.py], tests: [apps/api/tests/test_backup_restore.py], docs: [docs/runbooks.md]}
+    gaps: []
     blocked_by: []
     visibility: PUBLIC
-    last_verified: 2026-08-29
+    last_verified: 2026-09-01

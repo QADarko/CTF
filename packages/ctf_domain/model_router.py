@@ -64,6 +64,8 @@ class ModelRouter:
 
 
 class ContextCompiler:
+    """Deprecated pass-through assembler. Prefer packages.ctf_domain.context_policy.ContextCompiler."""
+
     def compile(
         self,
         *,
