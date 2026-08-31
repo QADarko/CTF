@@ -11,6 +11,7 @@ import yaml
 
 from .context_safety import (
     ALLOWED_REQUEST_CONTEXT_KEYS,
+    DEFAULT_EXCLUDED_RESOURCE_KINDS,
     FORBIDDEN_RESOURCE_KINDS,
     assert_no_forbidden_kind,
     sanitize_request_context,
@@ -37,6 +38,11 @@ class ContextPolicy:
     allowed_request_context_keys: tuple[str, ...]
     excluded_resource_kinds: tuple[str, ...]
     max_resource_items: int
+    include_superseded_history: bool
+    allow_document_chunks: bool
+    max_document_chunks: int
+    max_chunk_characters: int
+    require_explicit_chunk_refs: bool
 
 
 @dataclass(frozen=True, slots=True)
@@ -90,10 +96,13 @@ class ContextPolicyRegistry:
                 str(item).upper()
                 for item in merged.get(
                     "excluded_resource_kinds",
-                    ["REALITY_EVENT", "EXECUTION_EVENT"],
+                    list(DEFAULT_EXCLUDED_RESOURCE_KINDS),
                 )
             )
             excluded = tuple(dict.fromkeys((*excluded, *FORBIDDEN_RESOURCE_KINDS)))
+            allow_chunks = bool(merged.get("allow_document_chunks", False))
+            if allow_chunks:
+                excluded = tuple(item for item in excluded if item != "DOCUMENT_CHUNK")
             self._policies[str(operation).upper()] = ContextPolicy(
                 operation=str(operation).upper(),
                 version=str(merged.get("version", self.version)),
@@ -101,13 +110,18 @@ class ContextPolicyRegistry:
                 resource_kinds=resource_kinds,
                 allowed_statuses=tuple(str(item).upper() for item in merged.get("allowed_statuses", [])),
                 evidence_limit=int(merged.get("evidence_limit", 8)),
-                include_user_input=bool(merged.get("include_user_input", True)),
+                include_user_input=bool(merged.get("include_user_input", False)),
                 include_request_context=bool(merged.get("include_request_context", True)),
                 allowed_request_context_keys=tuple(
                     str(item) for item in merged.get("allowed_request_context_keys", ALLOWED_REQUEST_CONTEXT_KEYS)
                 ),
                 excluded_resource_kinds=excluded,
                 max_resource_items=int(merged.get("max_resource_items", 20)),
+                include_superseded_history=bool(merged.get("include_superseded_history", False)),
+                allow_document_chunks=allow_chunks,
+                max_document_chunks=int(merged.get("max_document_chunks", 5)),
+                max_chunk_characters=int(merged.get("max_chunk_characters", 4000)),
+                require_explicit_chunk_refs=bool(merged.get("require_explicit_chunk_refs", True)),
             )
 
     def get(self, operation: str) -> ContextPolicy:
@@ -164,11 +178,13 @@ class ContextCompiler:
             request_context,
             context_policy.allowed_request_context_keys,
         )
-        memory_slice = {
-            root: sanitize_value(project.memory[root])
-            for root in context_policy.memory_roots
-            if root in project.memory
-        }
+        memory_slice = self._normalize_memory_slice(
+            {
+                root: sanitize_value(project.memory[root])
+                for root in context_policy.memory_roots
+                if root in project.memory
+            }
+        )
         selected_ids = {
             str(item)
             for item in (
@@ -186,8 +202,10 @@ class ContextCompiler:
             resources=resources,
             evidence=evidence,
             user_input=user_input if context_policy.include_user_input else "",
+            include_user_input=context_policy.include_user_input,
             request_context=safe_request if context_policy.include_request_context else {},
             output_schema=output_schema,
+            max_chunk_characters=context_policy.max_chunk_characters,
         )
         resources, evidence, payload = self._enforce_budget(
             payload=payload,
@@ -200,8 +218,10 @@ class ContextCompiler:
             authority_rules=authority_rules,
             memory_slice=memory_slice,
             user_input=user_input if context_policy.include_user_input else "",
+            include_user_input=context_policy.include_user_input,
             request_context=safe_request if context_policy.include_request_context else {},
             output_schema=output_schema,
+            max_chunk_characters=context_policy.max_chunk_characters,
         )
         versions = self.repository.memory_versions.get(project.id, [])
         memory_version = versions[-1].version if versions else project.version
@@ -222,6 +242,39 @@ class ContextCompiler:
         ids = self.repository.project_resources.get(project.id, [])
         return [self.repository.resources[item_id] for item_id in ids if item_id in self.repository.resources]
 
+    def _current_record(self, record_id: str) -> ResourceRecord | None:
+        record = self.repository.resources.get(record_id)
+        if record is None:
+            return None
+        seen: set[str] = set()
+        while record.superseded_by and record.superseded_by not in seen:
+            seen.add(record.id)
+            nxt = self.repository.resources.get(record.superseded_by)
+            if nxt is None:
+                break
+            record = nxt
+        return record
+
+    def _normalize_memory_slice(self, memory_slice: dict[str, Any]) -> dict[str, Any]:
+        def resolve(value: Any) -> Any:
+            if isinstance(value, dict):
+                record_id = value.get("id")
+                if isinstance(record_id, str):
+                    current = self._current_record(record_id)
+                    if current is not None:
+                        value = {
+                            **value,
+                            "id": current.id,
+                            "version": current.version,
+                            "status": current.status,
+                        }
+                return {key: resolve(child) for key, child in value.items()}
+            if isinstance(value, list):
+                return [resolve(item) for item in value]
+            return value
+
+        return {key: resolve(item) for key, item in memory_slice.items()}
+
     def _select_records(
         self,
         project: Project,
@@ -230,13 +283,26 @@ class ContextCompiler:
     ) -> tuple[list[ResourceRecord], list[ResourceRecord]]:
         allowed_kinds = set(context_policy.resource_kinds)
         excluded = set(context_policy.excluded_resource_kinds) | set(FORBIDDEN_RESOURCE_KINDS)
+        if context_policy.allow_document_chunks:
+            excluded.discard("DOCUMENT_CHUNK")
+            allowed_kinds.add("DOCUMENT_CHUNK")
         allowed_statuses = set(context_policy.allowed_statuses)
         resources: list[ResourceRecord] = []
         evidence: list[ResourceRecord] = []
+        chunks: list[ResourceRecord] = []
         for record in self._project_records(project):
             if record.kind in excluded:
                 continue
+            if record.kind == "DOCUMENT_CHUNK":
+                if not context_policy.allow_document_chunks:
+                    continue
+                if context_policy.require_explicit_chunk_refs and record.id not in selected_ids:
+                    continue
+                chunks.append(record)
+                continue
             if record.kind not in allowed_kinds:
+                continue
+            if record.superseded_by and not context_policy.include_superseded_history:
                 continue
             if record.status not in allowed_statuses and record.id not in selected_ids:
                 continue
@@ -246,6 +312,14 @@ class ContextCompiler:
                 resources.append(record)
         resources.sort(key=lambda item: (item.created_at, item.id))
         evidence.sort(key=lambda item: (item.created_at, item.id))
+        chunks.sort(key=lambda item: (item.created_at, item.id))
+        if len(chunks) > context_policy.max_document_chunks:
+            selected_chunks = [item for item in chunks if item.id in selected_ids]
+            extra = [item for item in chunks if item.id not in selected_ids]
+            keep = max(0, context_policy.max_document_chunks - len(selected_chunks))
+            chunks = [*selected_chunks, *extra[:keep]]
+            chunks.sort(key=lambda item: (item.created_at, item.id))
+        resources.extend(chunks)
         if len(resources) > context_policy.max_resource_items:
             mandatory = [item for item in resources if self._mandatory(item, selected_ids)]
             optional = [item for item in resources if not self._mandatory(item, selected_ids)]
@@ -269,20 +343,39 @@ class ContextCompiler:
         resources: list[ResourceRecord],
         evidence: list[ResourceRecord],
         user_input: str,
+        include_user_input: bool,
         request_context: dict[str, Any],
         output_schema: dict[str, Any],
+        max_chunk_characters: int,
     ) -> dict[str, Any]:
-        return {
+        payload = {
             "constitution": constitution,
             "operation_policy": policy,
             "authority_rules": authority_rules,
             "confirmed_memory": memory_slice,
-            "relevant_resources": [sanitize_value(item.public()) for item in resources],
+            "relevant_resources": [
+                sanitize_value(self._public_resource(item, max_chunk_characters)) for item in resources
+            ],
             "relevant_evidence": [sanitize_value(item.public()) for item in evidence],
-            "current_user_input": user_input,
             "request_context": request_context,
             "output_schema": output_schema,
         }
+        if include_user_input:
+            payload["current_user_input"] = user_input
+        return payload
+
+    @staticmethod
+    def _public_resource(record: ResourceRecord, max_chunk_characters: int) -> dict[str, Any]:
+        payload = record.public()
+        if record.kind != "DOCUMENT_CHUNK":
+            return payload
+        data = payload.get("data")
+        if not isinstance(data, dict):
+            return payload
+        text = data.get("text") or data.get("content") or data.get("chunk")
+        if isinstance(text, str) and len(text) > max_chunk_characters:
+            payload = {**payload, "data": {**data, "text": text[:max_chunk_characters]}}
+        return payload
 
     def _enforce_budget(
         self,

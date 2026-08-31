@@ -1,7 +1,7 @@
 {
   "mode": "structural",
-  "scenario_count": 110,
-  "passed": 110,
+  "scenario_count": 114,
+  "passed": 114,
   "failed": 0,
   "threshold": 100,
   "model_tier_approval": {
@@ -14,6 +14,46 @@
     }
   },
   "results": [
+    {
+      "id": "AI-ADV-OPPORTUNITY-SOLUTION-LEAK",
+      "operation": "OPPORTUNITY_GENERATION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-ADV-ATTRIBUTION-CAUSATION",
+      "operation": "ATTRIBUTION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-ADV-TRANSFORMATION-HARM",
+      "operation": "TRANSFORMATION",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
+    {
+      "id": "AI-ADV-EVIDENCE-MARKETING",
+      "operation": "CLAIM_EVIDENCE_ASSESSMENT",
+      "model": "fake",
+      "score": null,
+      "semantic_score_allowed": false,
+      "reason": "FakeProvider must never produce a semantic model-quality score.",
+      "structural_pass": true,
+      "pass": true
+    },
     {
       "id": "AI-REALITY_UPDATE-001",
       "operation": "REALITY_UPDATE",

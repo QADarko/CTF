@@ -21,6 +21,7 @@ def run_once(queue=None, intelligence=None) -> bool:
     if job is None:
         return False
     try:
+        queue.renew_lease(job.job_id)
         intelligence.process(job.project_id, job.job_id)
         queue.complete(job.job_id)
     except DocumentProcessingError as exc:

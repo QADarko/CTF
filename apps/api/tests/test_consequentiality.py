@@ -40,23 +40,109 @@ def test_r1_generation_routes_to_t3():
     assert ConsequentialityEngine().assess(operation="R1_GENERATION").required_tier == "T3"
 
 
-def test_non_negotiable_conflict_is_critical():
+def test_client_cannot_downgrade_system_consequentiality():
+    repo = InMemoryRepository()
+    session = repo.create_session()
+    project = repo.create_project(session, "CREATION", "PROBLEM", "x", {})
+    repo.create_resource(
+        project,
+        "VALUE_BOUNDARY",
+        {"name": "Human control", "priority": "NON_NEGOTIABLE", "test_result": "VIOLATED"},
+        status="CONFIRMED",
+    )
     assessment = ConsequentialityEngine().assess(
         operation="QUESTION_REFRAME",
+        project=project,
+        repository=repo,
         requested_level="LOW",
-        context={"non_negotiable_conflict": True},
     )
     assert assessment.level.value == "CRITICAL"
-    assert "NON_NEGOTIABLE_CONFLICT" in assessment.reasons
+    assert assessment.required_tier == "T3"
+    assert "CLIENT_DOWNGRADE_IGNORED" in assessment.reasons
 
 
-def test_kill_assumption_event_is_critical():
+def test_commitment_resource_increases_consequentiality():
+    repo = InMemoryRepository()
+    session = repo.create_session()
+    project = repo.create_project(session, "CREATION", "PROBLEM", "x", {})
+    baseline = ConsequentialityEngine().assess(operation="QUESTION_REFRAME", project=project, repository=repo)
+    repo.create_resource(project, "COMMITMENT", {"statement": "Pilot funded"}, status="CONFIRMED")
+    raised = ConsequentialityEngine().assess(operation="QUESTION_REFRAME", project=project, repository=repo)
+    assert baseline.level.value == "MEDIUM"
+    assert raised.level.value == "CRITICAL"
+    assert raised.required_tier == "T3"
+
+
+def test_kill_assumption_event_routes_to_t3():
+    repo = InMemoryRepository()
+    session = repo.create_session()
+    project = repo.create_project(session, "CREATION", "PROBLEM", "x", {})
+    repo.create_resource(
+        project,
+        "ASSUMPTION",
+        {
+            "statement": "Consent remains explicit.",
+            "is_kill_assumption": True,
+            "falsification_test": "Ask users",
+            "kill_threshold": "consent implicit",
+            "consequence_if_false": "Idea invalid",
+        },
+        status="PROPOSED",
+    )
     assessment = ConsequentialityEngine().assess(
         operation="NEXT_BEST_ACTION",
-        context={"kill_assumption_event": True},
+        project=project,
+        repository=repo,
     )
     assert assessment.level.value == "CRITICAL"
-    assert "KILL_ASSUMPTION_EVENT" in assessment.reasons
+    assert assessment.required_tier == "T3"
+    assert ModelRouter().route("NEXT_BEST_ACTION", assessment.level.value).tier == "T3"
+
+
+def test_value_boundary_conflict_routes_to_t3():
+    repo = InMemoryRepository()
+    session = repo.create_session()
+    project = repo.create_project(session, "CREATION", "PROBLEM", "x", {})
+    repo.create_resource(
+        project,
+        "VALUE_BOUNDARY",
+        {"name": "No covert profiling", "priority": "NON_NEGOTIABLE", "test_result": "CONFLICT"},
+        status="CONFIRMED",
+    )
+    assessment = ConsequentialityEngine().assess(
+        operation="QUESTION_REFRAME",
+        project=project,
+        repository=repo,
+        requested_level="LOW",
+    )
+    assert assessment.required_tier == "T3"
+
+
+def test_high_consequentiality_routes_to_t3():
+    assessment = ConsequentialityEngine().assess(operation="QUESTION_REFRAME", requested_level="HIGH")
+    assert assessment.level.value == "HIGH"
+    assert assessment.required_tier == "T3"
+    assert ModelRouter().route("QUESTION_REFRAME", assessment.level.value).tier == "T3"
+
+
+def test_missing_client_risk_flags_does_not_reduce_system_assessment():
+    repo = InMemoryRepository()
+    session = repo.create_session()
+    project = repo.create_project(session, "CREATION", "PROBLEM", "x", {})
+    repo.create_resource(project, "COMMITMENT", {"statement": "Signed"}, status="ACTIVE")
+    with_flags = ConsequentialityEngine().assess(
+        operation="QUESTION_REFRAME",
+        project=project,
+        repository=repo,
+        context={"financial_commitment": False, "kill_assumption_event": False},
+    )
+    without_flags = ConsequentialityEngine().assess(
+        operation="QUESTION_REFRAME",
+        project=project,
+        repository=repo,
+    )
+    assert with_flags.level == without_flags.level
+    assert with_flags.required_tier == "T3"
 
 
 def test_unknown_consequentiality_rejected():

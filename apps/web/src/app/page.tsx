@@ -81,7 +81,7 @@ function StartScreen({
           {family === "create" ? (
             <label className="starter-input">
               <span>What is on your mind?</span>
-              <textarea value={input} onChange={(event) => setInput(event.target.value)} />
+              <textarea data-testid="start-input" value={input} onChange={(event) => setInput(event.target.value)} />
             </label>
           ) : family === "funding" ? (
             <div className="intent-row"><button className="mini-choice selected">I want to apply</button><button className="mini-choice">I plan to apply</button><button className="mini-choice">I have a draft</button></div>
@@ -90,6 +90,7 @@ function StartScreen({
           )}
           <button
             className="primary start-button"
+            data-testid="begin-cycle"
             disabled={starting || (family === "create" && !input.trim())}
             onClick={() => onStart(
               familyToEntry[family],

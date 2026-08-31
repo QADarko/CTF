@@ -333,7 +333,7 @@ def analyze_document(
                 == attachment.data["checksum_sha256"]
             ):
                 if existing.status in {"QUEUED", "PROCESSING", "CLAIMED", "RETRY_WAIT"}:
-                    _schedule_document_job(background_tasks, project.id, existing.id)
+                    _schedule_document_job(background_tasks, project.id, existing.id, attachment.id)
                 return existing.public()
         job = repository.create_resource(
             project,
@@ -360,12 +360,17 @@ def analyze_document(
             status="QUEUED",
             provenance="SYSTEM",
         )
-    _schedule_document_job(background_tasks, project.id, job.id)
+    _schedule_document_job(background_tasks, project.id, job.id, attachment.id)
     return job.public()
 
 
-def _schedule_document_job(background_tasks: BackgroundTasks, project_id: str, job_id: str) -> None:
-    document_queue.enqueue(project_id=project_id, job_id=job_id)
+def _schedule_document_job(
+    background_tasks: BackgroundTasks,
+    project_id: str,
+    job_id: str,
+    attachment_id: str | None = None,
+) -> None:
+    document_queue.enqueue(project_id=project_id, job_id=job_id, attachment_id=attachment_id)
     if document_queue.durable:
         return
     if os.getenv("APP_ENV", "").strip().lower() in {"production", "prod"}:

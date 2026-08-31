@@ -466,7 +466,7 @@ function StageInterview({
   };
 
   return (
-    <section className="interview-panel" aria-label={script.title}>
+    <section className="interview-panel" aria-label={script.title} data-testid="stage-interview">
       <header>
         <MessageCircle size={18} />
         <div>
@@ -492,13 +492,14 @@ function StageInterview({
           <p className="interview-hint">{step.hint}</p>
           <textarea
             aria-label={step.ask}
+            data-testid="interview-answer"
             value={currentAnswer}
             onChange={(event) => setAnswers((previous) => ({ ...previous, [step.id]: event.target.value }))}
             placeholder="Type your answer…"
           />
           {localError && <p className="status-error">{localError}</p>}
           <div className="live-controls">
-            <button className="primary" type="button" disabled={busy} onClick={saveAnswer}>
+            <button className="primary" type="button" data-testid="interview-next" disabled={busy} onClick={saveAnswer}>
               {stepIndex + 1 >= script.steps.length ? "Review my answers" : "Next question"}
             </button>
             {stepIndex > 0 && (
@@ -512,11 +513,12 @@ function StageInterview({
         <>
           <h3>Here is the {kind.replaceAll("_", " ").toLowerCase()} CTF heard from you</h3>
           <p className="interview-hint">Edit if needed, then save. After it is saved you can confirm the human gate.</p>
-          <textarea aria-label={`Composed ${kind}`} value={draft || composed} onChange={(event) => setDraft(event.target.value)} />
+          <textarea aria-label={`Composed ${kind}`} data-testid="interview-composed" value={draft || composed} onChange={(event) => setDraft(event.target.value)} />
           <div className="live-controls">
             <button
               className="primary"
               type="button"
+              data-testid="interview-save"
               disabled={busy || !(draft || composed).trim()}
               onClick={() => void onSave((draft || composed).trim())}
             >
@@ -587,8 +589,12 @@ function ResourceCard({ resource, onConfirm }: { resource: CTFResource; onConfir
   }
   const visible = Object.entries(resource.data).filter(([key]) => !["object_key", "checksum_sha256"].includes(key)).slice(0, 7);
   return (
-    <article className="live-resource">
-      <header><strong>{resource.kind.replaceAll("_", " ")}</strong><span>{resource.status}</span></header>
+    <article className="live-resource" data-testid="resource-card" data-resource-id={resource.id} data-status={resource.status} data-immutable={resource.immutable ? "true" : "false"}>
+      <header>
+        <strong>{resource.kind.replaceAll("_", " ")}</strong>
+        <span>{resource.status}</span>
+        {candidate && <span data-testid="ai-proposal-badge">AI proposal</span>}
+      </header>
       {visible.map(([key, value]) => <p key={key}><small>{key.replaceAll("_", " ")}</small>{labelFor(value)}</p>)}
       <footer>Provenance: {labelFor(provenance)} · v{resource.version}</footer>
       {candidate && onConfirm && <button className="secondary" onClick={onConfirm}>Confirm as human evidence</button>}
@@ -720,7 +726,7 @@ function StageAIHelp({ project, suggestedKind, onChanged }: { project: CTFProjec
         <textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} />
       </label>
       <div className="live-controls">
-        <button className="secondary" type="button" disabled={busy || !readiness?.ready || !prompt.trim()} onClick={() => void draft()}>
+        <button className="secondary" type="button" data-testid="draft-with-ai" disabled={busy || !readiness?.ready || !prompt.trim()} onClick={() => void draft()}>
           <Play size={14} /> Draft with AI
         </button>
         <button className="quiet-button" type="button" disabled={busy} onClick={() => void refresh()}>Retry AI status</button>
@@ -1382,8 +1388,8 @@ export function LiveWorkspace({ initialProject, onStartOver }: { initialProject:
                   <section className="prerequisite-form">
                     <h3>Continue to Gate 15 · Reaffirm</h3>
                     <p>Saving actions is not enough on its own. Request a commitment review to open Gate 15.</p>
-                    <label>Finding<textarea value={reviewFinding} onChange={(event) => setReviewFinding(event.target.value)} placeholder="e.g. Commitment still holds after initial actions." /></label>
-                    <button className="gate-button" type="button" disabled={busy || !reviewFinding.trim()} onClick={() => void requestCommitmentReview()}>
+                    <label>Finding<textarea data-testid="review-finding" value={reviewFinding} onChange={(event) => setReviewFinding(event.target.value)} placeholder="e.g. Commitment still holds after initial actions." /></label>
+                    <button className="gate-button" type="button" data-testid="request-review" disabled={busy || !reviewFinding.trim()} onClick={() => void requestCommitmentReview()}>
                       {busy ? "Opening Gate 15…" : "Request commitment review and open Gate 15"}
                     </button>
                   </section>
@@ -1392,9 +1398,9 @@ export function LiveWorkspace({ initialProject, onStartOver }: { initialProject:
                   <section className="prerequisite-form">
                     <h3>Add action</h3>
                     <p>Describe what your team will do next. Use a short title and a clear why.</p>
-                    <label>Title<input value={actionTitle} onChange={(event) => setActionTitle(event.target.value)} placeholder="e.g. Run a safe pilot" /></label>
-                    <label>Why<textarea value={actionWhy} onChange={(event) => setActionWhy(event.target.value)} placeholder="What this action proves or unlocks" /></label>
-                    <button className="secondary" type="button" disabled={busy || (!actionWhy.trim() && !actionTitle.trim())} onClick={() => void addResource()}>Save action</button>
+                    <label>Title<input data-testid="action-title" value={actionTitle} onChange={(event) => setActionTitle(event.target.value)} placeholder="e.g. Run a safe pilot" /></label>
+                    <label>Why<textarea data-testid="action-why" value={actionWhy} onChange={(event) => setActionWhy(event.target.value)} placeholder="What this action proves or unlocks" /></label>
+                    <button className="secondary" type="button" data-testid="save-action" disabled={busy || (!actionWhy.trim() && !actionTitle.trim())} onClick={() => void addResource()}>Save action</button>
                   </section>
                 )}
                 {isCurrent && formKind && !hasInterview && !isActionWorkspace && !isValuePrepWorkspace && (
@@ -1433,8 +1439,8 @@ export function LiveWorkspace({ initialProject, onStartOver }: { initialProject:
                         <li className={gate11RecReady ? "ready" : "missing"}>CTF recommendation: {gate11RecReady ? "saved" : "created with brief"}</li>
                       </ul>
                     )}
-                    <label>Record content<textarea value={resourceText} onChange={(event) => setResourceText(event.target.value)} placeholder={`Create ${formKind.replaceAll("_", " ").toLowerCase()} from known information`} /></label>
-                    <button className="secondary" type="button" disabled={busy || !resourceText.trim() || (active.gate === 11 && !selectedIdea)} onClick={() => void addResource()}>Save {formKind.replaceAll("_", " ").toLowerCase()}</button>
+                    <label>Record content<textarea data-testid="resource-text" value={resourceText} onChange={(event) => setResourceText(event.target.value)} placeholder={`Create ${formKind.replaceAll("_", " ").toLowerCase()} from known information`} /></label>
+                    <button className="secondary" type="button" data-testid="save-resource" disabled={busy || !resourceText.trim() || (active.gate === 11 && !selectedIdea)} onClick={() => void addResource()}>Save {formKind.replaceAll("_", " ").toLowerCase()}</button>
                   </section>
                 )}
                 {isValuePrepWorkspace && (
@@ -1463,16 +1469,16 @@ export function LiveWorkspace({ initialProject, onStartOver }: { initialProject:
                           <section className="prerequisite-form">
                             <h3>Step 1 · Execution evidence</h3>
                             <p>What did your action prove or observe? This links to your first saved action.</p>
-                            <label>Evidence statement<textarea value={evidenceStatement} onChange={(event) => setEvidenceStatement(event.target.value)} placeholder="e.g. The pilot ran successfully and users completed the flow." /></label>
-                            <button className="secondary" type="button" disabled={busy || !evidenceStatement.trim()} onClick={() => void saveExecutionEvidence()}>Save execution evidence</button>
+                            <label>Evidence statement<textarea data-testid="execution-evidence" value={evidenceStatement} onChange={(event) => setEvidenceStatement(event.target.value)} placeholder="e.g. The pilot ran successfully and users completed the flow." /></label>
+                            <button className="secondary" type="button" data-testid="save-execution-evidence" disabled={busy || !evidenceStatement.trim()} onClick={() => void saveExecutionEvidence()}>Save execution evidence</button>
                           </section>
                         )}
                         {executionEvidence.length > 0 && (
                           <section className="prerequisite-form">
                             <h3>Step 2 · Creation record</h3>
                             <p>Summarize what was created. Saving this opens Gate 16 · Value.</p>
-                            <label>Creation outcome<textarea value={creationRecordText} onChange={(event) => setCreationRecordText(event.target.value)} placeholder="e.g. Portable case pilot delivered and validated." /></label>
-                            <button className="gate-button" type="button" disabled={busy || !creationRecordText.trim()} onClick={() => void saveCreationRecord()}>
+                            <label>Creation outcome<textarea data-testid="creation-record" value={creationRecordText} onChange={(event) => setCreationRecordText(event.target.value)} placeholder="e.g. Portable case pilot delivered and validated." /></label>
+                            <button className="gate-button" type="button" data-testid="save-creation-record" disabled={busy || !creationRecordText.trim()} onClick={() => void saveCreationRecord()}>
                               {busy ? "Opening Gate 16…" : "Save creation record and open Gate 16"}
                             </button>
                           </section>
@@ -1487,13 +1493,13 @@ export function LiveWorkspace({ initialProject, onStartOver }: { initialProject:
                     <div className="live-resource-grid">{commitmentReviews.map((item) => <ResourceCard key={item.id} resource={item} />)}</div>
                   </section>
                 )}
-                {isPendingGate ? <section className="gate-card live-gate">
+                {isPendingGate ? <section className="gate-card live-gate" data-testid="human-gate">
                   <div className="gate-seal"><LockKeyhole size={18} /><span>G{active.gate}</span></div>
                   <div className="gate-copy"><span>Human decision</span><h3>{confirmLabel}</h3><p>This is the required human step. AI cannot do it. Confirming Gate {currentGate} unlocks {nextTitle}.</p></div>
                   <div className="gate-form">
                     {active.gate === 11 && <select aria-label="Decision" value={decision || "CONDITIONAL_GO"} onChange={(event) => setDecision(event.target.value)}><option value="CONDITIONAL_GO">Conditional go</option><option value="GO">Go</option><option value="VALIDATE_FIRST">Validate first</option><option value="HOLD">Hold</option><option value="NO_GO">No-go</option></select>}
-                    {(active.gate === 11) && <input aria-label="Decision rationale or condition" value={rationale} onChange={(event) => setRationale(event.target.value)} placeholder="Required condition or rationale for conditional go" />}
-                    <button className="gate-button" type="button" disabled={busy || !canSubmit} onClick={() => void confirm()}>{busy ? "Submitting…" : confirmLabel}</button>
+                    {(active.gate === 11) && <input aria-label="Decision rationale or condition" data-testid="gate-rationale" value={rationale} onChange={(event) => setRationale(event.target.value)} placeholder="Required condition or rationale for conditional go" />}
+                    <button className="gate-button" type="button" data-testid="confirm-gate" disabled={busy || !canSubmit} onClick={() => void confirm()}>{busy ? "Submitting…" : confirmLabel}</button>
                   </div>
                   {!canSubmit && <p className="status-error">{active.gate === 11
                     ? (!selectedIdea

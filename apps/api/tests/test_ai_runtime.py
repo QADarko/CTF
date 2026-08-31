@@ -402,3 +402,18 @@ def test_ollama_env_supports_per_tier_models_timeout_and_capability_flags(monkey
     assert config.local_allow_t3 is True
     assert config.local_allow_t4 is False
     assert provider.timeout_seconds == 45
+
+
+def test_user_input_not_duplicated_in_provider_payload():
+    repo = InMemoryRepository()
+    project, _ = project_in(repo)
+    unique = "UNIQUE_USER_PHRASE_NOT_DUPLICATED_XYZ"
+    service = runtime(repo, [valid_output(text="draft")])
+    service.execute(project, operation="QUESTION_REFRAME", user_input=unique)
+    messages = service.provider.calls[0]["messages"]
+    system = json.loads(messages[0]["content"])
+    assert unique not in json.dumps(system.get("context", {}))
+    assert "current_user_input" not in system.get("context", {})
+    assert messages[1]["content"] == unique
+    blob = json.dumps(messages)
+    assert blob.count(unique) == 1

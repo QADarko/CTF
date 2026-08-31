@@ -14,10 +14,15 @@ FORBIDDEN_RESOURCE_KINDS = frozenset(
     {
         "REALITY_EVENT",
         "EXECUTION_EVENT",
-        "DOCUMENT_CHUNK",
         "ATTACHMENT",
         "ERI_CONNECTION",
         "METRIC_BINDING",
+    }
+)
+DEFAULT_EXCLUDED_RESOURCE_KINDS = frozenset(
+    {
+        *FORBIDDEN_RESOURCE_KINDS,
+        "DOCUMENT_CHUNK",
     }
 )
 

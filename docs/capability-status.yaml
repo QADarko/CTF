@@ -685,7 +685,7 @@ capabilities:
     status: IMPLEMENTED
     priority: P0
     architecture_refs: ["Consequentiality Engine"]
-    evidence: {code: [packages/ctf_domain/consequentiality.py, packages/ctf_domain/ai_runtime.py], tests: [apps/api/tests/test_consequentiality.py], docs: [docs/architecture.md]}
+    evidence: {code: [packages/ctf_domain/consequentiality.py, packages/ctf_domain/risk_signals.py, packages/ctf_domain/ai_runtime.py], tests: [apps/api/tests/test_consequentiality.py], docs: [docs/architecture.md]}
     gaps: []
     blocked_by: []
     visibility: PUBLIC
@@ -741,7 +741,7 @@ capabilities:
     status: IMPLEMENTED
     priority: P0
     architecture_refs: ["Local Document Intelligence"]
-    evidence: {code: [packages/ctf_domain/job_queue.py, apps/worker/main.py], tests: [apps/api/tests/test_document_worker.py], docs: [docs/architecture.md]}
+    evidence: {code: [packages/ctf_domain/job_queue.py, packages/ctf_domain/sqlalchemy_models.py, apps/worker/main.py], tests: [apps/api/tests/test_document_worker.py, apps/api/tests/test_postgres_job_queue.py], docs: [docs/architecture.md]}
     gaps: []
     blocked_by: []
     visibility: PUBLIC
@@ -930,7 +930,7 @@ capabilities:
     status: IMPLEMENTED
     priority: P0
     architecture_refs: ["Reliability and degradation"]
-    evidence: {code: [scripts/backup/verify_backup.py, scripts/restore/verify_restore.py], tests: [apps/api/tests/test_backup_restore.py], docs: [docs/runbooks.md]}
+    evidence: {code: [packages/ctf_domain/backup.py, scripts/backup/backup.sh, scripts/restore/restore.sh], tests: [apps/api/tests/test_backup_restore.py], docs: [docs/runbooks.md]}
     gaps: []
     blocked_by: []
     visibility: PUBLIC

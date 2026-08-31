@@ -50,7 +50,7 @@ class ModelRouter:
         route = ROUTES.get(operation)
         if not route:
             raise DomainError("MODEL_ROUTE_NOT_FOUND", f"No model capability route for {operation}.", 404)
-        if consequentiality.upper() == "CRITICAL" and route.tier in {"T1", "T2"}:
+        if consequentiality.upper() in {"HIGH", "CRITICAL"} and route.tier in {"T1", "T2"}:
             return Route(
                 route.operation,
                 "CRITICAL_REASONING",

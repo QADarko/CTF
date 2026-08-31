@@ -639,7 +639,7 @@ class AIExecutionService:
                 prompt.output_tokens,
                 False,
             )
-            if consequentiality.upper() == "CRITICAL" and route.tier in {"T1", "T2"}:
+            if consequentiality.upper() in {"HIGH", "CRITICAL"} and route.tier in {"T1", "T2"}:
                 route = Route(route.operation, "CRITICAL_REASONING", "T3", "HIGH", max(route.max_input_tokens, 16_000), max(route.max_output_tokens, 1_500), False)
         return route
 
@@ -686,7 +686,7 @@ class AIExecutionService:
             operation=prompt.operation,
             project=project,
             requested_level=consequentiality,
-            context=extra_context,
+            repository=self.repo,
         )
         route = self._route(prompt, assessment.level.value)
         require(bool(self.provider), "AI_PROVIDER_NOT_CONFIGURED", "No AI provider is configured.", 503)
@@ -715,6 +715,7 @@ class AIExecutionService:
         )
         context = compiled.payload
         grounding_index: GroundingIndex = index_from_compiled(compiled)
+        user_already_in_context = bool(context.get("current_user_input"))
         input_tokens = (
             self._tokens(context)
             + self._tokens(
@@ -726,7 +727,7 @@ class AIExecutionService:
                     "forbidden": prompt.forbidden,
                 }
             )
-            + self._tokens(user_input)
+            + (0 if user_already_in_context else self._tokens(user_input))
         )
         require(input_tokens <= route.max_input_tokens, "AI_INPUT_BUDGET_EXCEEDED", "Compiled AI context exceeds the routed input budget.", 413)
         pricing = self._pricing(model)

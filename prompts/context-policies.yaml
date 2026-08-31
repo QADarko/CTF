@@ -2,8 +2,13 @@ version: "1.0"
 defaults: &defaults
   version: "1.0"
   allowed_statuses: [CONFIRMED, SELECTED, ACTIVE, COMPLETED, PROPOSED, CANDIDATE]
-  include_user_input: true
+  include_user_input: false
   include_request_context: true
+  include_superseded_history: false
+  allow_document_chunks: false
+  max_document_chunks: 5
+  max_chunk_characters: 4000
+  require_explicit_chunk_refs: true
   allowed_request_context_keys: [focus, selected_ids, resource_refs, constraints]
   excluded_resource_kinds: [REALITY_EVENT, EXECUTION_EVENT, DOCUMENT_CHUNK, ATTACHMENT]
   max_resource_items: 20
@@ -267,6 +272,7 @@ policies:
     evidence_limit: 6
   REALITY_DELTA:
     <<: *defaults
+    include_superseded_history: true
     memory_roots: [reality, reality_snapshots]
     resource_kinds: [REALITY, REALITY_SNAPSHOT, TRANSFORMATION]
     evidence_limit: 6
@@ -277,6 +283,7 @@ policies:
     evidence_limit: 10
   CYCLE_REVIEW:
     <<: *defaults
+    include_superseded_history: true
     memory_roots: [creation_cycles, reality_snapshots, decision_history]
     resource_kinds: [CREATION_CYCLE, REALITY_SNAPSHOT, HUMAN_DECISION, CREATION_RECORD]
     evidence_limit: 6

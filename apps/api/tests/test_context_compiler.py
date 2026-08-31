@@ -168,3 +168,222 @@ def test_every_registered_ai_operation_has_context_policy():
     registry.require_coverage(operations)
     assert len(operations) == 55
     assert set(operations) <= set(registry.operations())
+
+
+def _supersede_reality(repo, project):
+    old = repo.create_resource(project, "REALITY", {"items": [{"text": "old reality"}]}, status="CONFIRMED")
+    repo.resources[old.id].immutable = True
+    replacement = repo.create_resource(project, "REALITY", {"items": [{"text": "current reality"}]}, status="CONFIRMED")
+    repo.supersede_resource(project, old.id, replacement.id)
+    return old, replacement
+
+
+def test_superseded_resource_never_enters_current_ai_context():
+    repo = InMemoryRepository()
+    project = _project(repo)
+    old, replacement = _supersede_reality(repo, project)
+    compiled = _compile(repo, project, "REALITY_UPDATE")
+    ids = compiled.manifest.included_resource_refs
+    assert old.id not in ids
+    assert replacement.id in ids
+
+
+def test_current_replacement_enters_ai_context():
+    repo = InMemoryRepository()
+    project = _project(repo)
+    _, replacement = _supersede_reality(repo, project)
+    compiled = _compile(repo, project, "REALITY_UPDATE")
+    assert replacement.id in compiled.manifest.included_resource_refs
+    assert any(item["id"] == replacement.id for item in compiled.payload["relevant_resources"])
+
+
+def test_superseded_resource_remains_in_genealogy():
+    repo = InMemoryRepository()
+    project = _project(repo)
+    old, replacement = _supersede_reality(repo, project)
+    assert repo.resources[old.id].superseded_by == replacement.id
+    assert repo.resources[replacement.id].supersedes_id == old.id
+    assert any(link["relation"] == "SUPERSEDES" for link in repo.creation_links)
+    assert repo.get_resource(project, old.id).id == old.id
+
+
+def test_history_policy_can_explicitly_include_superseded_resource():
+    repo = InMemoryRepository()
+    project = _project(repo)
+    old, replacement = _supersede_reality(repo, project)
+    compiled = _compile(repo, project, "REALITY_DELTA")
+    assert old.id in compiled.manifest.included_resource_refs
+    assert replacement.id in compiled.manifest.included_resource_refs
+
+
+def test_creation_memory_stale_ref_resolves_to_current_resource():
+    repo = InMemoryRepository()
+    project = _project(repo)
+    old, replacement = _supersede_reality(repo, project)
+    project.memory["reality"] = {"id": old.id, "version": old.version, "status": old.status}
+    compiled = _compile(repo, project, "REALITY_UPDATE")
+    assert compiled.payload["confirmed_memory"]["reality"]["id"] == replacement.id
+    assert compiled.payload["confirmed_memory"]["reality"]["version"] == replacement.version
+
+
+def test_user_input_counted_once_in_token_estimate():
+    repo = InMemoryRepository()
+    project = _project(repo)
+    unique = "UNIQUE_USER_PHRASE_TOKEN_ONCE_XYZ"
+    compiled = ContextCompiler(repo).compile(
+        project=project,
+        operation="QUESTION_REFRAME",
+        constitution="c",
+        policy="p",
+        authority_rules="a",
+        user_input=unique,
+        request_context={},
+        output_schema={"type": "object"},
+        max_input_tokens=50_000,
+    )
+    blob = json.dumps(compiled.payload)
+    assert unique not in blob
+    assert "current_user_input" not in compiled.payload
+
+
+def test_document_chunk_excluded_by_default():
+    repo = InMemoryRepository()
+    project = _project(repo)
+    chunk = repo.create_resource(project, "DOCUMENT_CHUNK", {"text": "full source dump"}, status="PROPOSED")
+    compiled = _compile(repo, project, "DOCUMENT_EVIDENCE_EXTRACTION")
+    assert chunk.id not in compiled.manifest.included_resource_refs
+    assert "DOCUMENT_CHUNK" in compiled.manifest.excluded_resource_kinds
+
+
+def test_document_operation_requires_explicit_chunk_reference(tmp_path: Path):
+    path = tmp_path / "chunks.yaml"
+    path.write_text(
+        """
+version: "1.0"
+policies:
+  DOCUMENT_EVIDENCE_EXTRACTION:
+    version: "1.0"
+    memory_roots: [document_provenance]
+    resource_kinds: [EVIDENCE]
+    allowed_statuses: [PROPOSED, CONFIRMED]
+    include_user_input: false
+    include_request_context: true
+    allowed_request_context_keys: [selected_ids, resource_refs]
+    excluded_resource_kinds: [REALITY_EVENT]
+    max_resource_items: 20
+    evidence_limit: 8
+    allow_document_chunks: true
+    require_explicit_chunk_refs: true
+    max_document_chunks: 5
+    max_chunk_characters: 4000
+""",
+        encoding="utf-8",
+    )
+    repo = InMemoryRepository()
+    project = _project(repo)
+    chunk = repo.create_resource(project, "DOCUMENT_CHUNK", {"text": "selected only"}, status="PROPOSED")
+    compiler = ContextCompiler(repo, ContextPolicyRegistry(path))
+    args = {
+        "project": project,
+        "operation": "DOCUMENT_EVIDENCE_EXTRACTION",
+        "constitution": "c",
+        "policy": "p",
+        "authority_rules": "a",
+        "user_input": "",
+        "output_schema": {"type": "object"},
+        "max_input_tokens": 50_000,
+    }
+    denied = compiler.compile(request_context={}, **args)
+    assert chunk.id not in denied.manifest.included_resource_refs
+    allowed = compiler.compile(request_context={"resource_refs": [chunk.id]}, **args)
+    assert chunk.id in allowed.manifest.included_resource_refs
+
+
+def test_document_chunk_limit_enforced(tmp_path: Path):
+    path = tmp_path / "chunks.yaml"
+    path.write_text(
+        """
+version: "1.0"
+policies:
+  DOCUMENT_EVIDENCE_EXTRACTION:
+    version: "1.0"
+    memory_roots: [document_provenance]
+    resource_kinds: [EVIDENCE]
+    allowed_statuses: [PROPOSED]
+    include_user_input: false
+    include_request_context: true
+    allowed_request_context_keys: [selected_ids, resource_refs]
+    excluded_resource_kinds: [REALITY_EVENT]
+    max_resource_items: 20
+    evidence_limit: 8
+    allow_document_chunks: true
+    require_explicit_chunk_refs: false
+    max_document_chunks: 2
+    max_chunk_characters: 20
+""",
+        encoding="utf-8",
+    )
+    repo = InMemoryRepository()
+    project = _project(repo)
+    for index in range(4):
+        repo.create_resource(project, "DOCUMENT_CHUNK", {"text": f"chunk-{index}-{'x' * 80}"}, status="PROPOSED")
+    compiled = ContextCompiler(repo, ContextPolicyRegistry(path)).compile(
+        project=project,
+        operation="DOCUMENT_EVIDENCE_EXTRACTION",
+        constitution="c",
+        policy="p",
+        authority_rules="a",
+        user_input="",
+        request_context={},
+        output_schema={"type": "object"},
+        max_input_tokens=50_000,
+    )
+    chunk_ids = [item["id"] for item in compiled.payload["relevant_resources"] if item["kind"] == "DOCUMENT_CHUNK"]
+    assert len(chunk_ids) == 2
+    for item in compiled.payload["relevant_resources"]:
+        if item["kind"] == "DOCUMENT_CHUNK":
+            assert len(item["data"]["text"]) <= 20
+
+
+def test_unselected_chunk_never_enters_context(tmp_path: Path):
+    path = tmp_path / "chunks.yaml"
+    path.write_text(
+        """
+version: "1.0"
+policies:
+  DOCUMENT_EVIDENCE_EXTRACTION:
+    version: "1.0"
+    memory_roots: [document_provenance]
+    resource_kinds: [EVIDENCE]
+    allowed_statuses: [PROPOSED]
+    include_user_input: false
+    include_request_context: true
+    allowed_request_context_keys: [selected_ids, resource_refs]
+    excluded_resource_kinds: [REALITY_EVENT]
+    max_resource_items: 20
+    evidence_limit: 8
+    allow_document_chunks: true
+    require_explicit_chunk_refs: true
+    max_document_chunks: 5
+    max_chunk_characters: 4000
+""",
+        encoding="utf-8",
+    )
+    repo = InMemoryRepository()
+    project = _project(repo)
+    selected = repo.create_resource(project, "DOCUMENT_CHUNK", {"text": "keep"}, status="PROPOSED")
+    other = repo.create_resource(project, "DOCUMENT_CHUNK", {"text": "drop"}, status="PROPOSED")
+    compiled = ContextCompiler(repo, ContextPolicyRegistry(path)).compile(
+        project=project,
+        operation="DOCUMENT_EVIDENCE_EXTRACTION",
+        constitution="c",
+        policy="p",
+        authority_rules="a",
+        user_input="",
+        request_context={"selected_ids": [selected.id]},
+        output_schema={"type": "object"},
+        max_input_tokens=50_000,
+    )
+    ids = compiled.manifest.included_resource_refs
+    assert selected.id in ids
+    assert other.id not in ids

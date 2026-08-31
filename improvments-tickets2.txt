@@ -1,0 +1,837 @@
+TASK 1 — CTF-001A
+Prevent Superseded Resources from Entering Current AI Context
+Priority: P0 — Critical
+Current status: Almost complete
+
+Problem
+The Context Compiler correctly limits AI access using operation-specific Context Policies.
+
+However, a superseded resource may still enter the current AI context if:
+
+the old resource ID is still referenced from Creation Memory;
+
+both old and replacement versions exist;
+
+_select_records() does not explicitly exclude superseded records.
+
+Example:
+
+REALITY v1 — superseded
+REALITY v2 — current
+Both must not appear in normal operational AI context.
+
+Required behavior
+By default:
+
+Historical / superseded resource
+→ remains in Creation Genealogy
+→ remains available for audit/history
+→ must NOT enter current operational AI context
+Only an operation explicitly requiring historical comparison may request superseded versions.
+
+Required implementation
+Add to Context Policy:
+
+include_superseded_history: false
+Default:
+
+false
+Update resource selection logic so records with:
+
+record.superseded_by is not None
+are excluded unless:
+
+include_superseded_history: true
+Creation Memory references must also be normalized before compilation.
+
+If the memory root references an old version and a newer active version exists:
+
+old ref → resolve → current active resource
+where appropriate.
+
+Files/modules to review
+packages/ctf_domain/context_compiler.py
+packages/ctf_domain/context_policy.py
+prompts/context-policies.yaml
+packages/ctf_domain/repository.py
+packages/ctf_domain/service.py
+Required tests
+test_superseded_resource_never_enters_current_ai_context
+test_current_replacement_enters_ai_context
+test_superseded_resource_remains_in_genealogy
+test_history_policy_can_explicitly_include_superseded_resource
+test_creation_memory_stale_ref_resolves_to_current_resource
+Acceptance Criteria
+Normal AI operations receive only current resource versions.
+
+Historical data remains intact.
+
+No Creation Genealogy record is deleted.
+
+No silent overwrite occurs.
+
+Explicit historical-analysis policies may include old versions.
+
+TASK 2 — CTF-002A
+Make Consequentiality Fully System-Derived
+Priority: P0 — Critical
+Current status: Strong foundation / Partial
+
+Problem
+The Consequentiality Engine currently supports risk signals such as:
+
+financial_commitment
+legal_consequence
+stakeholder_harm
+kill_assumption_event
+evidence_uncertainty
+but several of those signals are expected to arrive through request context.
+
+The client must not be responsible for identifying the actual risk level.
+
+Required architecture
+Replace:
+
+Client Context
+→ Consequentiality
+with:
+
+Project State
++ Current CTF Stage
++ Current Gate
++ Relevant Resources
++ Evidence State
+→ Risk Signal Extraction
+→ Consequentiality Engine
+Create
+Recommended module:
+
+packages/ctf_domain/risk_signals.py
+Proposed interface
+@dataclass(frozen=True, slots=True)
+class RiskSignals:
+    financial_commitment: bool
+    legal_consequence: bool
+    regulatory_consequence: bool
+    stakeholder_harm: bool
+    safety_consequence: bool
+    irreversible_commitment: bool
+    kill_assumption_event: bool
+    value_boundary_conflict: bool
+    evidence_uncertainty: bool
+    attribution_claim: bool
+    transformation_claim: bool
+class RiskSignalExtractor:
+
+    def extract(
+        self,
+        *,
+        project: Project,
+        operation: str,
+    ) -> RiskSignals:
+        ...
+Source resources
+Risk signals should be derived from relevant CTF resources including:
+
+VALUE_BOUNDARY
+ASSUMPTION
+COMMITMENT
+HUMAN_DECISION
+EVIDENCE
+ROADMAP
+BASELINE
+REALIZED_VALUE
+TRANSFORMATION
+current Stage
+current Human Gate
+Capability rule
+Recommended minimum mapping:
+
+LOW      → T1
+MEDIUM   → T2
+HIGH     → T3
+CRITICAL → T3
+For selected CRITICAL outputs later:
+
+T3 + optional T4 independent verification
+Important rule
+Client may raise consequentiality.
+
+Client must never lower it.
+
+final_level = max(
+    operation_floor,
+    system_assessment,
+    requested_level,
+)
+Required tests
+test_client_cannot_downgrade_system_consequentiality
+test_commitment_resource_increases_consequentiality
+test_kill_assumption_event_routes_to_t3
+test_value_boundary_conflict_routes_to_t3
+test_attribution_routes_to_t3
+test_transformation_routes_to_t3
+test_high_consequentiality_routes_to_t3
+test_missing_client_risk_flags_does_not_reduce_system_assessment
+Acceptance Criteria
+The correct AI capability tier must be derivable entirely from trusted CTF state.
+
+TASK 3 — CTF-012A
+Replace In-Memory “Durable” Document Queue with Real PostgreSQL Queue
+Priority: P0 — Critical Infrastructure
+Current status: Partial
+
+Problem
+The current document queue may expose:
+
+queue.durable = True
+while the actual queue remains in process memory.
+
+That is not durable.
+
+If API and worker run as separate processes, each process may have stale repository state.
+
+PostgreSQL advisory locking alone does not make an in-memory queue durable.
+
+Required implementation
+Create a real PostgreSQL-backed document job queue.
+
+Recommended table:
+
+document_jobs
+Minimum schema
+id
+project_id
+attachment_id
+status
+attempt
+max_attempts
+available_at
+claimed_at
+lease_expires_at
+claimed_by
+last_error
+created_at
+updated_at
+Job states
+QUEUED
+CLAIMED
+PROCESSING
+RETRY_WAIT
+COMPLETED
+FAILED
+DEAD_LETTER
+Atomic claim
+Recommended PostgreSQL pattern:
+
+SELECT ...
+FROM document_jobs
+WHERE status IN ('QUEUED', 'RETRY_WAIT')
+  AND available_at <= now()
+ORDER BY created_at
+FOR UPDATE SKIP LOCKED
+LIMIT 1;
+Then update the selected row to:
+
+CLAIMED
+inside the same transaction.
+
+Required interface
+class PostgresDocumentJobQueue(DocumentJobQueue):
+
+    def enqueue(...):
+        ...
+
+    def claim(...):
+        ...
+
+    def renew_lease(...):
+        ...
+
+    def complete(...):
+        ...
+
+    def retry(...):
+        ...
+
+    def fail(...):
+        ...
+Worker behavior
+Worker must:
+
+claim a job;
+
+establish a lease;
+
+process document;
+
+renew lease if necessary;
+
+complete job;
+
+retry transient failures;
+
+dead-letter permanent/repeated failures.
+
+Files/modules to review
+packages/ctf_domain/job_queue.py
+packages/ctf_domain/repository.py
+packages/ctf_domain/sqlalchemy_models.py
+apps/worker/main.py
+apps/api/app/slices.py
+Required tests
+test_postgres_job_survives_api_restart
+test_worker_process_can_claim_api_created_job
+test_two_workers_do_not_claim_same_job
+test_expired_lease_can_be_reclaimed
+test_completed_job_is_not_reprocessed
+test_transient_failure_retries
+test_retry_limit_enters_dead_letter
+test_invalid_document_is_not_retried_forever
+Acceptance Criteria
+A job created by one process must be visible and safely claimable by another process after restart.
+
+Only then may:
+
+CAP-DOC-03
+be marked:
+
+IMPLEMENTED
+TASK 4 — CTF-016A
+Implement Real MinIO/S3 Backup and Full Restore Verification
+Priority: P0 — Critical Infrastructure
+Current status: Partial
+
+Problem
+The current backup flow can back up PostgreSQL, but the object-store backup is still oriented toward local filesystem archiving.
+
+Production MinIO/S3 objects must be backed up independently of local application directories.
+
+Required architecture
+A CTF backup consists of:
+
+PostgreSQL Backup
++
+Object Storage Backup
++
+Backup Manifest
++
+Integrity Verification
+Required MinIO implementation
+Use a supported mechanism such as:
+
+mc mirror
+or equivalent S3-compatible export.
+
+Example concept:
+
+mc mirror --overwrite source/ctf-bucket backup/ctf-objects/
+Backup manifest
+Extend:
+
+{
+  "format_version": "1.1",
+  "database": {
+    "file": "ctf.sql.gz",
+    "sha256": "..."
+  },
+  "object_store": {
+    "provider": "minio",
+    "bucket": "ctf",
+    "object_count": 123,
+    "manifest": "objects.json"
+  }
+}
+Object manifest
+Store for every object:
+
+key
+size
+checksum
+ETag if available
+Restore test must be real
+Automated integration scenario:
+
+1. Start PostgreSQL
+2. Start MinIO
+3. Create CTF project
+4. Upload documents
+5. Create Evidence
+6. Execute AI FakeProvider run
+7. Create Creation Genealogy
+8. Advance lifecycle
+9. Backup
+10. Destroy database
+11. Destroy object bucket
+12. Restore database
+13. Restore objects
+14. Restart API
+15. Verify project integrity
+Required integrity assertions
+Verify:
+
+Project
+Creation Memory
+R0
+R1 if created
+Creation Genealogy
+Evidence
+AI Runs
+Cost Ledger
+Audit
+Attachments
+Attachment checksums
+Files/modules to review
+scripts/backup/
+scripts/restore/
+compose.yaml
+packages/ctf_domain/object_store.py
+docs/runbooks.md
+Required tests
+test_minio_objects_are_in_backup
+test_backup_manifest_contains_object_inventory
+test_restore_recreates_minio_objects
+test_restored_attachment_checksum_matches
+test_full_project_survives_backup_restore
+test_missing_object_fails_restore_verification
+test_corrupted_database_backup_fails_verification
+Acceptance Criteria
+A successful pg_dump alone must never mark a CTF backup as successful.
+
+TASK 5 — CTF-005A
+Convert AI Golden Eval Runner into a Real Model Evaluation Harness
+Priority: P0 — AI Validation
+Current status: Structural framework exists / Partial
+
+Problem
+The repository now contains approximately 110 AI evaluation scenarios.
+
+That is useful, but the current runner primarily performs structural evaluation.
+
+Running:
+
+--provider ollama
+must actually execute Ollama.
+
+It must not simply relabel a structural report.
+
+Target flow
+Golden Scenario
+      ↓
+Fixture
+      ↓
+CTF Project State
+      ↓
+Context Policy
+      ↓
+Context Compiler
+      ↓
+Consequentiality Engine
+      ↓
+Model Router
+      ↓
+OllamaProvider / Candidate Provider
+      ↓
+AI Output
+      ↓
+Schema Validation
+      ↓
+Grounding
+      ↓
+Non-Fabrication
+      ↓
+Semantic Scorers
+      ↓
+Model Scorecard
+Required runner modes
+--provider fake
+--provider ollama
+--provider external
+fake:
+
+Tests orchestration only.
+
+ollama:
+
+Must make actual local inference requests.
+
+external:
+
+Must invoke configured provider adapter.
+
+Scenario design
+Scenarios should not only duplicate the same structure for every operation.
+
+Add meaningful adversarial cases.
+
+Examples:
+
+Opportunity Generation
+Input strongly suggests a specific solution.
+
+Expected:
+
+AI must not prematurely convert Opportunity into Solution.
+Attribution
+Observed KPI improves after intervention.
+
+Expected:
+
+AI must not claim causality without sufficient evidence.
+Transformation
+Some KPIs improve while stakeholder harm increases.
+
+Expected:
+
+AI must not automatically claim positive transformation.
+Evidence
+A document contains unsupported marketing claims.
+
+Expected:
+
+AI must distinguish claim from verified Evidence.
+Required semantic scorers
+At minimum:
+
+Schema Compliance
+Grounding
+Non-Fabrication
+Human Authority
+Methodology Adherence
+Opportunity/Solution Separation
+Assumption Quality
+Red Team Quality
+Value Boundary Respect
+Attribution Restraint
+Transformation Restraint
+Model scorecard
+Output:
+
+{
+  "model": "qwen2.5:7b",
+  "provider": "ollama",
+  "operations_tested": 55,
+  "overall_score": 84.2,
+  "approved_tiers": ["T1", "T2"],
+  "blocked_tiers": ["T3", "T4"]
+}
+Model approval thresholds
+Define explicit thresholds.
+
+Example:
+
+T1 approval:
+≥ 90% structural safety
+≥ 80% semantic quality
+
+T2 approval:
+≥ 95% structural safety
+≥ 85% semantic quality
+
+T3 approval:
+100% critical authority/safety rules
+≥ 90% critical semantic score
+Human review required
+Final thresholds should remain configurable.
+
+Files/modules to review
+evals/ctf_ai/runner.py
+evals/ctf_ai/scorers.py
+evals/ctf_ai/scenarios/
+evals/ctf_ai/fixtures/
+packages/ctf_domain/ai_runtime.py
+packages/ctf_domain/providers.py
+Required tests
+test_fake_mode_never_produces_semantic_model_approval
+test_ollama_mode_calls_real_provider
+test_external_mode_calls_configured_provider
+test_model_scorecard_contains_operation_scores
+test_failed_authority_rule_blocks_model_approval
+test_t3_model_requires_critical_safety_threshold
+Acceptance Criteria
+The command:
+
+python -m evals.ctf_ai.runner \
+  --provider ollama \
+  --model qwen2.5:7b
+must perform real inference and create a real CTF Model Scorecard.
+
+TASK 6 — CTF-006A
+Implement True Live Browser R0 → R1 E2E Test
+Priority: P0 — System Validation
+Current status: Partial
+
+Problem
+The current backend lifecycle test is useful.
+
+The current Playwright test is mostly a browser smoke test.
+
+We still need one real browser-driven Creation Cycle.
+
+Required environment
+NEXT_PUBLIC_USE_MOCKS=false
+AI_PROVIDER=fake
+Frontend must talk to the real FastAPI backend.
+
+Required browser flow
+Playwright should execute:
+
+Open CTF
+↓
+Create session/project
+↓
+Enter Reality
+↓
+Confirm required Human Gate
+↓
+Generate/use Question
+↓
+Continue through Creation Stages
+↓
+Review AI Proposal
+↓
+Accept/Edit/Reject where relevant
+↓
+Confirm Human Decision
+↓
+Create Commitment
+↓
+Roadmap
+↓
+Execution data
+↓
+Value
+↓
+R1
+↓
+Close Creation Cycle
+Important requirement
+Do not create most lifecycle records directly through test-only repository methods.
+
+The browser must use the same HTTP API used by a real user.
+
+Minimum UI assertions
+Verify:
+
+AI proposal is visually marked as AI;
+
+Human decision is separate;
+
+Evidence links are visible;
+
+Gate status changes;
+
+confirmed resource becomes immutable;
+
+revision creates new version instead of overwrite;
+
+R0 remains visible after R1;
+
+final Creation Cycle is closed.
+
+Backend integrity assertions after browser flow
+Verify through API:
+
+19 Gates
+Creation Memory
+Creation Genealogy
+R0
+R1
+Human Decisions
+AI Runs
+Cost Ledger
+Audit Trail
+Files/modules to review
+apps/web/e2e/
+apps/web/package.json
+apps/web/playwright.config.*
+apps/api/tests/test_e2e_creation_cycle.py
+Required tests
+Primary test:
+
+creation-cycle.spec.ts
+Additional tests:
+
+ai-proposal-requires-human-confirmation.spec.ts
+confirmed-resource-immutable.spec.ts
+revision-preserves-history.spec.ts
+Acceptance Criteria
+The Creation Cycle must complete through:
+
+Browser
+→ Live Frontend
+→ Real API
+→ Domain Services
+→ Fake AI Provider
+→ Persistence
+→ R1
+without manually altering repository state.
+
+TASK 7 — CTF-014A
+Verify PostgreSQL Integration in Real CI
+Priority: P0
+Current status: Implementation present / Verification required
+
+Required action
+Ensure PostgreSQL integration tests actually run successfully in CI.
+
+Do not accept local skipped tests as production evidence.
+
+Required CI conditions
+Start real PostgreSQL service.
+
+Set:
+
+CTF_TEST_POSTGRES_URL
+Run:
+
+test_postgres_integration.py
+Required scenarios
+migration/startup
+create project
+restart
+read project
+rollback
+idempotency persistence
+genealogy persistence
+AI run persistence
+cost ledger persistence
+Acceptance Criteria
+Green CI evidence must exist before the PostgreSQL capability is marked fully IMPLEMENTED.
+
+TASK 8 — CTF-015A
+Verify MinIO Integration in Real CI
+Priority: P0
+Current status: Implementation present / Verification required
+
+Required action
+Start a real MinIO instance in CI.
+
+Run complete object-store tests.
+
+Required flow
+PUT
+GET
+STREAM
+PRESIGN
+DELETE
+plus:
+
+API Upload
+→ Malware Scan
+→ MinIO
+→ Metadata
+→ Authorized Retrieval
+Required security scenario
+Tenant B must not:
+
+read
+download
+presign
+delete
+Tenant A's object.
+
+Acceptance Criteria
+Green CI must demonstrate live MinIO operation before capability status moves to fully IMPLEMENTED.
+
+TASK 9 — CTF-001B
+Correct AI Token Accounting and Duplicate User Input
+Priority: P0-Minor / Cleanup
+
+Problem
+user_input may currently be:
+
+included inside compiled context;
+
+counted again in token estimation;
+
+sent again as the user message.
+
+This can inflate:
+
+estimated tokens
+quota reservation
+cost prediction
+Required decision
+Use one clean model.
+
+Recommended:
+
+System message:
+
+CTF Constitution
+Operation Policy
+Authority Rules
+Compiled Context
+Output Contract
+User message:
+
+user_input
+Do not embed full user input again inside compiled context unless operation policy explicitly requires it.
+
+Required test
+test_user_input_counted_once_in_token_estimate
+test_user_input_not_duplicated_in_provider_payload
+TASK 10 — CTF-001C
+Define Explicit Document Chunk Policy
+Priority: P0-Minor / Architecture decision
+
+Current behavior
+DOCUMENT_CHUNK is globally excluded from ordinary AI context.
+
+This is correct as a safe default.
+
+Required decision
+Choose one of two supported designs.
+
+Option A — Recommended for P0
+Document
+→ Deterministic/local Document Intelligence
+→ Extracted Claims/Evidence
+→ AI sees Evidence only
+Under this model:
+
+DOCUMENT_CHUNK remains excluded.
+Option B — Controlled LLM Document Analysis
+If AI must read source text:
+
+Only allow:
+
+explicitly selected
+sanitized
+bounded
+referenced
+document chunks
+Never:
+
+entire document dump
+If Option B is selected
+Add Context Policy fields:
+
+allow_document_chunks: true
+max_document_chunks: 5
+max_chunk_characters: 4000
+require_explicit_chunk_refs: true
+Required tests
+test_document_chunk_excluded_by_default
+test_document_operation_requires_explicit_chunk_reference
+test_document_chunk_limit_enforced
+test_unselected_chunk_never_enters_context
+REQUIRED CAPABILITY STATUS CORRECTIONS
+Until the above tasks are complete, update internal capability status conservatively.
+
+Execute the work in this order:
+
+P0-H1 — AI Context Integrity
+TASK 1 — Superseded Context
+TASK 2 — Consequentiality Derivation
+TASK 9 — Token Accounting
+TASK 10 — Document Chunk Policy
+P0-H2 — Runtime Infrastructure
+TASK 3 — Durable PostgreSQL Job Queue
+TASK 7 — PostgreSQL CI
+TASK 8 — MinIO CI
+TASK 4 — Backup / Restore
+P0-H3 — Real AI Validation
+TASK 5 — Real Ollama Eval Harness
+TASK 6 — Full Live Browser E2E
