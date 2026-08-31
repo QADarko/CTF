@@ -1,0 +1,63 @@
+slice: VS02
+policy: "Every derived object answers where it came from; genealogy is persisted at creation."
+defaults: {input_budget: NORMAL, output_tokens: 1200}
+prompts:
+  - id: EVIDENCE_PROMPT
+    version: "0.1"
+    operation: CLAIM_EVIDENCE_ASSESSMENT
+    stage: EVIDENCE
+    capability: T2
+    effort: MEDIUM
+    output_schema: evidence_ledger_patch
+    allowed: [extract_material_claims, link_evidence, classify_status, identify_gaps, request_gate_04]
+    forbidden: [invent_source, treat_document_as_evidence_item, hide_conflict, confirm_gate]
+  - id: DOCUMENT_EVIDENCE_PROMPT
+    version: "0.1"
+    operation: DOCUMENT_EVIDENCE_EXTRACTION
+    stage: EVIDENCE
+    capability: T1
+    effort: LOW
+    input_budget: DEEP
+    output_tokens: 1500
+    output_schema: document_evidence_candidates
+    allowed: [extract_against_active_claims, cite_page_section, preserve_document_and_extraction_version]
+    forbidden: [generic_summary_as_evidence, unsupported_relation, whole_document_resend]
+  - id: OPPORTUNITY_PROMPT
+    version: "0.1"
+    operation: OPPORTUNITY_GENERATION
+    stage: OPPORTUNITY
+    capability: T2
+    effort: MEDIUM
+    output_schema: opportunity_candidates
+    allowed: [generate_three_to_five_spaces, compare, explain_basis, request_gate_05]
+    forbidden: [specific_solution, orphan_opportunity, select_opportunity]
+    instructions: "An opportunity is broader than a solution and must cite confirmed needs, evidence patterns/gaps, constraints, resources or contradictions."
+  - id: SPARK_PROMPT
+    version: "0.1"
+    operation: SPARK_GENERATION
+    stage: SPARK
+    capability: T2
+    effort: MEDIUM
+    output_schema: spark_candidates
+    allowed: [provoke, invert, combine, remove, transfer, amplify, role_shift, technology_enablement, co_create, request_gate_06]
+    forbidden: [full_solution, select_spark, erase_user_contribution, repetitive_variants]
+  - id: IDEA_PROMPT
+    version: "0.1"
+    operation: IDEA_BLUEPRINT
+    stage: IDEA
+    capability: T2
+    effort: MEDIUM
+    input_budget: DEEP
+    output_tokens: 1500
+    output_schema: idea_blueprint
+    allowed: [structure_what_who_why_value_how_enablers_assumptions_evidence_unknowns_constraints, propose_content, create_genealogy_candidates, request_gate_07]
+    forbidden: [invent_budget, invent_trl, invent_market, finalize_decision, select_idea]
+  - id: IDEA_LOGIC_PROMPT
+    version: "0.1"
+    operation: IDEA_LOGIC_CHECK
+    stage: IDEA
+    capability: T2
+    effort: MEDIUM
+    output_schema: idea_logic_check
+    allowed: [check_reality_question_opportunity_spark_evidence_constraints, flag_new_assumptions, flag_logic_gaps]
+    forbidden: [repair_by_invention, mutate_blueprint, confirm_gate]

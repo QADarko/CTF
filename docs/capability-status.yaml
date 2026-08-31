@@ -1,0 +1,893 @@
+schema_version: "1.0"
+generated_from: "Repository audit: architecture, runnable routes, direct tests, and operator documentation"
+last_verified: 2026-08-29
+capabilities:
+  - id: CAP-CORE-01
+    name: Server-authoritative workflow stages
+    area: Core workflow
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Trust and authority boundaries", "Slice state and gates"]
+    evidence: {code: [packages/ctf_domain/state_machine.py, packages/ctf_domain/service.py], tests: [apps/api/tests/test_full_lifecycle.py, apps/api/tests/test_common_and_gates.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-CORE-02
+    name: Nineteen human-owned decision gates
+    area: Core workflow
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Trust and authority boundaries", "Slice state and gates"]
+    evidence: {code: [packages/ctf_domain/state_machine.py, packages/ctf_domain/service.py], tests: [apps/api/tests/test_full_lifecycle.py, apps/api/tests/test_common_and_gates.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-CORE-03
+    name: Anonymous session and tenant isolation
+    area: Core workflow
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Logical components", "Quality attributes"]
+    evidence: {code: [apps/api/app/common.py, packages/ctf_domain/repository.py], tests: [apps/api/tests/test_common_and_gates.py, apps/api/tests/test_ai_runtime.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-CORE-04
+    name: Consequential write idempotency
+    area: Core workflow
+    status: PARTIAL
+    priority: P0
+    architecture_refs: ["Persistence rules"]
+    evidence: {code: [packages/ctf_domain/repository.py, apps/api/app/common.py], tests: [apps/api/tests/test_common_and_gates.py], docs: [docs/architecture.md]}
+    gaps: ["Direct idempotency coverage is not present for every consequential route."]
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-CORE-05
+    name: Optimistic version checks
+    area: Core workflow
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Persistence rules"]
+    evidence: {code: [packages/ctf_domain/repository.py, packages/ctf_domain/service.py], tests: [apps/api/tests/test_common_and_gates.py, apps/api/tests/test_persistence.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-CORE-06
+    name: Immutable confirmed records and supersession
+    area: Core workflow
+    status: PARTIAL
+    priority: P0
+    architecture_refs: ["Creation Memory", "Persistence rules"]
+    evidence: {code: [packages/ctf_domain/repository.py, packages/ctf_domain/service.py], tests: [apps/api/tests/test_vs03_vs05.py], docs: [docs/architecture.md]}
+    gaps: ["Immutability is directly tested for R0, not every confirmed resource kind."]
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-CORE-07
+    name: Persisted creation genealogy
+    area: Core workflow
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Creation Genealogy"]
+    evidence: {code: [packages/ctf_domain/service.py, apps/api/app/slices.py], tests: [apps/api/tests/test_vs01_vs02.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-CORE-08
+    name: Project audit event history
+    area: Core workflow
+    status: IMPLEMENTED
+    priority: P1
+    architecture_refs: ["Audit/telemetry"]
+    evidence: {code: [apps/api/app/common.py, packages/ctf_domain/repository.py], tests: [apps/api/tests/test_full_lifecycle.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-CORE-09
+    name: Controlled backward revision
+    area: Core workflow
+    status: PARTIAL
+    priority: P1
+    architecture_refs: ["Slice state and gates"]
+    evidence: {code: [apps/api/app/common.py, packages/ctf_domain/service.py], tests: [apps/api/tests/test_full_lifecycle.py], docs: [docs/architecture.md]}
+    gaps: ["Minimal-cause rollback behavior is not exhaustively verified for every stage."]
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-CORE-10
+    name: Multi-cycle R1 to new R0
+    area: Core workflow
+    status: IMPLEMENTED
+    priority: P1
+    architecture_refs: ["Scope", "Slice state and gates"]
+    evidence: {code: [packages/ctf_domain/service.py], tests: [apps/api/tests/test_full_lifecycle.py, apps/api/tests/test_vs03_vs05.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+
+  - id: CAP-VS01-01
+    name: Multi-entry project creation
+    area: VS01 Frame
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Scope", "Slice state and gates"]
+    evidence: {code: [apps/api/app/common.py], tests: [apps/api/tests/test_common_and_gates.py, apps/api/tests/test_full_lifecycle.py], docs: [docs/openapi.yaml]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS01-02
+    name: Private attachment upload and metadata
+    area: VS01 Frame
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Object storage", "Persistence rules"]
+    evidence: {code: [apps/api/app/common.py, packages/ctf_domain/object_store.py], tests: [apps/api/tests/test_vs01_vs02.py, apps/api/tests/test_persistence.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS01-03
+    name: Reality record capture
+    area: VS01 Frame
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Slice state and gates"]
+    evidence: {code: [apps/api/app/slices.py, packages/ctf_domain/service.py], tests: [apps/api/tests/test_common_and_gates.py, apps/api/tests/test_full_lifecycle.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS01-04
+    name: Adaptive minimum reality questions
+    area: VS01 Frame
+    status: PARTIAL
+    priority: P1
+    architecture_refs: ["Prompt Registry / Context Compiler"]
+    evidence: {code: [packages/ctf_domain/ai_runtime.py], tests: [apps/api/tests/test_ai_runtime.py], docs: [docs/requirements-traceability.md]}
+    gaps: ["No direct adaptive-question scenario suite was found."]
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS01-05
+    name: Neutral question proposals with human selection
+    area: VS01 Frame
+    status: PARTIAL
+    priority: P1
+    architecture_refs: ["Trust and authority boundaries"]
+    evidence: {code: [packages/ctf_domain/service.py, apps/web/src/app/page.tsx], tests: [apps/api/tests/test_common_and_gates.py], docs: [docs/architecture.md]}
+    gaps: ["Neutrality and maximum-three policy lack direct automated evidence."]
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS01-06
+    name: Perception shift record
+    area: VS01 Frame
+    status: IMPLEMENTED
+    priority: P1
+    architecture_refs: ["Slice state and gates"]
+    evidence: {code: [packages/ctf_domain/service.py, apps/api/app/slices.py], tests: [apps/api/tests/test_common_and_gates.py, apps/api/tests/test_full_lifecycle.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS01-07
+    name: Unsupported hypothesis labeling
+    area: VS01 Frame
+    status: PARTIAL
+    priority: P1
+    architecture_refs: ["Trust and authority boundaries"]
+    evidence: {code: [packages/ctf_domain/models.py, apps/web/src/app/page.tsx], tests: [], docs: [docs/requirements-traceability.md]}
+    gaps: ["No direct inference-label rejection test was found."]
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS01-08
+    name: Funding context
+    area: VS01 Frame
+    status: IMPLEMENTED
+    priority: P2
+    architecture_refs: ["Logical components"]
+    evidence: {code: [apps/api/app/common.py], tests: [apps/api/tests/test_full_lifecycle.py], docs: [docs/openapi.yaml]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+
+  - id: CAP-VS02-01
+    name: Evidence source and claim records
+    area: VS02 Create
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Document Intelligence", "Persistence rules"]
+    evidence: {code: [apps/api/app/slices.py, packages/ctf_domain/document_intelligence.py], tests: [apps/api/tests/test_document_intelligence.py, apps/api/tests/test_vs01_vs02.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS02-02
+    name: Evidence provenance and exact scope
+    area: VS02 Create
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Document Intelligence"]
+    evidence: {code: [packages/ctf_domain/document_intelligence.py], tests: [apps/api/tests/test_document_intelligence.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS02-03
+    name: Opportunity records linked to evidence
+    area: VS02 Create
+    status: IMPLEMENTED
+    priority: P1
+    architecture_refs: ["Creation Genealogy"]
+    evidence: {code: [packages/ctf_domain/service.py], tests: [apps/api/tests/test_vs01_vs02.py, apps/api/tests/test_full_lifecycle.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS02-04
+    name: Opportunity remains broader than solution
+    area: VS02 Create
+    status: PARTIAL
+    priority: P1
+    architecture_refs: ["Prompt Registry / Context Compiler"]
+    evidence: {code: [packages/ctf_domain/ai_runtime.py], tests: [], docs: [docs/requirements-traceability.md]}
+    gaps: ["No direct premature-solution test was found."]
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS02-05
+    name: Spark origin preservation
+    area: VS02 Create
+    status: PARTIAL
+    priority: P1
+    architecture_refs: ["Creation Genealogy"]
+    evidence: {code: [packages/ctf_domain/models.py, packages/ctf_domain/service.py], tests: [apps/api/tests/test_full_lifecycle.py], docs: [docs/requirements-traceability.md]}
+    gaps: ["USER, CTF, and CO_CREATED origin cases are not directly tested."]
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS02-06
+    name: Human spark selection gate
+    area: VS02 Create
+    status: IMPLEMENTED
+    priority: P1
+    architecture_refs: ["Slice state and gates"]
+    evidence: {code: [packages/ctf_domain/service.py], tests: [apps/api/tests/test_full_lifecycle.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS02-07
+    name: Idea blueprint persistence
+    area: VS02 Create
+    status: IMPLEMENTED
+    priority: P1
+    architecture_refs: ["Slice state and gates"]
+    evidence: {code: [packages/ctf_domain/service.py, apps/api/app/slices.py], tests: [apps/api/tests/test_full_lifecycle.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS02-08
+    name: Unknown-safe blueprint generation
+    area: VS02 Create
+    status: PARTIAL
+    priority: P1
+    architecture_refs: ["Trust and authority boundaries"]
+    evidence: {code: [packages/ctf_domain/ai_runtime.py], tests: [apps/api/tests/test_ai_runtime.py], docs: [docs/requirements-traceability.md]}
+    gaps: ["Budget, market and TRL non-fabrication scenarios are not directly tested."]
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+
+  - id: CAP-VS03-01
+    name: Assumption map persistence
+    area: VS03 Decide
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Slice state and gates"]
+    evidence: {code: [apps/api/app/slices.py, packages/ctf_domain/service.py], tests: [apps/api/tests/test_vs03_vs05.py, apps/api/tests/test_full_lifecycle.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS03-02
+    name: Kill assumption calibration
+    area: VS03 Decide
+    status: PARTIAL
+    priority: P0
+    architecture_refs: ["Rule engine (T0)"]
+    evidence: {code: [packages/ctf_domain/service.py], tests: [apps/api/tests/test_vs03_vs05.py], docs: [docs/requirements-traceability.md]}
+    gaps: ["Material calibration breadth is not fully verified."]
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS03-03
+    name: Failure mode and red-team records
+    area: VS03 Decide
+    status: IMPLEMENTED
+    priority: P1
+    architecture_refs: ["Model Router"]
+    evidence: {code: [apps/api/app/slices.py, packages/ctf_domain/service.py], tests: [apps/api/tests/test_full_lifecycle.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS03-04
+    name: Independent evidence-aware red team
+    area: VS03 Decide
+    status: PARTIAL
+    priority: P1
+    architecture_refs: ["Model Router", "AI execution boundary"]
+    evidence: {code: [packages/ctf_domain/ai_runtime.py, packages/ctf_domain/model_router.py], tests: [apps/api/tests/test_ai_runtime.py], docs: [docs/requirements-traceability.md]}
+    gaps: ["Specificity and fairness scenarios lack direct tests."]
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS03-05
+    name: Human-owned value boundaries
+    area: VS03 Decide
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Trust and authority boundaries"]
+    evidence: {code: [packages/ctf_domain/service.py], tests: [apps/api/tests/test_vs03_vs05.py, apps/api/tests/test_ai_runtime.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS03-06
+    name: Non-negotiable conflict blocks GO
+    area: VS03 Decide
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Rule engine (T0)"]
+    evidence: {code: [packages/ctf_domain/service.py], tests: [apps/api/tests/test_vs03_vs05.py], docs: [docs/requirements-traceability.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS03-07
+    name: Recommendation separate from human decision
+    area: VS03 Decide
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Trust and authority boundaries"]
+    evidence: {code: [packages/ctf_domain/service.py], tests: [apps/api/tests/test_full_lifecycle.py, apps/api/tests/test_ai_runtime.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS03-08
+    name: Alternate decision routes preserve learning
+    area: VS03 Decide
+    status: PARTIAL
+    priority: P1
+    architecture_refs: ["Slice state and gates"]
+    evidence: {code: [packages/ctf_domain/state_machine.py, packages/ctf_domain/service.py], tests: [apps/api/tests/test_full_lifecycle.py], docs: [docs/requirements-traceability.md]}
+    gaps: ["All NO_GO, REDESIGN, HOLD and VALIDATE_FIRST paths are not directly covered."]
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+
+  - id: CAP-VS04-01
+    name: Commitment requires human decision
+    area: VS04 Activate
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Trust and authority boundaries"]
+    evidence: {code: [packages/ctf_domain/service.py], tests: [apps/api/tests/test_full_lifecycle.py, apps/api/tests/test_ai_runtime.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS04-02
+    name: Roadmap requires commitment
+    area: VS04 Activate
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Rule engine (T0)"]
+    evidence: {code: [packages/ctf_domain/service.py], tests: [apps/api/tests/test_full_lifecycle.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS04-03
+    name: Outcome and action records
+    area: VS04 Activate
+    status: IMPLEMENTED
+    priority: P1
+    architecture_refs: ["Slice state and gates"]
+    evidence: {code: [apps/api/app/slices.py, packages/ctf_domain/service.py], tests: [apps/api/tests/test_vs03_vs05.py, apps/api/tests/test_full_lifecycle.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS04-04
+    name: Action WHY requirement
+    area: VS04 Activate
+    status: IMPLEMENTED
+    priority: P1
+    architecture_refs: ["Rule engine (T0)"]
+    evidence: {code: [packages/ctf_domain/service.py], tests: [apps/api/tests/test_vs03_vs05.py], docs: [docs/requirements-traceability.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS04-05
+    name: Evidence-required action verification
+    area: VS04 Activate
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Rule engine (T0)"]
+    evidence: {code: [apps/api/app/slices.py, packages/ctf_domain/service.py], tests: [apps/api/tests/test_vs03_vs05.py], docs: [docs/requirements-traceability.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS04-06
+    name: Deterministic next-best-action eligibility
+    area: VS04 Activate
+    status: IMPLEMENTED
+    priority: P1
+    architecture_refs: ["Rule engine (T0)"]
+    evidence: {code: [apps/api/app/slices.py, packages/ctf_domain/service.py], tests: [apps/api/tests/test_vs03_vs05.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS04-07
+    name: Mandatory material escalation
+    area: VS04 Activate
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Rule engine (T0)", "Reliability and degradation"]
+    evidence: {code: [packages/ctf_domain/service.py], tests: [apps/api/tests/test_vs03_vs05.py], docs: [docs/requirements-traceability.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS04-08
+    name: Minimal versioned replan
+    area: VS04 Activate
+    status: PARTIAL
+    priority: P1
+    architecture_refs: ["Creation Memory"]
+    evidence: {code: [packages/ctf_domain/service.py], tests: [apps/api/tests/test_full_lifecycle.py], docs: [docs/requirements-traceability.md]}
+    gaps: ["Minimal-diff and stale-roadmap scenarios are not directly tested."]
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+
+  - id: CAP-VS05-01
+    name: Stakeholder and value hypothesis records
+    area: VS05 Transform
+    status: IMPLEMENTED
+    priority: P1
+    architecture_refs: ["Slice state and gates"]
+    evidence: {code: [apps/api/app/slices.py, packages/ctf_domain/service.py], tests: [apps/api/tests/test_full_lifecycle.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS05-02
+    name: Realized value requires evidence
+    area: VS05 Transform
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Persistence rules"]
+    evidence: {code: [packages/ctf_domain/service.py], tests: [apps/api/tests/test_vs03_vs05.py, apps/api/tests/test_full_lifecycle.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS05-03
+    name: Baseline and attribution non-fabrication
+    area: VS05 Transform
+    status: PARTIAL
+    priority: P0
+    architecture_refs: ["Trust and authority boundaries", "Reliability and degradation"]
+    evidence: {code: [packages/ctf_domain/service.py], tests: [apps/api/tests/test_horizontal.py], docs: [docs/requirements-traceability.md]}
+    gaps: ["Unknown-baseline and correlation scenario coverage is incomplete."]
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS05-04
+    name: Negative effects remain visible
+    area: VS05 Transform
+    status: IMPLEMENTED
+    priority: P1
+    architecture_refs: ["Quality attributes"]
+    evidence: {code: [packages/ctf_domain/service.py], tests: [apps/api/tests/test_vs03_vs05.py], docs: [docs/requirements-traceability.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS05-05
+    name: Supported impact pathway
+    area: VS05 Transform
+    status: PARTIAL
+    priority: P1
+    architecture_refs: ["Persistence rules"]
+    evidence: {code: [packages/ctf_domain/service.py], tests: [apps/api/tests/test_full_lifecycle.py], docs: [docs/requirements-traceability.md]}
+    gaps: ["Broken-link impact scenarios are not directly tested."]
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS05-06
+    name: R1 preserves R0
+    area: VS05 Transform
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Scope"]
+    evidence: {code: [packages/ctf_domain/service.py], tests: [apps/api/tests/test_vs03_vs05.py, apps/api/tests/test_full_lifecycle.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS05-07
+    name: R1 deterioration and unknown dimensions
+    area: VS05 Transform
+    status: PARTIAL
+    priority: P1
+    architecture_refs: ["Scope"]
+    evidence: {code: [packages/ctf_domain/service.py], tests: [apps/api/tests/test_vs03_vs05.py], docs: [docs/requirements-traceability.md]}
+    gaps: ["Deterioration and unknown-dimension scenarios are not both directly evidenced."]
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-VS05-08
+    name: Human cycle closure and routing
+    area: VS05 Transform
+    status: IMPLEMENTED
+    priority: P1
+    architecture_refs: ["Slice state and gates"]
+    evidence: {code: [packages/ctf_domain/service.py], tests: [apps/api/tests/test_full_lifecycle.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+
+  - id: CAP-AI-01
+    name: Provider-independent AI execution boundary
+    area: AI runtime
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["AI execution boundary"]
+    evidence: {code: [packages/ctf_domain/ai_runtime.py], tests: [apps/api/tests/test_ai_runtime.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-AI-02
+    name: Immutable prompt registry
+    area: AI runtime
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Prompt Registry / Context Compiler"]
+    evidence: {code: [packages/ctf_domain/ai_runtime.py], tests: [apps/api/tests/test_ai_runtime.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-AI-03
+    name: Capability-tier model routing
+    area: AI runtime
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Model Router"]
+    evidence: {code: [packages/ctf_domain/model_router.py, packages/ctf_domain/ai_runtime.py], tests: [apps/api/tests/test_ai_runtime.py, apps/api/tests/test_horizontal.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-AI-04
+    name: No silent T3 downgrade
+    area: AI runtime
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Reliability and degradation"]
+    evidence: {code: [packages/ctf_domain/model_router.py, packages/ctf_domain/ai_runtime.py], tests: [apps/api/tests/test_ai_runtime.py], docs: [docs/local-ai.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-AI-05
+    name: Strict structured output and one retry
+    area: AI runtime
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["AI execution boundary"]
+    evidence: {code: [packages/ctf_domain/ai_runtime.py], tests: [apps/api/tests/test_ai_runtime.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-AI-06
+    name: AI run provenance and cost ledger
+    area: AI runtime
+    status: IMPLEMENTED
+    priority: P1
+    architecture_refs: ["Audit/telemetry"]
+    evidence: {code: [packages/ctf_domain/ai_runtime.py, packages/ctf_domain/model_router.py], tests: [apps/api/tests/test_ai_runtime.py, apps/api/tests/test_persistence.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-AI-07
+    name: Ollama local provider
+    area: AI runtime
+    status: IMPLEMENTED
+    priority: P1
+    architecture_refs: ["AI execution boundary"]
+    evidence: {code: [packages/ctf_domain/ai_runtime.py], tests: [apps/api/tests/test_ai_runtime.py], docs: [docs/local-ai.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-AI-08
+    name: Safe AI readiness reporting
+    area: AI runtime
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["AI execution boundary"]
+    evidence: {code: [apps/api/app/horizontal.py, packages/ctf_domain/ai_runtime.py], tests: [apps/api/tests/test_ai_runtime.py], docs: [README.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-AI-09
+    name: Deterministic non-production fake provider
+    area: AI runtime
+    status: IMPLEMENTED
+    priority: P2
+    architecture_refs: ["AI execution boundary"]
+    evidence: {code: [packages/ctf_domain/ai_runtime.py], tests: [apps/api/tests/test_ai_runtime.py], docs: [README.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-AI-10
+    name: Production model quality validation
+    area: AI runtime
+    status: BLOCKED_EXTERNAL
+    priority: P0
+    architecture_refs: ["Quality attributes"]
+    evidence: {code: [], tests: [], docs: [docs/pilot-validation.md]}
+    gaps: ["No external model-quality evaluation or signed acceptance result exists."]
+    blocked_by: ["Representative production provider, evaluation corpus, and human acceptance exercise."]
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+
+  - id: CAP-DOC-01
+    name: Offline PDF DOCX XLSX TXT CSV parsing
+    area: Document intelligence
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Local Document Intelligence"]
+    evidence: {code: [packages/ctf_domain/document_intelligence.py], tests: [apps/api/tests/test_document_intelligence.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-DOC-02
+    name: Bounded parser safety controls
+    area: Document intelligence
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Local Document Intelligence"]
+    evidence: {code: [packages/ctf_domain/document_intelligence.py], tests: [apps/api/tests/test_document_intelligence.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-DOC-03
+    name: Durable external document worker
+    area: Document intelligence
+    status: PARTIAL
+    priority: P0
+    architecture_refs: ["Local Document Intelligence"]
+    evidence: {code: [apps/api/app/slices.py, packages/ctf_domain/document_intelligence.py], tests: [apps/api/tests/test_document_intelligence.py], docs: [docs/architecture.md]}
+    gaps: ["Jobs use in-process BackgroundTasks; no external durable queue or worker is deployed."]
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-DOC-04
+    name: Deterministic chunking and deduplication
+    area: Document intelligence
+    status: IMPLEMENTED
+    priority: P1
+    architecture_refs: ["Local Document Intelligence"]
+    evidence: {code: [packages/ctf_domain/document_intelligence.py], tests: [apps/api/tests/test_document_intelligence.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-DOC-05
+    name: Candidate-only deterministic extraction
+    area: Document intelligence
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Local Document Intelligence"]
+    evidence: {code: [packages/ctf_domain/document_intelligence.py], tests: [apps/api/tests/test_document_intelligence.py], docs: [README.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-DOC-06
+    name: Malware scanning and content disarm
+    area: Document intelligence
+    status: NOT_IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Runtime topology"]
+    evidence: {code: [], tests: [], docs: [docs/architecture.md]}
+    gaps: ["No malware scanner or content-disarm service is integrated."]
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+
+  - id: CAP-ERI-01
+    name: ERI provider abstraction
+    area: External reality
+    status: IMPLEMENTED
+    priority: P1
+    architecture_refs: ["ERI"]
+    evidence: {code: [packages/ctf_domain/eri.py, apps/api/app/horizontal.py], tests: [apps/api/tests/test_horizontal.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-ERI-02
+    name: Live KHAL integration
+    area: External reality
+    status: BLOCKED_EXTERNAL
+    priority: P1
+    architecture_refs: ["ERI", "Reliability and degradation"]
+    evidence: {code: [packages/ctf_domain/eri.py, apps/api/app/horizontal.py], tests: [apps/api/tests/test_horizontal.py], docs: [docs/architecture.md]}
+    gaps: ["Adapter and contracts exist, but no live KHAL service or verified production connection exists."]
+    blocked_by: ["External KHAL service, credentials, and operator-approved endpoint."]
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-ERI-03
+    name: Read-only KHAL authority boundary
+    area: External reality
+    status: IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Trust and authority boundaries"]
+    evidence: {code: [packages/ctf_domain/eri.py], tests: [apps/api/tests/test_horizontal.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-ERI-04
+    name: Reality event deduplication and provenance
+    area: External reality
+    status: IMPLEMENTED
+    priority: P1
+    architecture_refs: ["Persistence rules"]
+    evidence: {code: [packages/ctf_domain/eri.py], tests: [apps/api/tests/test_horizontal.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-ERI-05
+    name: Explicit metric bindings
+    area: External reality
+    status: IMPLEMENTED
+    priority: P1
+    architecture_refs: ["ERI"]
+    evidence: {code: [packages/ctf_domain/eri.py], tests: [apps/api/tests/test_horizontal.py], docs: [docs/architecture.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-ERI-06
+    name: Raw telemetry excluded from AI context
+    area: External reality
+    status: PARTIAL
+    priority: P0
+    architecture_refs: ["Persistence rules"]
+    evidence: {code: [packages/ctf_domain/eri.py, packages/ctf_domain/model_router.py], tests: [apps/api/tests/test_horizontal.py], docs: [docs/architecture.md]}
+    gaps: ["No direct captured-context test proves exclusion for every ERI payload."]
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+
+  - id: CAP-OPS-01
+    name: In-memory development persistence
+    area: Operations
+    status: IMPLEMENTED
+    priority: P2
+    architecture_refs: ["Persistence rules"]
+    evidence: {code: [packages/ctf_domain/repository.py], tests: [apps/api/tests/test_common_and_gates.py], docs: [README.md]}
+    gaps: []
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-OPS-02
+    name: SQLite and PostgreSQL snapshot persistence
+    area: Operations
+    status: PARTIAL
+    priority: P0
+    architecture_refs: ["Persistence rules"]
+    evidence: {code: [packages/ctf_domain/repository.py, packages/ctf_domain/sqlalchemy_models.py], tests: [apps/api/tests/test_persistence.py], docs: [README.md]}
+    gaps: ["SQLite restart is verified; PostgreSQL integration and multi-worker safety are not."]
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-OPS-03
+    name: Private local and S3-compatible object stores
+    area: Operations
+    status: PARTIAL
+    priority: P0
+    architecture_refs: ["Object storage"]
+    evidence: {code: [packages/ctf_domain/object_store.py], tests: [apps/api/tests/test_persistence.py], docs: [README.md]}
+    gaps: ["Local storage is directly tested; live S3 or MinIO integration is not."]
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-OPS-04
+    name: Containerized local topology
+    area: Operations
+    status: PARTIAL
+    priority: P1
+    architecture_refs: ["Runtime topology"]
+    evidence: {code: [], tests: [], docs: [README.md, docs/runbooks.md]}
+    gaps: ["Configuration exists, but this inventory does not claim a deployed production topology."]
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-OPS-05
+    name: External human pilot validation
+    area: Operations
+    status: BLOCKED_EXTERNAL
+    priority: P0
+    architecture_refs: ["Quality attributes"]
+    evidence: {code: [], tests: [], docs: [docs/pilot-validation.md]}
+    gaps: ["No completed cohort, signed result, or human go/no-go evidence exists."]
+    blocked_by: ["Pilot participants, facilitator, representative environment, and signed decision."]
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-OPS-06
+    name: Multi-worker database concurrency
+    area: Operations
+    status: DEFERRED_V1
+    priority: P1
+    architecture_refs: ["Persistence rules"]
+    evidence: {code: [], tests: [], docs: [docs/architecture.md]}
+    gaps: ["Snapshot repository is explicitly single-process."]
+    blocked_by: ["Normalized repository or cross-process locking design."]
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-OPS-07
+    name: Production observability export
+    area: Operations
+    status: NOT_IMPLEMENTED
+    priority: P1
+    architecture_refs: ["Runtime topology"]
+    evidence: {code: [], tests: [], docs: [docs/architecture.md]}
+    gaps: ["No metrics, tracing, alerting, or external log exporter is integrated."]
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29
+  - id: CAP-OPS-08
+    name: Coordinated backup and restore
+    area: Operations
+    status: NOT_IMPLEMENTED
+    priority: P0
+    architecture_refs: ["Reliability and degradation"]
+    evidence: {code: [], tests: [], docs: [docs/runbooks.md]}
+    gaps: ["No automated coordinated database/object-store backup and restore test exists."]
+    blocked_by: []
+    visibility: PUBLIC
+    last_verified: 2026-08-29

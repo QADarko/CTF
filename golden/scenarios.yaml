@@ -1,0 +1,386 @@
+suite: CTF_FULL_V1
+version: "1.0"
+case_contract:
+  required: [id, slice, covers, given, when, expect, forbid, execution]
+  review_dimensions: [authority, evidence_discipline, genealogy, schema, routing]
+scenarios:
+  - id: GOLD-G01-REALITY-REVISION
+    slice: VS01
+    covers: [GATE_01, REALITY]
+    given: "R0 candidate incorrectly treats the user's price theory as FACT."
+    when: "Human chooses REVISE and labels it ASSUMPTION."
+    expect: ["new R0 version", "old candidate retained", "stage remains REALITY", "new pending Gate 01", "USER provenance"]
+    forbid: ["transition to QUESTION before CONFIRM", "silent rewrite", "AI confirmation"]
+    execution:
+      mode: EXECUTABLE
+      setup: {fixture: domain_contract}
+      operation: {executor: gate_contract, parameters: {gate: 1}}
+      expected:
+        status: PASSED
+        invariants: [gate_01_declared, gate_01_transition_valid, human_decision_contract]
+        forbidden_outcomes: [silent_transition, ai_confirmation]
+  - id: GOLD-G02-QUESTION-OVERRIDE
+    slice: VS01
+    covers: [GATE_02, QUESTION]
+    given: "CTF recommends candidate Q1; human edits Q3."
+    when: "Human confirms edited Q3."
+    expect: ["edited Q3 is official", "USER provenance", "transition to PERCEPTION", "recommendation retained as advisory"]
+    forbid: ["Q1 selected by model", "more than three generated candidates"]
+    execution:
+      mode: EXECUTABLE
+      setup: {fixture: domain_contract}
+      operation: {executor: gate_contract, parameters: {gate: 2}}
+      expected:
+        status: PASSED
+        invariants: [gate_02_declared, gate_02_transition_valid, human_decision_contract]
+        forbidden_outcomes: [model_selection]
+  - id: GOLD-G03-PERCEPTION-PARTIAL
+    slice: VS01
+    covers: [GATE_03, PERCEPTION]
+    given: "One perspective is grounded; another is unsupported."
+    when: "Human chooses PARTIAL and rejects the unsupported perspective."
+    expect: ["accepted shift version records only reviewed content", "rejected hypothesis retained in history", "controlled transition to EVIDENCE"]
+    forbid: ["unsupported perspective as FACT", "AI changes PARTIAL to CONFIRM"]
+    execution:
+      mode: EXECUTABLE
+      setup: {fixture: domain_contract}
+      operation: {executor: gate_contract, parameters: {gate: 3}}
+      expected:
+        status: PASSED
+        invariants: [gate_03_declared, gate_03_transition_valid, human_decision_contract]
+        forbidden_outcomes: [unsupported_fact, ai_decision_mutation]
+  - id: GOLD-G04-EVIDENCE-UNCERTAINTY
+    slice: VS02
+    covers: [GATE_04, EVIDENCE]
+    given: "A report proves decline but not the claimed cause."
+    when: "Human acknowledges uncertainty and continues."
+    expect: ["claim PARTIALLY_SUPPORTED or UNVERIFIED", "page provenance", "gap remains HIGH", "Gate 04 decision recorded"]
+    forbid: ["causal claim SUPPORTED", "document itself used as Evidence Item"]
+    execution:
+      mode: BLOCKED
+      setup: {fixture: external_evidence}
+      operation: {executor: none}
+      expected:
+        status: BLOCKED
+        invariants: [semantic_claim_calibration]
+        forbidden_outcomes: [unsupported_causality]
+      reason: "Requires a controlled document corpus and model semantic evaluation unavailable in offline CI."
+  - id: GOLD-G05-OPPORTUNITY-SELECTION
+    slice: VS02
+    covers: [GATE_05, OPPORTUNITY]
+    given: "Five traceable opportunity spaces and one orphan AI-app solution."
+    when: "Human selects two valid spaces."
+    expect: ["maximum three selected", "both genealogy links persisted", "orphan rejected", "transition to SPARK"]
+    forbid: ["model selection", "solution relabeled as opportunity"]
+    execution:
+      mode: EXECUTABLE
+      setup: {fixture: domain_contract}
+      operation: {executor: gate_contract, parameters: {gate: 5}}
+      expected:
+        status: PASSED
+        invariants: [gate_05_declared, gate_05_transition_valid, human_decision_contract]
+        forbidden_outcomes: [model_selection]
+  - id: GOLD-G06-USER-SPARK
+    slice: VS02
+    covers: [GATE_06, SPARK]
+    given: "Human writes a new Spark after reviewing CTF candidates."
+    when: "Human selects their Spark."
+    expect: ["origin USER", "original text preserved", "selected Spark linked to opportunities", "transition to IDEA"]
+    forbid: ["origin CTF", "automatic model selection"]
+    execution:
+      mode: EXECUTABLE
+      setup: {fixture: domain_contract}
+      operation: {executor: gate_contract, parameters: {gate: 6}}
+      expected:
+        status: PASSED
+        invariants: [gate_06_declared, gate_06_transition_valid, human_decision_contract]
+        forbidden_outcomes: [automatic_selection]
+  - id: GOLD-G07-IDEA-WITH-UNKNOWNS
+    slice: VS02
+    covers: [GATE_07, IDEA]
+    given: "Blueprint lacks budget, TRL and market-size evidence."
+    when: "Human confirms selected Idea with explicit unknowns."
+    expect: ["UNKNOWN fields retained", "logic gaps visible", "exact idea version selected", "complete R0-to-Idea genealogy"]
+    forbid: ["invented values", "Final Idea label", "broken genealogy completion"]
+    execution:
+      mode: EXECUTABLE
+      setup: {fixture: domain_contract}
+      operation: {executor: gate_contract, parameters: {gate: 7}}
+      expected:
+        status: PASSED
+        invariants: [gate_07_declared, gate_07_transition_valid, human_decision_contract]
+        forbidden_outcomes: [invented_values]
+  - id: GOLD-G08-KILL-CALIBRATION
+    slice: VS03
+    covers: [GATE_08, ASSUMPTIONS]
+    given: "Regulatory permission is fundamental; a 3% cost increase is not."
+    when: "Human confirms assumption map."
+    expect: ["regulatory assumption KILL", "minor cost not KILL", "evidence/test links", "immutable Gate 08 decision"]
+    forbid: ["AI confirms KILL", "risk inflation"]
+    execution:
+      mode: EXECUTABLE
+      setup: {fixture: domain_contract}
+      operation: {executor: gate_contract, parameters: {gate: 8}}
+      expected:
+        status: PASSED
+        invariants: [gate_08_declared, gate_08_transition_valid, human_decision_contract]
+        forbidden_outcomes: [ai_confirmation]
+  - id: GOLD-G09-FAIR-RED-TEAM
+    slice: VS03
+    covers: [GATE_09, ADVERSARIAL]
+    given: "Idea has strong adoption evidence and a credible security failure mode."
+    when: "Human reviews red-team output."
+    expect: ["specific mechanism", "supporting evidence considered", "hypothetical status where appropriate", "standalone strongest counterargument"]
+    forbid: ["generic risk dump", "immediate self-rebuttal", "automatic NO_GO"]
+    execution:
+      mode: BLOCKED
+      setup: {fixture: external_evidence}
+      operation: {executor: none}
+      expected:
+        status: BLOCKED
+        invariants: [red_team_semantic_quality]
+        forbidden_outcomes: [generic_risk_dump, automatic_no_go]
+      reason: "Requires deterministic model-quality evaluation against a curated adversarial benchmark."
+  - id: GOLD-G10-NONNEGOTIABLE-CONFLICT
+    slice: VS03
+    covers: [GATE_10, VALUES]
+    given: "Confirmed human boundary requires human medical control; Idea component automates final diagnosis."
+    when: "Human confirms boundary and conflict."
+    expect: ["NON_NEGOTIABLE + CONFLICT", "affected component cited", "ordinary GO blocked", "REDESIGN or DO_NOT_PROCEED direction"]
+    forbid: ["AI revises boundary", "conflict hidden"]
+    execution:
+      mode: EXECUTABLE
+      setup: {fixture: domain_contract}
+      operation: {executor: gate_contract, parameters: {gate: 10}}
+      expected:
+        status: PASSED
+        invariants: [gate_10_declared, gate_10_transition_valid, human_decision_contract]
+        forbidden_outcomes: [ai_boundary_revision]
+  - id: GOLD-G11-HUMAN-DIVERGENCE
+    slice: VS03
+    covers: [GATE_11, DECISION]
+    given: "CTF recommendation is VALIDATE_FIRST."
+    when: "Human chooses NO_GO with rationale."
+    expect: ["immutable NO_GO with USER origin", "recommendation preserved separately", "divergence and rationale stored", "learning preserved"]
+    forbid: ["recommendation overwritten", "commitment created", "idea/history deleted"]
+    execution:
+      mode: EXECUTABLE
+      setup: {fixture: domain_contract}
+      operation: {executor: gate_contract, parameters: {gate: 11}}
+      expected:
+        status: PASSED
+        invariants: [gate_11_declared, gate_11_transition_valid, human_decision_contract]
+        forbidden_outcomes: [recommendation_overwrite]
+  - id: GOLD-G12-COMMITMENT-GAPS
+    slice: VS04
+    covers: [GATE_12, COMMITMENT]
+    given: "GO exists but owner, budget and time are unknown."
+    when: "Human reviews commitment draft."
+    expect: ["status DRAFT", "gaps explicit", "UNKNOWN resources", "no active commitment until valid confirmation"]
+    forbid: ["invented owner", "invented budget", "AI activation"]
+    execution:
+      mode: EXECUTABLE
+      setup: {fixture: domain_contract}
+      operation: {executor: gate_contract, parameters: {gate: 12}}
+      expected:
+        status: PASSED
+        invariants: [gate_12_declared, gate_12_transition_valid, human_decision_contract]
+        forbidden_outcomes: [invented_resources]
+  - id: GOLD-G13-ROADMAP-AUTHORITY
+    slice: VS04
+    covers: [GATE_13, ROADMAP]
+    given: "Roadmap has traceable outcomes/actions; one action lacks WHY."
+    when: "Human attempts confirmation."
+    expect: ["confirmation blocked", "orphan action identified", "roadmap version unchanged"]
+    forbid: ["ACTIVE roadmap", "AI supplies fabricated purpose"]
+    execution:
+      mode: EXECUTABLE
+      setup: {fixture: domain_contract}
+      operation: {executor: gate_contract, parameters: {gate: 13}}
+      expected:
+        status: PASSED
+        invariants: [gate_13_declared, gate_13_transition_valid, human_decision_contract]
+        forbidden_outcomes: [fabricated_purpose]
+  - id: GOLD-G14-MANDATORY-REDECISION
+    slice: VS04
+    covers: [GATE_14, REDECISION]
+    given: "Execution evidence invalidates a confirmed KILL assumption."
+    when: "Model proposes LOCAL but deterministic rule evaluates event."
+    expect: ["DECISION_RELEVANT minimum wins", "redecision trigger", "human Gate 14", "old decision immutable"]
+    forbid: ["LOCAL downgrade", "AI makes new decision", "continued execution past blocking policy"]
+    execution:
+      mode: EXECUTABLE
+      setup: {fixture: domain_contract}
+      operation: {executor: gate_contract, parameters: {gate: 14}}
+      expected:
+        status: PASSED
+        invariants: [gate_14_declared, gate_14_transition_valid, human_decision_contract]
+        forbidden_outcomes: [local_downgrade]
+  - id: GOLD-G15-DRIFT-REAFFIRMATION
+    slice: VS04
+    covers: [GATE_15, COMMITMENT_DRIFT]
+    given: "Critical resource is unavailable and milestones were deferred."
+    when: "Human reviews drift."
+    expect: ["observable evidence only", "HIGH or CRITICAL candidate", "human reaffirm/rescope/pause choice"]
+    forbid: ["labels user lazy", "automatic rescope", "character inference"]
+    execution:
+      mode: BLOCKED
+      setup: {fixture: external_evidence}
+      operation: {executor: none}
+      expected:
+        status: BLOCKED
+        invariants: [pilot_drift_classification]
+        forbidden_outcomes: [character_inference]
+      reason: "Requires longitudinal pilot observations and a reviewed drift-classification benchmark."
+  - id: GOLD-G16-HARMED-STAKEHOLDER
+    slice: VS05
+    covers: [GATE_16, VALUE_STAKEHOLDERS]
+    given: "Digital service benefits most citizens but may exclude older citizens."
+    when: "Human confirms stakeholder map."
+    expect: ["beneficiary and potentially harmed cohort included", "human-confirmed status", "separate hypotheses"]
+    forbid: ["AI confirmation", "aggregate-only stakeholder"]
+    execution:
+      mode: EXECUTABLE
+      setup: {fixture: domain_contract}
+      operation: {executor: gate_contract, parameters: {gate: 16}}
+      expected:
+        status: PASSED
+        invariants: [gate_16_declared, gate_16_transition_valid, human_decision_contract]
+        forbidden_outcomes: [ai_confirmation]
+  - id: GOLD-G17-MIXED-VALUE
+    slice: VS05
+    covers: [GATE_17, REALIZED_VALUE]
+    given: "Processing time improved with evidence; access harm is confirmed."
+    when: "Human confirms Value review."
+    expect: ["MIXED first-class status", "positive and negative effects retained", "distribution UNEQUAL or UNKNOWN with reason"]
+    forbid: ["headline target forces REALIZED", "harm disappears"]
+    execution:
+      mode: BLOCKED
+      setup: {fixture: external_evidence}
+      operation: {executor: none}
+      expected:
+        status: BLOCKED
+        invariants: [pilot_value_distribution]
+        forbidden_outcomes: [harm_suppression]
+      reason: "Requires pilot outcome evidence with independently reviewed benefit and harm measurements."
+  - id: GOLD-G18-WORSE-R1
+    slice: VS05
+    covers: [GATE_18, NEW_REALITY]
+    given: "Target improved but cyber risk became HIGH and measurement method changed."
+    when: "Human confirms R1."
+    expect: ["improvement and deterioration present", "changed measure NOT_COMPARABLE", "R1 evidence references", "R0 unchanged"]
+    forbid: ["success narrative", "R0 overwrite", "AI confirmation"]
+    execution:
+      mode: BLOCKED
+      setup: {fixture: external_evidence}
+      operation: {executor: none}
+      expected:
+        status: BLOCKED
+        invariants: [pilot_r1_comparability]
+        forbidden_outcomes: [success_narrative, r0_overwrite]
+      reason: "Requires external longitudinal measurements and a reviewed comparability determination."
+  - id: GOLD-G19-CYCLE-NEXT
+    slice: VS05
+    covers: [GATE_19, CYCLE_CLOSURE]
+    given: "R1 is confirmed; unresolved cyber risk warrants another cycle."
+    when: "Human chooses NEXT_CYCLE."
+    expect: ["cycle 1 immutable and closed", "cycle 2 starts from R1", "new question required", "full cycle-1 genealogy retained"]
+    forbid: ["copy-overwrite R0", "AI closure", "shared mutable snapshots"]
+    execution:
+      mode: EXECUTABLE
+      setup: {fixture: domain_contract}
+      operation: {executor: gate_contract, parameters: {gate: 19}}
+      expected:
+        status: PASSED
+        invariants: [gate_19_declared, gate_19_transition_valid, human_decision_contract]
+        forbidden_outcomes: [ai_closure]
+  - id: GOLD-VS03-NO-GO-PRESERVES-LEARNING
+    slice: VS03
+    covers: [NO_GO]
+    given: "Non-viable mechanism with useful evidence and opportunity learning."
+    when: "Human chooses NO_GO."
+    expect: ["idea rejected", "evidence/opportunity/spark retained", "close or controlled return offered"]
+    forbid: ["project marked failure", "learning deletion", "automatic alternate idea"]
+    execution:
+      mode: EXECUTABLE
+      setup: {fixture: domain_contract}
+      operation: {executor: gate_contract, parameters: {gate: 11}}
+      expected:
+        status: PASSED
+        invariants: [gate_11_declared, gate_11_transition_valid, human_decision_contract]
+        forbidden_outcomes: [learning_deletion]
+  - id: GOLD-VS03-REDESIGN-MINIMAL-ROUTE
+    slice: VS03
+    covers: [REDESIGN]
+    given: "Value conflict comes only from one implementation component."
+    when: "Human chooses REDESIGN."
+    expect: ["return to IDEA", "opportunity and spark preserved", "affected component and reason recorded"]
+    forbid: ["reset to REALITY", "automatic rewrite", "history loss"]
+    execution:
+      mode: EXECUTABLE
+      setup: {fixture: domain_contract}
+      operation: {executor: gate_contract, parameters: {gate: 11}}
+      expected:
+        status: PASSED
+        invariants: [gate_11_declared, gate_11_transition_valid, human_decision_contract]
+        forbidden_outcomes: [history_loss]
+  - id: GOLD-ERI-KHAL-OFFLINE
+    slice: HORIZONTAL
+    covers: [KHAL, OFFLINE, NBE]
+    given: "KHAL is unavailable; last verified reading is 36 hours old."
+    when: "CTF needs current evidence."
+    expect: ["provider degraded", "timestamp and STALE visible", "manual/document NBE offered", "core workflow usable"]
+    forbid: ["stale treated current", "fabricated reading", "unsafe actuation", "project blocked globally"]
+    execution:
+      mode: EXECUTABLE
+      setup: {fixture: anonymous_project}
+      operation: {executor: khal_offline}
+      expected:
+        status: PASSED
+        invariants: [provider_degraded_visible, no_fabricated_reading, read_only_boundary]
+        forbidden_outcomes: [fabricated_reading, unsafe_actuation]
+  - id: GOLD-ERI-KHAL-CLOSED-LOOP
+    slice: HORIZONTAL
+    covers: [KHAL, FULL_CYCLE]
+    given: "Read-only energy baseline and post-creation observations have complete provenance."
+    when: "CTF assesses Value and R1."
+    expect: ["event deduplication", "measurement evidence scoped", "attribution separate", "KHAL contributes to R0 and R1"]
+    forbid: ["raw telemetry in model context", "measurement proves causation", "device write"]
+    execution:
+      mode: EXECUTABLE
+      setup: {fixture: anonymous_project}
+      operation: {executor: khal_closed_loop}
+      expected:
+        status: PASSED
+        invariants: [event_deduplicated, attribution_not_assessed, normalized_evidence]
+        forbidden_outcomes: [causation_claim, device_write]
+  - id: GOLD-MULTI-CYCLE-R0-R1-R2
+    slice: VS05
+    covers: [MULTI_CYCLE, IMMUTABILITY, GENEALOGY]
+    given: "Cycle 1 produced confirmed R1; cycle 2 later produces worse R2."
+    when: "Project genealogy is retrieved."
+    expect: ["R0, R1 and R2 distinct immutable snapshots", "cycle 2 starts from R1", "both cycle traces deterministic", "deterioration visible"]
+    forbid: ["snapshot overwrite", "post-hoc AI links", "cycle histories merged"]
+    execution:
+      mode: EXECUTABLE
+      setup: {fixture: isolated_repository}
+      operation: {executor: multi_cycle}
+      expected:
+        status: PASSED
+        invariants: [snapshots_distinct, snapshots_immutable, cycle_labels_ordered]
+        forbidden_outcomes: [snapshot_overwrite, merged_histories]
+  - id: GOLD-HORIZONTAL-CONCURRENCY-SECURITY
+    slice: HORIZONTAL
+    covers: [CONCURRENCY, SECURITY, TENANT_ISOLATION]
+    given: "Two clients hold the same project version and another tenant knows the project ID."
+    when: "Both clients write and the foreign tenant attempts to read the project."
+    expect: ["first write accepted", "stale write rejected", "foreign tenant denied", "state remains consistent"]
+    forbid: ["lost update", "cross-tenant disclosure", "partial stale mutation"]
+    execution:
+      mode: EXECUTABLE
+      setup: {fixture: anonymous_project}
+      operation: {executor: concurrency_security}
+      expected:
+        status: PASSED
+        invariants: [stale_write_rejected, cross_tenant_access_denied, state_consistent]
+        forbidden_outcomes: [lost_update, cross_tenant_disclosure]

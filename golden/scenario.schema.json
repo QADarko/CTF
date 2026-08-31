@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ctf.local/schemas/golden-scenario-suite.json",
+  "title": "CTF executable golden scenario suite",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["suite", "version", "case_contract", "scenarios"],
+  "properties": {
+    "suite": {"const": "CTF_FULL_V1"},
+    "version": {"type": "string", "pattern": "^[1-9][0-9]*\\.[0-9]+$"},
+    "case_contract": {
+      "type": "object",
+      "required": ["required", "review_dimensions"],
+      "properties": {
+        "required": {"type": "array", "contains": {"const": "execution"}},
+        "review_dimensions": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "scenarios": {
+      "type": "array",
+      "minItems": 24,
+      "items": {"$ref": "#/$defs/scenario"}
+    }
+  },
+  "$defs": {
+    "stringList": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "scenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "slice", "covers", "given", "when", "expect", "forbid", "execution"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^GOLD-[A-Z0-9]+(?:-[A-Z0-9]+)*$"
+        },
+        "slice": {"enum": ["VS01", "VS02", "VS03", "VS04", "VS05", "HORIZONTAL"]},
+        "covers": {"$ref": "#/$defs/stringList"},
+        "given": {"type": "string", "minLength": 1},
+        "when": {"type": "string", "minLength": 1},
+        "expect": {"$ref": "#/$defs/stringList"},
+        "forbid": {"$ref": "#/$defs/stringList"},
+        "execution": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["mode", "setup", "operation", "expected"],
+              "properties": {
+                "mode": {"const": "EXECUTABLE"},
+                "setup": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["fixture"],
+                  "properties": {
+                    "fixture": {
+                      "enum": ["domain_contract", "anonymous_project", "isolated_repository"]
+                    }
+                  }
+                },
+                "operation": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["executor"],
+                  "properties": {
+                    "executor": {
+                      "enum": [
+                        "gate_contract", "human_authority", "khal_offline",
+                        "khal_closed_loop", "multi_cycle", "concurrency_security"
+                      ]
+                    },
+                    "parameters": {"type": "object"}
+                  }
+                },
+                "expected": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["status", "invariants", "forbidden_outcomes"],
+                  "properties": {
+                    "status": {"const": "PASSED"},
+                    "invariants": {"$ref": "#/$defs/stringList"},
+                    "forbidden_outcomes": {"$ref": "#/$defs/stringList"}
+                  }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["mode", "setup", "operation", "expected", "reason"],
+              "properties": {
+                "mode": {"enum": ["BLOCKED", "SKIPPED"]},
+                "setup": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["fixture"],
+                  "properties": {"fixture": {"const": "external_evidence"}}
+                },
+                "operation": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["executor"],
+                  "properties": {"executor": {"const": "none"}}
+                },
+                "expected": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["status", "invariants", "forbidden_outcomes"],
+                  "properties": {
+                    "status": {"enum": ["BLOCKED", "SKIPPED"]},
+                    "invariants": {"$ref": "#/$defs/stringList"},
+                    "forbidden_outcomes": {"$ref": "#/$defs/stringList"}
+                  }
+                },
+                "reason": {"type": "string", "minLength": 12}
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

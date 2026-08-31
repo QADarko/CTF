@@ -1,0 +1,73 @@
+common: &candidate
+  type: object
+  additionalProperties: false
+  required: [status, items]
+  properties:
+    status:
+      type: string
+      enum: [PROPOSED, CANDIDATE]
+    items:
+      type: array
+      maxItems: 25
+      items:
+        type: object
+        additionalProperties: true
+    summary:
+      type: string
+      maxLength: 4000
+
+reality_update: *candidate
+question_candidates: *candidate
+perception_shift: *candidate
+entry_route: *candidate
+document_route: *candidate
+evidence_ledger_patch: *candidate
+document_evidence_candidates: *candidate
+opportunity_candidates: *candidate
+spark_candidates: *candidate
+idea_blueprint: *candidate
+idea_logic_check: *candidate
+assumption_map: *candidate
+kill_assumption_assessment: *candidate
+failure_modes: *candidate
+premortem_scenarios: *candidate
+counterargument: *candidate
+value_boundary_candidates: *candidate
+value_tests: *candidate
+consequence_map: *candidate
+decision_brief: *candidate
+ctf_recommendation: *candidate
+validation_plan: *candidate
+redesign_route: *candidate
+commitment_readiness: *candidate
+commitment_draft: *candidate
+commitment_gaps: *candidate
+outcomes: *candidate
+milestones: *candidate
+actions: *candidate
+trace_explanation: *candidate
+nba: *candidate
+blocker_resolution: *candidate
+evidence_assessment: *candidate
+milestone_verification: *candidate
+materiality_candidate: *candidate
+roadmap_diff: *candidate
+redecision_trigger: *candidate
+commitment_drift: *candidate
+creation_record: *candidate
+stakeholder_candidates: *candidate
+value_hypotheses: *candidate
+metric_baseline_candidates: *candidate
+value_evidence_assessment: *candidate
+realized_value: *candidate
+negative_effects: *candidate
+value_distribution: *candidate
+attribution_assessment: *candidate
+counterfactual: *candidate
+impact_pathway: *candidate
+transformation_assessment: *candidate
+sustainability_assessment: *candidate
+reality_delta: *candidate
+reality_snapshot: *candidate
+cycle_review: *candidate
+navigation_route: *candidate

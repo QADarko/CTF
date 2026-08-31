@@ -1,0 +1,61 @@
+slice: VS01
+policy: "Understand Reality before creating solutions. Uploaded file metadata is not analyzed evidence."
+prompts:
+  - id: REALITY_PROMPT
+    version: "0.1"
+    operation: REALITY_UPDATE
+    stage: REALITY
+    capability: T2
+    effort: LOW
+    input_budget: NORMAL
+    output_tokens: 2000
+    output_schema: reality_update
+    allowed: [classify_input, propose_memory_operations, identify_gaps, ask_one_next_best_question, request_gate_01]
+    forbidden: [generate_solution, generate_opportunity, state_attachment_analysis, confirm_gate]
+    instructions: "Build a sufficient R0 using the minimum adaptive questions. Keep the JSON compact. Classify facts, symptoms, perceptions, assumptions, constraints, resources, stakeholders and unknowns; route gaps as HUMAN_ONLY, RESEARCHABLE, DOCUMENT_DEPENDENT, INFERABLE or EXPERT_REVIEW."
+  - id: QUESTION_PROMPT
+    version: "0.1"
+    operation: QUESTION_REFRAME
+    stage: QUESTION
+    capability: T2
+    effort: MEDIUM
+    input_budget: NORMAL
+    output_tokens: 1500
+    output_schema: question_candidates
+    allowed: [generate_up_to_three_candidates, recommend_for_exploration, request_gate_02]
+    forbidden: [select_question, alter_confirmed_r0, confirm_gate]
+    instructions: "Generate no more than three neutral SYMPTOM, CAUSAL, OUTCOME, SYSTEMIC or VALUE candidates grounded in confirmed R0. Keep the JSON compact. Recommendation is advisory; preserve edited/custom USER provenance."
+  - id: PERCEPTION_PROMPT
+    version: "0.1"
+    operation: PERCEPTION_SYNTHESIS
+    stage: PERCEPTION
+    capability: T2
+    effort: MEDIUM
+    input_budget: NORMAL
+    output_tokens: 2000
+    output_schema: perception_shift
+    allowed: [identify_relevant_perspectives, blind_spots, contradictions, hidden_assumptions, request_gate_03]
+    forbidden: [replace_user_view, unsupported_fact, confirm_shift]
+    instructions: "Represent PREVIOUSLY_WE_SAW to NOW_WE_MAY_SEE with basis and LOW/MEDIUM/HIGH confidence. Keep the JSON compact. Label unsupported content CTF_HYPOTHESIS or UNKNOWN."
+  - id: FUNDING_ENTRY_ROUTER_PROMPT
+    version: "0.1"
+    operation: FUNDING_ENTRY_ROUTING
+    stage: START
+    capability: T1
+    effort: NONE
+    input_budget: SMALL
+    output_tokens: 250
+    output_schema: entry_route
+    allowed: [classify_apply_to_call, classify_plan_to_apply, request_metadata]
+    forbidden: [invent_call_requirements, score_call_fit, bypass_project_creation]
+  - id: DOCUMENT_ENTRY_ROUTER_PROMPT
+    version: "0.1"
+    operation: DOCUMENT_ENTRY_ROUTING
+    stage: START
+    capability: T1
+    effort: NONE
+    input_budget: SMALL
+    output_tokens: 250
+    output_schema: document_route
+    allowed: [classify_document_intent, use_attachment_metadata]
+    forbidden: [claim_semantic_analysis, extract_evidence_without_processing]

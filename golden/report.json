@@ -1,0 +1,117 @@
+{
+  "suite": "CTF_FULL_V1",
+  "version": "1.0",
+  "counts": {
+    "PASSED": 20,
+    "FAILED": 0,
+    "BLOCKED": 5,
+    "SKIPPED": 0
+  },
+  "results": [
+    {
+      "id": "GOLD-G01-REALITY-REVISION",
+      "status": "PASSED"
+    },
+    {
+      "id": "GOLD-G02-QUESTION-OVERRIDE",
+      "status": "PASSED"
+    },
+    {
+      "id": "GOLD-G03-PERCEPTION-PARTIAL",
+      "status": "PASSED"
+    },
+    {
+      "id": "GOLD-G04-EVIDENCE-UNCERTAINTY",
+      "status": "BLOCKED",
+      "reason": "Requires a controlled document corpus and model semantic evaluation unavailable in offline CI."
+    },
+    {
+      "id": "GOLD-G05-OPPORTUNITY-SELECTION",
+      "status": "PASSED"
+    },
+    {
+      "id": "GOLD-G06-USER-SPARK",
+      "status": "PASSED"
+    },
+    {
+      "id": "GOLD-G07-IDEA-WITH-UNKNOWNS",
+      "status": "PASSED"
+    },
+    {
+      "id": "GOLD-G08-KILL-CALIBRATION",
+      "status": "PASSED"
+    },
+    {
+      "id": "GOLD-G09-FAIR-RED-TEAM",
+      "status": "BLOCKED",
+      "reason": "Requires deterministic model-quality evaluation against a curated adversarial benchmark."
+    },
+    {
+      "id": "GOLD-G10-NONNEGOTIABLE-CONFLICT",
+      "status": "PASSED"
+    },
+    {
+      "id": "GOLD-G11-HUMAN-DIVERGENCE",
+      "status": "PASSED"
+    },
+    {
+      "id": "GOLD-G12-COMMITMENT-GAPS",
+      "status": "PASSED"
+    },
+    {
+      "id": "GOLD-G13-ROADMAP-AUTHORITY",
+      "status": "PASSED"
+    },
+    {
+      "id": "GOLD-G14-MANDATORY-REDECISION",
+      "status": "PASSED"
+    },
+    {
+      "id": "GOLD-G15-DRIFT-REAFFIRMATION",
+      "status": "BLOCKED",
+      "reason": "Requires longitudinal pilot observations and a reviewed drift-classification benchmark."
+    },
+    {
+      "id": "GOLD-G16-HARMED-STAKEHOLDER",
+      "status": "PASSED"
+    },
+    {
+      "id": "GOLD-G17-MIXED-VALUE",
+      "status": "BLOCKED",
+      "reason": "Requires pilot outcome evidence with independently reviewed benefit and harm measurements."
+    },
+    {
+      "id": "GOLD-G18-WORSE-R1",
+      "status": "BLOCKED",
+      "reason": "Requires external longitudinal measurements and a reviewed comparability determination."
+    },
+    {
+      "id": "GOLD-G19-CYCLE-NEXT",
+      "status": "PASSED"
+    },
+    {
+      "id": "GOLD-VS03-NO-GO-PRESERVES-LEARNING",
+      "status": "PASSED"
+    },
+    {
+      "id": "GOLD-VS03-REDESIGN-MINIMAL-ROUTE",
+      "status": "PASSED"
+    },
+    {
+      "id": "GOLD-ERI-KHAL-OFFLINE",
+      "status": "PASSED"
+    },
+    {
+      "id": "GOLD-ERI-KHAL-CLOSED-LOOP",
+      "status": "PASSED"
+    },
+    {
+      "id": "GOLD-MULTI-CYCLE-R0-R1-R2",
+      "status": "PASSED"
+    },
+    {
+      "id": "GOLD-HORIZONTAL-CONCURRENCY-SECURITY",
+      "status": "PASSED"
+    }
+  ]
+}

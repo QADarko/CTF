@@ -1,0 +1,65 @@
+registry_version: "0.1"
+methodology_version: "ctf-full-v1"
+constitution: prompts/constitution.md
+schemas: prompts/schemas.yaml
+rules:
+  structured_output_required: true
+  max_schema_retries: 1
+  human_gate_decision_allowed: false
+  persist_hidden_chain_of_thought: false
+  provider_hard_coding_allowed: false
+  stale_context_persistence_allowed: false
+capability_tiers:
+  T0: DETERMINISTIC
+  T1: EFFICIENT_AI
+  T2: STANDARD_REASONING
+  T3: CRITICAL_REASONING
+  T4: INDEPENDENT_VERIFICATION
+slices:
+  VS01: {file: prompts/slices/vs01.yaml, gates: [1, 2, 3]}
+  VS02: {file: prompts/slices/vs02.yaml, gates: [4, 5, 6, 7]}
+  VS03: {file: prompts/slices/vs03.yaml, gates: [8, 9, 10, 11]}
+  VS04: {file: prompts/slices/vs04.yaml, gates: [12, 13, 14, 15]}
+  VS05: {file: prompts/slices/vs05.yaml, gates: [16, 17, 18, 19]}
+horizontal_operations:
+  ROUTING_CLASSIFICATION:
+    capability: T1
+    effort: NONE
+    input_budget: SMALL
+    output_tokens: 250
+  CONTEXT_COMPILATION:
+    capability: T0
+    input_budget: NORMAL
+  MODEL_PROMOTION_REVIEW:
+    capability: T4
+    activation: SELECTED_GOLDEN_OR_AUDIT_ONLY
+eri:
+  KHAL_EVENT_NORMALIZATION:
+    capability: T1
+    authority: CANDIDATE_ONLY
+    forbid: [DEVICE_WRITE, CONFIG_WRITE, HUMAN_GATE, RAW_TELEMETRY_TO_LLM]
+  KHAL_CROSS_EVIDENCE_INTERPRETATION:
+    capability: T2
+    forbid: [CAUSAL_ATTRIBUTION_WITHOUT_ASSESSMENT]
+  KHAL_CRITICAL_CAUSAL_ASSESSMENT:
+    capability: T3
+    independent_verification: ON_CRITICAL
+validation:
+  required_fields:
+    - id
+    - version
+    - operation
+    - stage
+    - capability
+    - effort
+    - input_budget
+    - output_tokens
+    - output_schema
+    - allowed
+    - forbidden
+  reference_checks:
+    - prompt files exist
+    - IDs are globally unique
+    - versions are immutable
+    - all referenced schemas resolve
+    - capability is not below operation minimum

@@ -1,0 +1,806 @@
+openapi: 3.1.0
+info:
+  title: CTF Full V1 API
+  version: 0.1.0
+  description: >
+    Partial contract skeleton for VS01-VS05 and the read-only External Reality
+    Interface. All paths below are relative to the /api/v1 server URL. The runnable
+    FastAPI application's generated /openapi.json is authoritative where this
+    skeleton does not yet declare an implemented endpoint or exact response shape.
+    Domain implementations must expand schemas without weakening ownership, version,
+    evidence, genealogy, idempotency, or human-authority requirements. Every
+    consequential mutation requires Idempotency-Key in the deployed policy and
+    may return 413 or 429 with a stable error envelope.
+x-ctf-contract-status: skeleton
+servers:
+  - url: /api/v1
+security:
+  - bearerAuth: []
+tags:
+  - {name: Sessions}
+  - {name: Projects}
+  - {name: Gates}
+  - {name: Attachments}
+  - {name: Document Intelligence}
+  - {name: Creation}
+  - {name: Decision}
+  - {name: Execution}
+  - {name: Value}
+  - {name: AI}
+  - {name: ERI}
+  - {name: System}
+paths:
+  /system/capabilities:
+    get:
+      tags: [System]
+      security: []
+      operationId: listSystemCapabilities
+      description: Public, evidence-backed architecture capability inventory. No credentials or private runtime configuration are returned.
+      parameters:
+        - name: status
+          in: query
+          schema: {type: array, items: {type: string, enum: [IMPLEMENTED, PARTIAL, NOT_IMPLEMENTED, BLOCKED_EXTERNAL, DEFERRED_V1]}}
+        - name: priority
+          in: query
+          schema: {type: array, items: {type: string, enum: [P0, P1, P2, P3]}}
+      responses:
+        "200":
+          description: Filtered inventory with unfiltered public summary counts
+          content:
+            application/json:
+              schema: {type: object}
+        "503":
+          description: Checked-in capability manifest is missing or invalid
+  /system/readiness:
+    get:
+      tags: [System]
+      security: []
+      operationId: getSystemReadiness
+      description: Safe aggregate of release blockers, AI, persistence, object storage, document worker, KHAL, and pilot readiness.
+      responses:
+        "200":
+          description: Operator-safe readiness summary without secrets, URLs, or credentials
+          content:
+            application/json:
+              schema: {type: object}
+        "503":
+          description: Checked-in capability manifest is missing or invalid
+  /sessions/anonymous:
+    post:
+      tags: [Sessions]
+      security: []
+      operationId: createAnonymousSession
+      responses:
+        "201":
+          description: Expiring anonymous session
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/AnonymousSession"}
+  /projects:
+    post:
+      tags: [Projects]
+      operationId: createProject
+      parameters: [{$ref: "#/components/parameters/IdempotencyKey"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/CreateProject"}
+      responses:
+        "201": {$ref: "#/components/responses/ProjectResponse"}
+        "409": {$ref: "#/components/responses/Conflict"}
+  /projects/{projectId}:
+    parameters: [{$ref: "#/components/parameters/ProjectId"}]
+    get:
+      tags: [Projects]
+      operationId: getProject
+      responses:
+        "200": {$ref: "#/components/responses/ProjectResponse"}
+        "404": {$ref: "#/components/responses/NotFound"}
+  /projects/{projectId}/workspace:
+    parameters: [{$ref: "#/components/parameters/ProjectId"}]
+    get:
+      tags: [Projects]
+      operationId: getWorkspace
+      responses:
+        "200":
+          description: Current server-authoritative workspace
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Workspace"}
+  /projects/{projectId}/input:
+    parameters: [{$ref: "#/components/parameters/ProjectId"}]
+    post:
+      tags: [Projects]
+      operationId: submitProjectInput
+      parameters: [{$ref: "#/components/parameters/IdempotencyKey"}, {$ref: "#/components/parameters/ExpectedVersion"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text]
+              properties:
+                text: {type: string, minLength: 1, maxLength: 20000}
+      responses:
+        "202": {$ref: "#/components/responses/WorkspaceResponse"}
+        "409": {$ref: "#/components/responses/Conflict"}
+  /projects/{projectId}/gates/{gateId}/decision:
+    parameters:
+      - {$ref: "#/components/parameters/ProjectId"}
+      - {name: gateId, in: path, required: true, schema: {type: string}}
+    post:
+      tags: [Gates]
+      operationId: decideHumanGate
+      description: >
+        Atomically verifies ownership, active pending gate, allowed choice and exact
+        object versions; records the human decision and transition. AI/service
+        principals may not call this operation.
+      parameters: [{$ref: "#/components/parameters/IdempotencyKey"}, {$ref: "#/components/parameters/ExpectedVersion"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/GateDecisionInput"}
+      responses:
+        "200":
+          description: Immutable human decision and resulting workspace
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [decision, workspace]
+                properties:
+                  decision: {$ref: "#/components/schemas/GateDecision"}
+                  workspace: {$ref: "#/components/schemas/Workspace"}
+        "409": {$ref: "#/components/responses/Conflict"}
+  /projects/{projectId}/attachments:
+    parameters: [{$ref: "#/components/parameters/ProjectId"}]
+    get:
+      tags: [Attachments]
+      operationId: listAttachments
+      responses:
+        "200":
+          description: Project-owned attachment metadata
+          content:
+            application/json:
+              schema: {type: array, items: {$ref: "#/components/schemas/Attachment"}}
+    post:
+      tags: [Attachments]
+      operationId: uploadAttachment
+      parameters: [{$ref: "#/components/parameters/IdempotencyKey"}]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, document_type]
+              properties:
+                file: {type: string, format: binary}
+                document_type: {$ref: "#/components/schemas/DocumentType"}
+      responses:
+        "201":
+          description: Quarantined/stored attachment metadata; not semantic evidence
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Attachment"}
+        "413": {$ref: "#/components/responses/ErrorResponse"}
+  /projects/{projectId}/evidence/analyze-document:
+    parameters: [{$ref: "#/components/parameters/ProjectId"}]
+    post:
+      tags: [Document Intelligence]
+      operationId: analyzeDocumentOffline
+      parameters: [{$ref: "#/components/parameters/IdempotencyKey"}]
+      description: >
+        Creates or returns a deduplicated durable local job. Document text is
+        treated only as untrusted text; no LLM is invoked and all extracted
+        claims/evidence remain unconfirmed candidates.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/DocumentAnalysisRequest"}
+      responses:
+        "202":
+          description: Durable queued or existing document job
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/DocumentJob"}
+        "404": {$ref: "#/components/responses/NotFound"}
+  /projects/{projectId}/document-jobs/{jobId}:
+    parameters:
+      - {$ref: "#/components/parameters/ProjectId"}
+      - {name: jobId, in: path, required: true, schema: {type: string}}
+    get:
+      tags: [Document Intelligence]
+      operationId: getDocumentJob
+      responses:
+        "200":
+          description: Authorized job status, progress, counts and safe error
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/DocumentJob"}
+        "404": {$ref: "#/components/responses/NotFound"}
+  /projects/{projectId}/attachments/{attachmentId}/parsed:
+    parameters:
+      - {$ref: "#/components/parameters/ProjectId"}
+      - {name: attachmentId, in: path, required: true, schema: {type: string}}
+      - {name: offset, in: query, schema: {type: integer, minimum: 0, default: 0}}
+      - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 200, default: 100}}
+    get:
+      tags: [Document Intelligence]
+      operationId: getParsedDocument
+      responses:
+        "200":
+          description: Parsed metadata and paginated provenance-bearing chunks
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ParsedDocumentResponse"}
+        "404": {$ref: "#/components/responses/NotFound"}
+  /projects/{projectId}/attachments/{attachmentId}/download:
+    parameters:
+      - {$ref: "#/components/parameters/ProjectId"}
+      - {name: attachmentId, in: path, required: true, schema: {type: string}}
+    get:
+      tags: [Attachments]
+      operationId: downloadAuthorizedAttachment
+      description: Requires project ownership and a clean malware scan. Streams local content or returns an audited short-lived S3 presigned URL.
+      responses:
+        "200": {description: Binary stream or presigned delivery contract}
+        "403": {$ref: "#/components/responses/ErrorResponse"}
+        "409": {$ref: "#/components/responses/Conflict"}
+  /ai/operations:
+    get:
+      tags: [AI]
+      operationId: listRegisteredAiOperations
+      responses:
+        "200":
+          description: Registered allowlisted operation names
+          content:
+            application/json:
+              schema: {type: array, items: {type: string}}
+  /projects/{projectId}/resources/{kind}/{resourceId}/supersede:
+    parameters:
+      - {$ref: "#/components/parameters/ProjectId"}
+      - {name: kind, in: path, required: true, schema: {type: string}}
+      - {name: resourceId, in: path, required: true, schema: {type: string}}
+    post:
+      tags: [Projects]
+      operationId: supersedeConfirmedResource
+      parameters: [{$ref: "#/components/parameters/IdempotencyKey"}]
+      description: Preserves the immutable confirmed record and creates a linked replacement.
+      requestBody:
+        required: true
+        content: {application/json: {schema: {type: object}}}
+      responses:
+        "201": {description: New replacement with supersedes_id}
+        "409": {$ref: "#/components/responses/Conflict"}
+  /ai/readiness:
+    get:
+      tags: [AI]
+      operationId: getAiReadiness
+      description: Safe provider, reachability, model availability and local-tier capability status. Never returns credentials.
+      responses:
+        "200":
+          description: Current AI runtime readiness; an unavailable optional provider is represented in the body
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/AIReadiness"}
+  /projects/{projectId}/ai/execute:
+    parameters: [{$ref: "#/components/parameters/ProjectId"}]
+    post:
+      tags: [AI]
+      operationId: executeRegisteredAiOperation
+      parameters: [{$ref: "#/components/parameters/IdempotencyKey"}]
+      description: >
+        Executes only a registered prompt operation. Input is persisted before
+        provider invocation. Output remains proposed/candidate and optional
+        persistence uses normal domain validation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/AIExecuteRequest"}
+      responses:
+        "200":
+          description: Structured candidate output and complete run record
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/AIExecutionResult"}
+        "403": {$ref: "#/components/responses/ErrorResponse"}
+        "422": {$ref: "#/components/responses/ErrorResponse"}
+        "429": {$ref: "#/components/responses/RateLimited"}
+        "503": {$ref: "#/components/responses/ErrorResponse"}
+  /projects/{projectId}/ai/runs:
+    parameters: [{$ref: "#/components/parameters/ProjectId"}]
+    get:
+      tags: [AI]
+      operationId: listProjectAiRuns
+      responses:
+        "200":
+          description: Tenant-authorized safe AI execution records
+          content:
+            application/json:
+              schema: {type: array, items: {$ref: "#/components/schemas/AIRun"}}
+  /projects/{projectId}/creation-graph:
+    parameters: [{$ref: "#/components/parameters/ProjectId"}]
+    get:
+      tags: [Creation]
+      operationId: getCreationGraph
+      responses:
+        "200":
+          description: Persisted genealogy only
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/CreationGraph"}
+  /projects/{projectId}/operations/{operation}:
+    parameters:
+      - {$ref: "#/components/parameters/ProjectId"}
+      - {name: operation, in: path, required: true, schema: {type: string}}
+    post:
+      tags: [Creation]
+      operationId: runOrchestrationOperation
+      description: >
+        Placeholder common contract for slice-specific generation/assessment routes.
+        The operation registry constrains stage, capability, prompt and output schema.
+      parameters: [{$ref: "#/components/parameters/IdempotencyKey"}, {$ref: "#/components/parameters/ExpectedVersion"}]
+      requestBody:
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/OperationInput"}
+      responses:
+        "202":
+          description: Accepted structured operation
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/OperationRun"}
+  /projects/{projectId}/decisions:
+    parameters: [{$ref: "#/components/parameters/ProjectId"}]
+    get:
+      tags: [Decision]
+      operationId: listDecisions
+      responses:
+        "200":
+          description: Immutable decision history
+          content:
+            application/json:
+              schema: {type: array, items: {$ref: "#/components/schemas/HumanDecision"}}
+  /projects/{projectId}/execution-events:
+    parameters: [{$ref: "#/components/parameters/ProjectId"}]
+    post:
+      tags: [Execution]
+      operationId: createExecutionEvent
+      parameters: [{$ref: "#/components/parameters/IdempotencyKey"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ExecutionEvent"}
+      responses:
+        "201":
+          description: Event with deterministic minimum materiality applied
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ExecutionEvent"}
+  /projects/{projectId}/creation-cycles/{cycleId}/close:
+    parameters:
+      - {$ref: "#/components/parameters/ProjectId"}
+      - {name: cycleId, in: path, required: true, schema: {type: string}}
+    post:
+      tags: [Value]
+      operationId: closeCreationCycle
+      parameters: [{$ref: "#/components/parameters/IdempotencyKey"}, {$ref: "#/components/parameters/ExpectedVersion"}]
+      description: Human Gate 19 only; requires confirmed R1 and immutable genealogy.
+      responses:
+        "200": {description: Cycle closed by authorized human}
+        "409": {$ref: "#/components/responses/Conflict"}
+  /eri/khal/health:
+    get:
+      tags: [ERI]
+      operationId: getKhalHealth
+      description: Safe tenant-scoped readiness, last-success, and staleness state; never returns URL or credentials.
+      responses:
+        "200":
+          description: KHAL readiness or honest unconfigured state
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/KhalHealth"}
+  /eri/khal/assets:
+    get:
+      tags: [ERI]
+      operationId: listKhalAssets
+      description: Read-only, tenant-mapped normalized asset query with verified-cache degradation.
+      responses:
+        "200":
+          description: Normalized assets or honest unconfigured state
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/KhalReadResponse"}
+        "503": {$ref: "#/components/responses/ErrorResponse"}
+  /eri/khal/metrics:
+    get:
+      tags: [ERI]
+      operationId: listKhalMetrics
+      description: Read-only, tenant-mapped normalized metric query with verified-cache degradation.
+      responses:
+        "200":
+          description: Normalized metrics or honest unconfigured state
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/KhalReadResponse"}
+        "503": {$ref: "#/components/responses/ErrorResponse"}
+  /eri/khal/measurements:
+    get:
+      tags: [ERI]
+      operationId: queryKhalMeasurements
+      description: Read-only, tenant-mapped normalized measurements. Measurement never implies causal attribution.
+      parameters:
+        - {name: external_metric, in: query, required: true, schema: {type: string}}
+        - {name: observed_from, in: query, required: false, schema: {type: string, format: date-time}}
+        - {name: observed_to, in: query, required: false, schema: {type: string, format: date-time}}
+      responses:
+        "200":
+          description: Normalized measurements with provenance, quality, and freshness state
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/KhalReadResponse"}
+        "503": {$ref: "#/components/responses/ErrorResponse"}
+  /projects/{projectId}/eri/khal/measurements/ingest:
+    parameters: [{$ref: "#/components/parameters/ProjectId"}]
+    post:
+      tags: [ERI]
+      operationId: ingestKhalMeasurements
+      description: Pull normalized read-only KHAL measurements into deduplicated RealityEvents without causal attribution.
+      parameters:
+        - {name: external_metric, in: query, required: true, schema: {type: string}}
+        - {name: observed_from, in: query, required: false, schema: {type: string, format: date-time}}
+        - {name: observed_to, in: query, required: false, schema: {type: string, format: date-time}}
+      responses:
+        "201": {description: Normalized RealityEvents and duplicate count}
+        "503": {$ref: "#/components/responses/ErrorResponse"}
+  /eri/reality-events:
+    post:
+      tags: [ERI]
+      operationId: ingestRealityEvent
+      security:
+        - providerCredential: []
+      parameters: [{$ref: "#/components/parameters/IdempotencyKey"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/RealityEvent"}
+      responses:
+        "201": {description: Validated candidate; not automatically a CTF fact}
+        "200": {description: Existing deduplicated event}
+components:
+  securitySchemes:
+    bearerAuth: {type: apiKey, in: header, name: X-Session-Token}
+    providerCredential: {type: apiKey, in: header, name: X-Provider-Credential}
+  parameters:
+    ProjectId: {name: projectId, in: path, required: true, schema: {type: string, format: uuid}}
+    IdempotencyKey: {name: Idempotency-Key, in: header, required: true, schema: {type: string, minLength: 1, maxLength: 200}}
+    ExpectedVersion: {name: If-Match, in: header, required: true, schema: {type: string}, description: Expected aggregate version}
+  responses:
+    ProjectResponse:
+      description: Project
+      content: {application/json: {schema: {$ref: "#/components/schemas/Project"}}}
+    WorkspaceResponse:
+      description: Workspace
+      content: {application/json: {schema: {$ref: "#/components/schemas/Workspace"}}}
+    NotFound: {$ref: "#/components/responses/ErrorResponse"}
+    Conflict: {$ref: "#/components/responses/ErrorResponse"}
+    RateLimited:
+      description: Per-tenant/session rate limit or tenant AI quota exhausted
+      headers:
+        Retry-After: {schema: {type: integer, minimum: 1}, description: Seconds before retry}
+      content: {application/json: {schema: {$ref: "#/components/schemas/Error"}}}
+    ErrorResponse:
+      description: Stable safe error
+      content: {application/json: {schema: {$ref: "#/components/schemas/Error"}}}
+  schemas:
+    AnonymousSession:
+      type: object
+      required: [session_token, expires_at]
+      properties:
+        session_token: {type: string}
+        expires_at: {type: string, format: date-time}
+    CreateProject:
+      type: object
+      required: [entry_family, initial_input]
+      properties:
+        entry_family: {enum: [CREATION, FUNDING, DOCUMENT]}
+        entry_type: {type: string}
+        initial_input: {type: string, minLength: 1}
+        source: {type: object, additionalProperties: {type: string}}
+    Project:
+      type: object
+      required: [id, stage, version, created_at]
+      properties:
+        id: {type: string, format: uuid}
+        stage: {type: string}
+        version: {type: integer, minimum: 1}
+        created_at: {type: string, format: date-time}
+    Workspace:
+      type: object
+      required: [project, active_gate, current_cycle]
+      properties:
+        project: {$ref: "#/components/schemas/Project"}
+        active_gate: {oneOf: [{$ref: "#/components/schemas/Gate"}, {type: "null"}]}
+        current_cycle: {type: [object, "null"]}
+        memory_view: {type: object}
+    Gate:
+      type: object
+      required: [id, number, status, allowed_decisions, subject_versions]
+      properties:
+        id: {type: string}
+        number: {type: integer, minimum: 1, maximum: 19}
+        status: {enum: [PENDING, CONFIRMED, SUPERSEDED]}
+        allowed_decisions: {type: array, items: {type: string}, minItems: 1}
+        subject_versions: {type: object, additionalProperties: {type: integer}}
+    GateDecisionInput:
+      type: object
+      required: [decision, subject_versions]
+      properties:
+        decision: {type: string}
+        rationale: {type: string, maxLength: 10000}
+        subject_versions: {type: object, additionalProperties: {type: integer}}
+    GateDecision:
+      type: object
+      required: [id, gate_id, decision, origin, decided_at]
+      properties:
+        id: {type: string}
+        gate_id: {type: string}
+        decision: {type: string}
+        origin: {const: USER}
+        rationale: {type: string}
+        decided_at: {type: string, format: date-time}
+    DocumentType:
+      enum: [CALL_DOCUMENT, APPLICATION, PARTIAL_APPLICATION, PROJECT_CONCEPT, TECHNICAL_DOCUMENT, FINANCIAL_DOCUMENT, OTHER]
+    Attachment:
+      type: object
+      required: [id, project_id, original_filename, mime_type, size, checksum, status]
+      properties:
+        id: {type: string}
+        project_id: {type: string, format: uuid}
+        original_filename: {type: string}
+        mime_type: {type: string}
+        size: {type: integer, minimum: 0}
+        checksum: {type: string}
+        status: {enum: [SCANNING, READY_FOR_LATER_PROCESSING, ANALYZED, QUARANTINED, DELETED]}
+        malware_scan: {type: object}
+        semantic_analysis_claimed: {type: boolean, const: false}
+    DocumentAnalysisRequest:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [attachment_id]
+          properties:
+            attachment_id: {type: string}
+    DocumentJob:
+      type: object
+      required: [id, project_id, kind, status, data]
+      properties:
+        id: {type: string}
+        project_id: {type: string}
+        kind: {const: DOCUMENT_JOB}
+        status: {enum: [QUEUED, PROCESSING, COMPLETED, FAILED]}
+        data:
+          type: object
+          required: [attachment_id, status, progress, counts]
+          properties:
+            attachment_id: {type: string}
+            attachment_checksum_sha256: {type: string}
+            status: {enum: [QUEUED, PROCESSING, COMPLETED, FAILED]}
+            progress: {type: integer, minimum: 0, maximum: 100}
+            counts: {type: object, additionalProperties: {type: integer, minimum: 0}}
+            error:
+              oneOf:
+                - type: object
+                  required: [code, message]
+                  properties:
+                    code: {type: string}
+                    message: {type: string}
+                - type: "null"
+    DocumentChunk:
+      type: object
+      required: [id, kind, status, data]
+      properties:
+        id: {type: string}
+        kind: {const: DOCUMENT_CHUNK}
+        status: {const: PARSED}
+        data:
+          type: object
+          required: [attachment_id, checksum_sha256, ordinal, text, provenance]
+          properties:
+            attachment_id: {type: string}
+            checksum_sha256: {type: string}
+            ordinal: {type: integer, minimum: 1}
+            text: {type: string, maxLength: 4000}
+            provenance:
+              type: object
+              properties:
+                page: {type: integer, minimum: 1}
+                sheet: {type: string}
+                section: {type: string}
+                row_start: {type: integer, minimum: 1}
+                row_end: {type: integer, minimum: 1}
+    ParsedDocumentResponse:
+      type: object
+      required: [document, chunks, pagination]
+      properties:
+        document: {type: object}
+        chunks: {type: array, items: {$ref: "#/components/schemas/DocumentChunk"}}
+        pagination:
+          type: object
+          required: [offset, limit, total]
+          properties:
+            offset: {type: integer, minimum: 0}
+            limit: {type: integer, minimum: 1, maximum: 200}
+            total: {type: integer, minimum: 0}
+    CreationGraph:
+      type: object
+      required: [nodes, links]
+      properties:
+        nodes: {type: array, items: {type: object}}
+        links:
+          type: array
+          items:
+            type: object
+            required: [from_type, from_id, to_type, to_id, relation]
+            properties:
+              from_type: {type: string}
+              from_id: {type: string}
+              to_type: {type: string}
+              to_id: {type: string}
+              relation: {type: string}
+    OperationInput:
+      type: object
+      properties:
+        input: {type: object}
+        subject_versions: {type: object, additionalProperties: {type: integer}}
+    AIExecuteRequest:
+      type: object
+      required: [operation, user_input]
+      properties:
+        operation: {type: string}
+        user_input: {type: string, minLength: 1, maxLength: 50000}
+        consequentiality: {enum: [LOW, MEDIUM, HIGH, CRITICAL], default: MEDIUM}
+        prompt_version: {type: [string, "null"]}
+        context: {type: object}
+        persist_as: {type: [string, "null"]}
+        expected_version: {type: [integer, "null"]}
+    AIReadiness:
+      type: object
+      required: [provider, configured, reachable, ready, required_models, models, allowed_tiers, limitations]
+      properties:
+        provider: {enum: [NONE, OPENAI_COMPATIBLE, OLLAMA, FAKE]}
+        configured: {type: boolean}
+        reachable: {type: boolean}
+        ready: {type: boolean}
+        required_models: {type: array, items: {type: string}}
+        models: {type: object, additionalProperties: {type: boolean}}
+        allowed_tiers:
+          type: array
+          items: {enum: [T1, T2, T3, T4]}
+        limitations: {type: array, items: {type: string}}
+        non_production: {type: boolean}
+        error:
+          type: object
+          properties:
+            code: {type: string}
+            message: {type: string}
+    AIRun:
+      type: object
+      required: [id, project_id, operation, provider, model, prompt_id, prompt_version, methodology_version, outcome, retry_count]
+      properties:
+        id: {type: string}
+        project_id: {type: string}
+        operation: {type: string}
+        provider: {type: string}
+        model: {type: string}
+        prompt_id: {type: string}
+        prompt_version: {type: string}
+        methodology_version: {type: string}
+        outcome: {enum: [STARTED, SUCCEEDED, FAILED]}
+        input_tokens: {type: integer, minimum: 0}
+        cached_input_tokens: {type: integer, minimum: 0}
+        output_tokens: {type: integer, minimum: 0}
+        latency_ms: {type: integer, minimum: 0}
+        estimated_cost_usd: {type: string}
+        price_snapshot_id: {type: string}
+        retry_count: {type: integer, minimum: 0, maximum: 1}
+        error: {type: [object, "null"]}
+    AIExecutionResult:
+      type: object
+      required: [run, output]
+      properties:
+        run: {$ref: "#/components/schemas/AIRun"}
+        output:
+          type: object
+          required: [status, items]
+          properties:
+            status: {enum: [PROPOSED, CANDIDATE]}
+            items: {type: array, items: {type: object}}
+            summary: {type: string}
+    OperationRun:
+      type: object
+      required: [id, operation, status, capability]
+      properties:
+        id: {type: string}
+        operation: {type: string}
+        status: {enum: [ACCEPTED, RUNNING, SUCCEEDED, FAILED]}
+        capability: {enum: [T0_DETERMINISTIC, T1_EFFICIENT_AI, T2_STANDARD_REASONING, T3_CRITICAL_REASONING, T4_INDEPENDENT_VERIFICATION]}
+    HumanDecision:
+      type: object
+      required: [id, idea_id, idea_version, decision, origin, decided_at]
+      properties:
+        id: {type: string}
+        idea_id: {type: string}
+        idea_version: {type: integer}
+        decision: {enum: [GO, CONDITIONAL_GO, VALIDATE_FIRST, REDESIGN, HOLD, NO_GO]}
+        origin: {const: USER}
+        rationale: {type: string}
+        decided_at: {type: string, format: date-time}
+    ExecutionEvent:
+      type: object
+      required: [type, occurred_at, materiality]
+      properties:
+        type: {type: string}
+        occurred_at: {type: string, format: date-time}
+        materiality: {enum: [LOCAL, MATERIAL, DECISION_RELEVANT]}
+        evidence_refs: {type: array, items: {type: string}}
+    RealityEvent:
+      type: object
+      required: [provider, external_event_id, event_type, observed_at, subject]
+      properties:
+        provider: {type: string}
+        external_event_id: {type: string}
+        event_type: {type: string}
+        observed_at: {type: string, format: date-time}
+        generated_at: {type: string, format: date-time}
+        subject: {type: object}
+        metric: {type: string}
+        baseline: {type: object}
+        observed: {type: object}
+        data_quality: {enum: [VALID, ESTIMATED, MISSING, STALE, OUTLIER, INVALID, UNKNOWN]}
+        received_at: {type: string, format: date-time}
+        source_provenance: {type: object}
+        transformation_history: {type: array, items: {type: object}}
+    KhalHealth:
+      type: object
+      required: [provider, configured, enabled, read_only, status, stale]
+      properties:
+        provider: {const: KHAL}
+        configured: {type: boolean}
+        enabled: {type: boolean}
+        read_only: {const: true}
+        status: {enum: [ADAPTER_NOT_CONFIGURED, CONFIGURED, READY, DEGRADED, OFFLINE]}
+        last_success_at: {type: [string, "null"], format: date-time}
+        stale: {type: boolean}
+    KhalReadResponse:
+      type: object
+      required: [items, read_only, status]
+      properties:
+        items: {type: array, items: {type: object}}
+        read_only: {const: true}
+        status: {enum: [ADAPTER_NOT_CONFIGURED, READY, DEGRADED]}
+        last_success_at: {type: [string, "null"], format: date-time}
+        stale: {type: boolean}
+        age_seconds: {type: number, minimum: 0}
+        source: {enum: [LAST_VERIFIED_CACHE]}
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, request_id]
+          properties:
+            code: {type: string}
+            message: {type: string}
+            request_id: {type: string}
