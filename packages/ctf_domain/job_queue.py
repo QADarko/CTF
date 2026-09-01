@@ -20,7 +20,7 @@ JOB_STATES = (
     "FAILED",
     "DEAD_LETTER",
 )
-TRANSIENT_CODES = {"OBJECT_STORE_FAILURE", "WORKER_CRASH", "TIMEOUT", "TEMPORARY_FAILURE"}
+TRANSIENT_CODES = {"OBJECT_STORE_FAILURE", "WORKER_CRASH", "TIMEOUT", "TEMPORARY_FAILURE", "DOCUMENT_UNAVAILABLE"}
 TERMINAL_CODES = {
     "INVALID_DOCUMENT",
     "MALWARE_DETECTED",
@@ -75,14 +75,16 @@ class InProcessDocumentJobQueue:
         meta["lease_expires_at"] = expires
         record.data["queue"] = meta
 
-    def claim(self) -> DocumentJob | None:
+    def claim(self, worker_id: str | None = None) -> DocumentJob | None:
+        del worker_id
         now = datetime.now(UTC)
         for project in self.repository.projects.values():
-            for record in self.repository.list_resources(project, "DOCUMENT_JOB"):
+            for listed in self.repository.list_resources(project, "DOCUMENT_JOB"):
+                record = self.repository.get_resource(project, listed.id, "DOCUMENT_JOB")
                 meta = record.data.setdefault("queue", {})
                 state = meta.get("state", record.status)
                 lease = meta.get("lease_expires_at")
-                expired = bool(lease and datetime.fromisoformat(lease) < now)
+                expired = bool(lease and datetime.fromisoformat(lease) <= now)
                 if state in {"QUEUED", "RETRY_WAIT"} or (state == "CLAIMED" and expired):
                     if state == "CLAIMED" and expired:
                         meta["last_error"] = "DOCUMENT_JOB_LEASE_EXPIRED"
@@ -336,7 +338,14 @@ def create_document_job_queue(
 ) -> DocumentJobQueue:
     selection = os.getenv("CTF_DOCUMENT_QUEUE", "in-process").strip().lower()
     url = database_url or os.getenv("CTF_DOCUMENT_QUEUE_URL") or os.getenv("CTF_DATABASE_URL", "")
+    production = os.getenv("APP_ENV", "").strip().lower() in {"production", "prod"}
     wants_durable = selection in {"durable", "postgres"}
+    if production and not wants_durable:
+        raise DomainError(
+            "DOCUMENT_QUEUE_NOT_DURABLE",
+            "Production refuses the in-process document queue. Set CTF_DOCUMENT_QUEUE=postgres.",
+            503,
+        )
     if wants_durable or (selection != "in-process" and "postgres" in url.lower()):
         if "postgres" not in url.lower():
             if os.getenv("APP_ENV", "").lower() == "production":

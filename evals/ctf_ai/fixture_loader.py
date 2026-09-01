@@ -17,6 +17,9 @@ class LoadedFixture:
     project: Project
     version: str
     resources: dict[str, str]
+    known_fields: tuple[str, ...]
+    unknown_fields: tuple[str, ...]
+    unsupported_fields: tuple[str, ...]
 
 
 class EvaluationFixtureLoader:
@@ -51,4 +54,11 @@ class EvaluationFixtureLoader:
         if isinstance(memory, dict):
             live.memory.update(memory)
             repository.snapshot_memory(live, [{"op": "UPDATE", "path": "reality", "value": memory}])
-        return LoadedFixture(project=live, version=str(payload.get("version") or "1.0"), resources=created)
+        return LoadedFixture(
+            project=live,
+            version=str(payload.get("version") or "1.0"),
+            resources=created,
+            known_fields=tuple(str(item) for item in payload.get("known_fields") or ()),
+            unknown_fields=tuple(str(item) for item in payload.get("unknown_fields") or ()),
+            unsupported_fields=tuple(str(item) for item in payload.get("unsupported_fields") or ()),
+        )

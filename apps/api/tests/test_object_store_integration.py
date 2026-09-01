@@ -6,6 +6,11 @@ import pytest
 
 from packages.ctf_domain.object_store import S3ObjectStore
 
+if os.getenv("CI") and (
+    os.getenv("CTF_OBJECT_STORE", "local") not in {"minio", "s3"} or not os.getenv("S3_ENDPOINT")
+):
+    raise RuntimeError("CTF-CI-02: live MinIO is required in CI (CTF_OBJECT_STORE/S3_ENDPOINT unset).")
+
 pytestmark = pytest.mark.skipif(
     os.getenv("CTF_OBJECT_STORE", "local") not in {"minio", "s3"} or not os.getenv("S3_ENDPOINT"),
     reason="Set CTF_OBJECT_STORE=minio and S3_ENDPOINT to run object-store integration tests.",

@@ -18,7 +18,7 @@ import yaml
 from jsonschema import Draft202012Validator
 
 from evals.ctf_ai.fixture_loader import EvaluationFixtureLoader
-from evals.ctf_ai.model_approval import approve_model, load_thresholds
+from evals.ctf_ai.model_approval import approve_model, approve_operations, load_thresholds
 from evals.ctf_ai.report import write_report
 from evals.ctf_ai.scorers import score_output, structural_pass
 from packages.ctf_domain.ai_runtime import AIExecutionService, PromptRegistry, RuntimeConfig
@@ -237,6 +237,38 @@ def default_output_path(provider_name: str, model: str | None) -> Path:
     return RESULTS_DIR / f"{provider_name}-{safe_model}-{stamp}.json"
 
 
+def _parse_raw(content: str | None) -> dict[str, Any] | None:
+    if not content:
+        return None
+    try:
+        payload = json.loads(content)
+    except (TypeError, ValueError, json.JSONDecodeError):
+        return {"status": "INVALID", "raw_text_preview": str(content)[:400]}
+    return payload if isinstance(payload, dict) else {"status": "INVALID", "raw": payload}
+
+
+class RecordingProvider:
+    """Capture raw provider content before CTF guards reject it."""
+
+    def __init__(self, inner: Any) -> None:
+        self._inner = inner
+        self.last_raw: str | None = None
+        self.calls = list(getattr(inner, "calls", []) or [])
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._inner, name)
+
+    @property
+    def name(self) -> str:
+        return str(getattr(self._inner, "name", "UNKNOWN"))
+
+    def execute(self, **kwargs: Any) -> Any:
+        result = self._inner.execute(**kwargs)
+        self.last_raw = getattr(result, "content", None)
+        self.calls = list(getattr(self._inner, "calls", []) or [])
+        return result
+
+
 class EvaluationHarness:
     def __init__(
         self,
@@ -249,8 +281,8 @@ class EvaluationHarness:
         grounding_validator: Any | None = None,
         non_fabrication_guard: Any | None = None,
     ) -> None:
-        self.provider = provider
-        self.model = model or getattr(provider, "name", "unknown")
+        self.provider = provider if isinstance(provider, RecordingProvider) else RecordingProvider(provider)
+        self.model = model or getattr(self.provider, "name", "unknown")
         self.repo = InMemoryRepository()
         registry = PromptRegistry()
         context_registry = ContextPolicyRegistry()
@@ -262,7 +294,7 @@ class EvaluationHarness:
         self.loader = EvaluationFixtureLoader()
         self.service = AIExecutionService(
             self.repo,
-            provider,
+            self.provider,
             registry=registry,
             router=self.router,
             config=RuntimeConfig(
@@ -285,9 +317,18 @@ class EvaluationHarness:
 
     def run_scenario(self, scenario: dict[str, Any]) -> dict[str, Any]:
         loaded = self.loader.load(fixture_path=scenario["fixture"], repository=self.repo)
+        scenario = dict(scenario)
+        scenario["fixture_fields"] = {
+            "known_fields": loaded.known_fields,
+            "unknown_fields": loaded.unknown_fields,
+            "unsupported_fields": loaded.unsupported_fields,
+        }
+        scenario["fixture_version"] = loaded.version
+        scenario["scenario_version"] = f"{scenario['id']}@{loaded.version}"
         model_input = dict(scenario.get("model_input") or {})
         calls_before = len(getattr(self.provider, "calls", []) or [])
         output: dict[str, Any] | None = None
+        raw_output: dict[str, Any] | None = None
         run: dict[str, Any] = {}
         validation_failures: list[dict[str, str]] = []
         leak_keys: list[str] = []
@@ -306,6 +347,7 @@ class EvaluationHarness:
             if self.repo.ai_runs:
                 run = dict(self.repo.ai_runs[-1])
             output = {"status": "INVALID", "error": {"code": exc.code, "message": exc.message}}
+        raw_output = _parse_raw(getattr(self.provider, "last_raw", None))
         provider_calls = list(getattr(self.provider, "calls", []) or [])
         if len(provider_calls) > calls_before:
             leak_keys = payload_contains_evaluation_keys(provider_calls[-1].get("messages"))
@@ -317,7 +359,12 @@ class EvaluationHarness:
                     }
                 )
         provider_name = getattr(self.provider, "name", "UNKNOWN")
-        scored = score_output(scenario, output or {}, provider=provider_name)
+        scored = score_output(
+            scenario,
+            raw_output or output or {},
+            provider=provider_name,
+            validation_failures=validation_failures,
+        )
         scorer_failures = []
         for name, detail in (scored.get("results") or {}).items():
             if not detail.get("passed"):
@@ -331,7 +378,12 @@ class EvaluationHarness:
             "scenario_id": scenario["id"],
             "operation": scenario["operation"],
             "fixture_version": loaded.version,
+            "scenario_version": scenario["scenario_version"],
             "provider": provider_name,
+            "raw_output": raw_output,
+            "raw_output_ref": f"{scenario['id']}:{run.get('id') or 'unexecuted'}:raw",
+            "model_output": output,
+            "runtime_error": output.get("error") if isinstance(output, dict) else None,
             "model": run.get("model") or self.model,
             "model_parameters": {
                 "temperature": 0,
@@ -353,7 +405,6 @@ class EvaluationHarness:
                 "estimated_tokens": run.get("context_estimated_tokens"),
                 "memory_version": run.get("context_memory_version"),
             },
-            "model_output": output,
             "validation_failures": validation_failures,
             "scorer_failures": scorer_failures,
             "latency_ms": run.get("latency_ms"),
@@ -410,6 +461,8 @@ def execute_suite(
     )
     results = [harness.run_scenario(item) for item in scenarios]
     approval = approve_model(results, load_thresholds(), semantic=semantic)
+    op_cards = operation_scorecards(results, semantic=semantic)
+    operation_approval = approve_operations(results, op_cards)
     failures = [item["diagnostics"] for item in results if not item.get("pass")]
     metrics = dict(approval.get("metrics") or {})
     human_review = [
@@ -437,7 +490,10 @@ def execute_suite(
         "approved_tiers": approval.get("approved_tiers", []),
         "blocked_tiers": approval.get("blocked_tiers", ["T1", "T2", "T3", "T4"]),
         "overall_score": metrics.get("overall_semantic") if semantic else None,
-        "operation_scorecards": operation_scorecards(results, semantic=semantic),
+        "operation_scorecards": op_cards,
+        "operation_approval": operation_approval,
+        "approved_operations": operation_approval["approved_operations"],
+        "blocked_operations": operation_approval["blocked_operations"],
         "failures": failures,
         "human_review_artifacts": human_review,
         "results": results,
@@ -478,6 +534,11 @@ def main() -> int:
         print(json.dumps({key: report[key] for key in report if key not in {"results", "human_review_artifacts", "failures"}}, indent=2))
         output = Path(args.output or args.report or default_output_path(args.provider, args.model))
     write_report(output, report)
+    if args.provider in {"ollama", "external"}:
+        from packages.ctf_domain.model_registry import ModelRegistry, record_from_report
+
+        registry = ModelRegistry()
+        registry.upsert(record_from_report(report, status="CANDIDATE"))
     if report.get("human_review_artifacts") and args.provider not in {"structural", "fake"}:
         review_dir = output.parent / "human_review"
         review_dir.mkdir(parents=True, exist_ok=True)

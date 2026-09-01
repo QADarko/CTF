@@ -81,6 +81,7 @@ services:
     restart: unless-stopped
     environment:
       CTF_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-ctf}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ctf}
+      CTF_DOCUMENT_QUEUE: postgres
       CTF_OBJECT_STORE: minio
       CTF_BUCKET: ${CTF_BUCKET:-ctf-private}
       S3_ENDPOINT: http://minio:9000
@@ -116,6 +117,35 @@ services:
       timeout: 5s
       retries: 10
       start_period: 10s
+    networks: [ctf-internal]
+
+  worker:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    command: python -m apps.worker.main
+    restart: unless-stopped
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      CTF_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-ctf}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ctf}
+      CTF_DOCUMENT_QUEUE: postgres
+      CTF_OBJECT_STORE: minio
+      CTF_BUCKET: ${CTF_BUCKET:-ctf-private}
+      S3_ENDPOINT: http://minio:9000
+      S3_REGION: ${S3_REGION:-us-east-1}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      CTF_MALWARE_SCANNER: ${CTF_MALWARE_SCANNER:-noop}
+      CLAMAV_HOST: clamav
+      CLAMAV_PORT: 3310
+      CTF_WORKER_POLL_SECONDS: ${CTF_WORKER_POLL_SECONDS:-2}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
     networks: [ctf-internal]
 
   ollama:

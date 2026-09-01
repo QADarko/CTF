@@ -1,6 +1,9 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "entry": {"family": "CREATION", "type": "PROBLEM", "input": "Budget, TRL and market size are not in the record."},
+  "known_fields": ["idea_name"],
+  "unknown_fields": ["budget", "market_size", "trl", "kpi", "baseline"],
+  "unsupported_fields": ["adoption", "legal_status", "implementation_status"],
   "resources": [
     {"kind": "REALITY", "status": "CONFIRMED", "data": {"text": "A continuity idea exists; no funding file is attached."}},
     {"kind": "IDEA", "status": "SELECTED", "data": {"name": "Portable case"}},

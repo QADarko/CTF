@@ -45,6 +45,9 @@ ROUTES: dict[str, Route] = {
 
 
 class ModelRouter:
+    def __init__(self, registry: Any | None = None) -> None:
+        self.registry = registry
+
     def route(self, operation: str, consequentiality: str = "MEDIUM") -> Route:
         operation = operation.upper()
         route = ROUTES.get(operation)
@@ -61,6 +64,11 @@ class ModelRouter:
                 False,
             )
         return route
+
+    def authorize(self, route: Route, *, provider: str, model: str, operation: str) -> None:
+        if self.registry is None:
+            return
+        self.registry.require_allowed(provider=provider, model=model, operation=operation, tier=route.tier)
 
 
 class ContextCompiler:

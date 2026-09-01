@@ -545,6 +545,7 @@ class AIExecutionService:
         consequentiality_engine: ConsequentialityEngine | None = None,
         grounding_validator: GroundingValidator | None = None,
         non_fabrication_guard: NonFabricationGuard | None = None,
+        model_registry: Any | None = None,
     ) -> None:
         self.repo = repo
         self.provider = provider
@@ -557,6 +558,9 @@ class AIExecutionService:
         self.consequentiality_engine = consequentiality_engine or ConsequentialityEngine()
         self.grounding_validator = grounding_validator or GroundingValidator()
         self.non_fabrication_guard = non_fabrication_guard or NonFabricationGuard()
+        self.model_registry = model_registry
+        if self.model_registry is not None and getattr(self.router, "registry", None) is None:
+            self.router.registry = self.model_registry
         self.ledger = AICostLedger(repo)
 
     @classmethod
@@ -569,7 +573,10 @@ class AIExecutionService:
             provider = OllamaProvider.from_env()
         elif selected == "fake":
             provider = FakeProvider(fixture_mode=True)
-        return cls(repo, provider)
+        from .model_registry import ModelRegistry
+
+        registry = ModelRegistry()
+        return cls(repo, provider, router=ModelRouter(registry), model_registry=registry)
 
     def readiness(self) -> dict[str, Any]:
         selected = os.getenv("AI_PROVIDER", "").strip().lower()
@@ -702,6 +709,9 @@ class AIExecutionService:
             )
         model = self.config.models.get(route.tier)
         require(bool(model), "AI_MODEL_NOT_CONFIGURED", f"No model is configured for {route.tier}.", 503)
+        authorize = getattr(self.router, "authorize", None)
+        if callable(authorize):
+            authorize(route, provider=self.provider.name, model=model, operation=prompt.operation)
         compiled: CompiledContext = self.compiler.compile(
             project=project,
             operation=prompt.operation,

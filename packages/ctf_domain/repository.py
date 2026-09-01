@@ -75,6 +75,12 @@ class InMemoryRepository:
         """Flush direct aggregate mutations when no richer method is involved."""
         self._state_changed()
 
+    def refresh(self) -> None:
+        """Reload durable state. In-memory repositories are already current."""
+
+    def persist_worker_delta(self) -> None:
+        self.persist()
+
     @contextmanager
     def transaction(self) -> Iterator[None]:
         with self._lock:
@@ -448,6 +454,19 @@ class SQLAlchemySnapshotRepository(InMemoryRepository):
 
         Base.metadata.create_all(self._engine)
         self._load()
+        self._merge_on_flush = False
+
+    def refresh(self) -> None:
+        with self._lock:
+            self._load()
+
+    def persist_worker_delta(self) -> None:
+        with self._lock:
+            self._merge_on_flush = True
+            try:
+                self._flush_locked()
+            finally:
+                self._merge_on_flush = False
 
     def _payload(self) -> dict[str, Any]:
         payload = {
@@ -571,8 +590,12 @@ class SQLAlchemySnapshotRepository(InMemoryRepository):
                 )
                 session.add(row)
             else:
+                incoming = self._payload()
+                if self._merge_on_flush:
+                    incoming = merge_worker_snapshot(row.payload, incoming)
+                    self._restore(incoming)
                 row.schema_version = self.SCHEMA_VERSION
-                row.payload = self._payload()
+                row.payload = incoming
                 row.updated_at = datetime.now(UTC)
             session.commit()
             if getattr(self, "_uses_postgres", False):
@@ -608,6 +631,66 @@ class SQLAlchemySnapshotRepository(InMemoryRepository):
 
     def close(self) -> None:
         self._engine.dispose()
+
+
+WORKER_DELTA_KINDS = frozenset(
+    {
+        "DOCUMENT_JOB",
+        "ATTACHMENT",
+        "EVIDENCE_SOURCE",
+        "PARSED_DOCUMENT",
+        "DOCUMENT_CHUNK",
+        "CLAIM",
+        "EVIDENCE",
+    }
+)
+
+
+def merge_worker_snapshot(latest: dict[str, Any], incoming: dict[str, Any]) -> dict[str, Any]:
+    """Keep API state and overlay only document-processing entities from the worker."""
+    merged = deepcopy(latest or {})
+    latest_resources = {item["id"]: item for item in merged.get("resources", [])}
+    incoming_resources = {item["id"]: item for item in incoming.get("resources", [])}
+    for resource_id, record in incoming_resources.items():
+        if record.get("kind") in WORKER_DELTA_KINDS:
+            latest_resources[resource_id] = record
+    merged["resources"] = list(latest_resources.values())
+    project_resources = dict(merged.get("project_resources") or {})
+    for project_id, ids in (incoming.get("project_resources") or {}).items():
+        existing = list(project_resources.get(project_id) or [])
+        for resource_id in ids:
+            if resource_id not in existing:
+                existing.append(resource_id)
+        project_resources[project_id] = existing
+    merged["project_resources"] = project_resources
+    seen_audit = {item.get("id") for item in merged.get("audit_events") or []}
+    audits = list(merged.get("audit_events") or [])
+    for event in incoming.get("audit_events") or []:
+        if event.get("id") not in seen_audit:
+            audits.append(event)
+            seen_audit.add(event.get("id"))
+    merged["audit_events"] = audits
+    latest_projects = {item["id"]: item for item in merged.get("projects") or []}
+    incoming_projects = {item["id"]: item for item in incoming.get("projects") or []}
+    for project_id, project in incoming_projects.items():
+        if project_id not in latest_projects:
+            latest_projects[project_id] = project
+            continue
+        current = latest_projects[project_id]
+        incoming_memory = project.get("memory") or {}
+        current_memory = current.setdefault("memory", {})
+        for key in ("claims", "evidence_ledger", "evidence_gaps", "document_provenance"):
+            if key not in incoming_memory:
+                continue
+            existing = list(current_memory.get(key) or [])
+            seen = {item.get("id") for item in existing if isinstance(item, dict)}
+            for item in incoming_memory.get(key) or []:
+                if isinstance(item, dict) and item.get("id") not in seen:
+                    existing.append(item)
+                    seen.add(item.get("id"))
+            current_memory[key] = existing
+    merged["projects"] = list(latest_projects.values())
+    return merged
 
 
 def create_repository(database_url: str | None = None) -> InMemoryRepository:

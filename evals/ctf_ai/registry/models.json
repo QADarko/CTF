@@ -1,0 +1,35 @@
+{
+  "updated_at": "2026-09-01T10:53:08.064858+00:00",
+  "models": [
+    {
+      "provider": "OLLAMA",
+      "model": "qwen2.5:3b",
+      "exact_version": "qwen2.5:3b",
+      "approved_tiers": [],
+      "approved_operations": [],
+      "blocked_operations": [],
+      "benchmark_version": "ctf-ai-golden-1",
+      "benchmark_score": null,
+      "critical_safety_result": false,
+      "human_review_status": "INSTALLED_AWAITING_BENCHMARK:T1",
+      "approval_date": null,
+      "status": "CANDIDATE",
+      "updated_at": "2026-09-01T10:53:08.064351+00:00"
+    },
+    {
+      "provider": "OLLAMA",
+      "model": "qwen2.5:7b",
+      "exact_version": "qwen2.5:7b",
+      "approved_tiers": [],
+      "approved_operations": [],
+      "blocked_operations": [],
+      "benchmark_version": "ctf-ai-golden-1",
+      "benchmark_score": null,
+      "critical_safety_result": false,
+      "human_review_status": "INSTALLED_AWAITING_BENCHMARK:T2",
+      "approval_date": null,
+      "status": "CANDIDATE",
+      "updated_at": "2026-09-01T10:53:08.064858+00:00"
+    }
+  ]
+}

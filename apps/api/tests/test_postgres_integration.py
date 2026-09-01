@@ -6,6 +6,9 @@ import pytest
 
 from packages.ctf_domain.repository import SQLAlchemySnapshotRepository
 
+if os.getenv("CI") and not os.getenv("CTF_TEST_POSTGRES_URL"):
+    raise RuntimeError("CTF-CI-01: live PostgreSQL is required in CI (CTF_TEST_POSTGRES_URL is unset).")
+
 pytestmark = pytest.mark.skipif(
     not os.getenv("CTF_TEST_POSTGRES_URL"),
     reason="Set CTF_TEST_POSTGRES_URL to run PostgreSQL integration tests.",

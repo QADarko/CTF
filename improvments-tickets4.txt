@@ -1,0 +1,484 @@
+CTF AI PLATFORM
+Remaining Improvement Tickets
+CTF-005C-01 — Map Runtime Safety Failures into Certification Scores
+Map AI_AUTHORITY_VIOLATION → Human Authority failure.
+
+Map AI_GROUNDING_REQUIRED / invalid grounding → Grounding failure.
+
+Map AI_UNGROUNDED_ASSERTION / AI_FABRICATION_RISK → Non-Fabrication failure.
+
+Map AI_SCHEMA_RETRY_EXHAUSTED → Schema failure.
+
+Ensure runtime guard failures directly affect model certification.
+
+Add tests for every runtime failure → scorer mapping.
+
+CTF-005C-02 — Implement Evidence-Aware Non-Fabrication Scoring
+Remove generic requirement that every response must explicitly contain words such as UNKNOWN or UNVERIFIED.
+
+Extend fixtures with:
+
+known_fields
+
+unknown_fields
+
+unsupported_fields
+
+Detect whether the model invents values for unknown or unsupported fields.
+
+Score uncertainty preservation based on actual fixture state.
+
+Add adversarial fabrication tests for:
+
+budget
+
+market size
+
+TRL
+
+KPI
+
+baseline
+
+adoption
+
+legal status
+
+implementation status
+
+CTF-005C-03 — Preserve Raw Model Output for Evaluation Trace
+Preserve raw provider output before runtime guards transform/reject it.
+
+Store raw output reference in evaluation result.
+
+Evaluate safety violations against the actual model output.
+
+Keep sanitized runtime error separately.
+
+Do not persist hidden chain-of-thought.
+
+CTF-005C-04 — Build Human-Calibrated Evaluation Dataset
+Create human-reviewed expected outcomes for critical scenarios.
+
+Add reviewer labels for:
+
+methodology correctness
+
+Human Authority
+
+grounding
+
+fabrication
+
+attribution
+
+Transformation
+
+Value Boundaries
+
+Add fixture/scenario versioning.
+
+Add calibration cases for T1, T2 and T3.
+
+Compare automated scorer results with human evaluation.
+
+CTF-005C-05 — Strengthen T3 Certification Rules
+Require 100% Human Authority compliance.
+
+Require 100% critical safety compliance.
+
+Require 100% critical schema compliance.
+
+Require 100% critical Grounding compliance.
+
+Require 100% critical Non-Fabrication compliance.
+
+Require 100% critical Value Boundary compliance.
+
+Require 100% critical Attribution compliance.
+
+Require Human Review before T3 approval.
+
+Prevent global average score from overriding any critical failure.
+
+CTF-005C-06 — Implement Operation-Level Model Approval
+Approve models by:
+
+Model
+
+Operation
+
+Tier
+
+Do not approve a model globally for all CTF operations.
+
+Generate operation-specific approval status.
+
+Store approved and blocked operations in Model Registry.
+
+CTF-012B-01 — Add Production Worker Service
+Add dedicated worker service to compose.yaml.
+
+Configure:
+
+PostgreSQL
+
+MinIO
+
+malware scanner
+
+durable document queue
+
+Set CTF_DOCUMENT_QUEUE=postgres.
+
+Prevent production deployment from silently using in-process document queue.
+
+CTF-012B-02 — Fix Worker Stale Repository State
+Remove reliance on stale in-memory repository snapshot between API and worker processes.
+
+Ensure worker reads fresh project/resource/document state before processing each job.
+
+Prevent stale worker state from overwriting newer API state.
+
+Add API-process / worker-process integration tests.
+
+CTF-012B-03 — Introduce Safe Worker Repository Access
+Implement fresh transactional reads for worker operations.
+
+Avoid full snapshot writes from worker process.
+
+Persist only changed document-related entities.
+
+Prevent cross-process lost updates.
+
+Add concurrency tests for API + worker writes.
+
+CTF-012B-04 — Fix Document Processing Result Contract
+Make DocumentIntelligenceService.process() return explicit result status.
+
+Distinguish:
+
+success
+
+retryable failure
+
+permanent failure
+
+Do not mark queue job COMPLETED when domain DOCUMENT_JOB is FAILED.
+
+Map retryable failures to queue retry.
+
+Map permanent failures to failed/dead-letter state.
+
+CTF-012B-05 — Add Worker Lease Heartbeat
+Renew worker lease periodically during document processing.
+
+Prevent a second worker from reclaiming an actively processed job.
+
+Stop heartbeat after completion/failure.
+
+Add long-running processing test.
+
+Add expired-lease recovery test.
+
+CTF-012B-06 — Add Worker Concurrency Tests
+Test two workers claiming simultaneously.
+
+Verify only one worker receives a job.
+
+Test lease expiration.
+
+Test worker crash and recovery.
+
+Test retry.
+
+Test dead-letter transition.
+
+Test duplicate processing prevention.
+
+CTF-016B-01 — Implement Live PostgreSQL + MinIO Backup Test
+Use real PostgreSQL.
+
+Use real MinIO.
+
+Create multiple projects.
+
+Upload multiple attachments.
+
+Create Evidence, AI Runs, Cost Ledger and Genealogy.
+
+Perform complete backup.
+
+CTF-016B-02 — Implement Destructive Restore Test
+Delete PostgreSQL data.
+
+Delete MinIO bucket contents.
+
+Restore database.
+
+Restore object storage.
+
+Restart application.
+
+Verify full system integrity.
+
+CTF-016B-03 — Verify All Projects During Restore
+Replace first-project-only verification.
+
+Verify every restored project.
+
+Verify every Creation Memory.
+
+Verify every Genealogy relationship.
+
+Verify every Evidence resource.
+
+Verify every AI Run.
+
+Verify Cost Ledger.
+
+Verify Audit records.
+
+CTF-016B-04 — Verify All Restored Attachments
+Verify object count.
+
+Verify object keys.
+
+Verify file size.
+
+Verify checksums.
+
+Verify metadata ownership.
+
+Verify project/tenant isolation.
+
+Fail restore verification on missing or corrupted objects.
+
+CTF-016B-05 — Add Backup/Restore Failure Tests
+Corrupted DB backup must fail verification.
+
+Missing MinIO object must fail verification.
+
+Modified attachment checksum must fail.
+
+Invalid manifest must fail.
+
+Partial restore must fail.
+
+Unsupported backup format version must fail.
+
+CTF-E2E-01 — Add Full Post-Cycle Integrity Verification
+After browser R0 → R1 completion, verify through API:
+
+all 19 Gates
+
+R0
+
+R1
+
+Creation Memory
+
+Creation Genealogy
+
+Human Decisions
+
+AI Runs
+
+Cost Ledger
+
+Audit Trail
+
+Creation Cycle status
+
+CTF-E2E-02 — Make AI Proposal Test Mandatory
+Remove optional:
+if (await draft.isEnabled())
+
+Require AI Proposal to be generated.
+
+Verify AI Proposal is visually marked as AI-generated.
+
+Verify proposal cannot become confirmed automatically.
+
+Verify Human accept/edit/reject actions.
+
+CTF-E2E-03 — Add Real Confirmed-Resource Immutability Test
+Create and confirm a resource.
+
+Attempt illegal modification.
+
+Verify API rejects modification.
+
+Create replacement through supersession.
+
+Verify original record remains unchanged.
+
+CTF-E2E-04 — Strengthen Revision History Test
+Complete full R0 → R1 Creation Cycle.
+
+Verify R0 still exists after R1.
+
+Verify R0 content is unchanged.
+
+Verify R1 is separate.
+
+Verify revision/supersession Genealogy is intact.
+
+CTF-E2E-05 — Add Browser Human Authority Tests
+Verify AI cannot close Human Gate.
+
+Verify AI cannot create final Human Decision.
+
+Verify AI cannot confirm Value Boundary.
+
+Verify AI cannot confirm Commitment.
+
+Verify user must explicitly perform Human-owned actions.
+
+CTF-CI-01 — Require Live PostgreSQL Integration in CI
+Run PostgreSQL integration tests without skips.
+
+Fail CI when PostgreSQL integration is unavailable.
+
+Verify persistence across restart.
+
+Verify rollback.
+
+Verify idempotency.
+
+Verify Genealogy.
+
+Verify AI Runs and Cost Ledger.
+
+CTF-CI-02 — Require Live MinIO Integration in CI
+Run MinIO integration tests without skips.
+
+Test PUT/GET/STREAM/PRESIGN/DELETE.
+
+Test API upload flow.
+
+Test tenant isolation.
+
+Test unauthorized presign rejection.
+
+Fail CI when MinIO integration is unavailable.
+
+CTF-CI-03 — Add Worker Integration CI Job
+Start PostgreSQL.
+
+Start MinIO.
+
+Start API.
+
+Start worker.
+
+Submit document through API.
+
+Verify worker receives job.
+
+Verify document processing result.
+
+Verify Evidence output.
+
+Verify retry/failure paths.
+
+CTF-MODEL-01 — Run Real T1 Candidate Benchmark
+Benchmark a stronger local model such as qwen2.5:3b.
+
+Run full CTF evaluation corpus.
+
+Generate Model Scorecard.
+
+Generate per-operation approvals.
+
+Do not enable T2/T3 automatically.
+
+CTF-MODEL-02 — Run Real T2 Candidate Benchmark
+Benchmark qwen2.5:7b or equivalent.
+
+Run full evaluation corpus.
+
+Compare against T1 candidate.
+
+Record:
+
+quality
+
+latency
+
+token usage
+
+failures
+
+operation-specific strengths
+
+Approve only qualifying operations.
+
+CTF-MODEL-03 — Create CTF Model Registry
+For each evaluated model store:
+
+provider
+
+model
+
+exact version
+
+approved tiers
+
+approved operations
+
+blocked operations
+
+benchmark version
+
+benchmark score
+
+critical safety result
+
+human review status
+
+approval date
+
+status:
+
+CANDIDATE
+
+VALIDATED
+
+APPROVED
+
+BLOCKED
+
+DEPRECATED
+
+CTF-MODEL-04 — Enforce Model Registry in ModelRouter
+ModelRouter may route only to approved Model × Operation × Tier combinations.
+
+Block unapproved model/operation combinations.
+
+Fail closed if no approved model exists.
+
+Do not silently downgrade required capability.
+
+CTF-MODEL-05 — Add Model Comparison Report
+Compare evaluated models by:
+
+operation
+
+tier
+
+semantic quality
+
+critical safety
+
+grounding
+
+Non-Fabrication
+
+latency
+
+tokens
+
+cost where applicable
+
+Generate recommendation for best approved model per operation.

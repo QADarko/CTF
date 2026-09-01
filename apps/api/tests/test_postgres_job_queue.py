@@ -13,6 +13,10 @@ from packages.ctf_domain.job_queue import PostgresDocumentJobQueue
 def _id(prefix: str) -> str:
     return f"{prefix}_{uuid4().hex[:12]}"
 
+
+if os.getenv("CI") and not os.getenv("CTF_TEST_POSTGRES_URL"):
+    raise RuntimeError("CTF-CI-01: live PostgreSQL is required in CI (CTF_TEST_POSTGRES_URL is unset).")
+
 pytestmark = pytest.mark.skipif(
     not os.getenv("CTF_TEST_POSTGRES_URL"),
     reason="Set CTF_TEST_POSTGRES_URL to run PostgreSQL document queue tests.",
@@ -63,7 +67,8 @@ def test_two_workers_do_not_claim_same_job(queue):
         second = pool.submit(claim_one, "w2")
         results = [first.result(), second.result()]
     claimed = [item.job_id for item in results if item is not None]
-    assert len(claimed) == len(set(claimed))
+    assert len(claimed) == 1
+    assert claimed[0] == job_id
 
 
 def test_expired_lease_can_be_reclaimed(queue):
@@ -128,3 +133,20 @@ def test_invalid_document_is_not_retried_forever(queue):
 
     with Session(queue._engine) as session:
         assert session.get(DocumentJobRow, job_id).status == "FAILED"
+
+
+def test_worker_crash_is_retried(queue):
+    job_id = _id("job_crash")
+    queue.enqueue(project_id="prj_crash", job_id=job_id)
+    queue.retry(job_id, "WORKER_CRASH")
+    claimed = queue.claim(worker_id="recovery")
+    assert claimed is not None
+    assert claimed.job_id == job_id
+
+
+def test_dead_letter_is_not_claimed(queue):
+    job_id = _id("job_dlq")
+    queue.enqueue(project_id="prj_dlq", job_id=job_id)
+    queue.fail(job_id, "DOCUMENT_JOB_RETRY_EXHAUSTED")
+    claimed = queue.claim(worker_id="late")
+    assert claimed is None or claimed.job_id != job_id

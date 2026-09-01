@@ -134,7 +134,10 @@ def restore_objects(store: ObjectStore, root: Path) -> list[dict[str, Any]]:
     if not objects_dir.is_dir():
         objects_dir = root / "objects"
     for item in inventory:
-        payload = (objects_dir / item["key"]).read_bytes()
+        path = objects_dir / item["key"]
+        if not path.is_file():
+            raise DomainError("RESTORE_INTEGRITY_FAILED", f"Missing object {item['key']}.", 400)
+        payload = path.read_bytes()
         if sha256_bytes(payload) != item["checksum"]:
             raise DomainError("RESTORE_INTEGRITY_FAILED", f"Object checksum mismatch for {item['key']}.", 400)
         store.put(item["key"], payload, "application/octet-stream")

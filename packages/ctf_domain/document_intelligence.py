@@ -33,6 +33,29 @@ class DocumentProcessingError(Exception):
         self.safe_message = safe_message
 
 
+SUCCESS = "success"
+RETRYABLE_FAILURE = "retryable_failure"
+PERMANENT_FAILURE = "permanent_failure"
+RETRYABLE_CODES = {
+    "OBJECT_STORE_FAILURE",
+    "WORKER_CRASH",
+    "TIMEOUT",
+    "TEMPORARY_FAILURE",
+    "DOCUMENT_UNAVAILABLE",
+}
+
+
+@dataclass(frozen=True, slots=True)
+class DocumentProcessResult:
+    status: str
+    code: str | None = None
+    message: str | None = None
+
+    @property
+    def ok(self) -> bool:
+        return self.status == SUCCESS
+
+
 @dataclass(frozen=True, slots=True)
 class ParsedUnit:
     text: str
@@ -375,13 +398,13 @@ class DocumentIntelligenceService:
         self.repository = repository
         self.object_store = object_store
 
-    def process(self, project_id: str, job_id: str) -> None:
+    def process(self, project_id: str, job_id: str) -> DocumentProcessResult:
         try:
             with self.repository.transaction():
                 project = self.repository.projects[project_id]
                 job = self.repository.get_resource(project, job_id, "DOCUMENT_JOB")
                 if job.status == "COMPLETED":
-                    return
+                    return DocumentProcessResult(SUCCESS)
                 job.status = "PROCESSING"
                 job.data.update({"status": "PROCESSING", "progress": 10, "started_at": now_iso()})
                 job.version += 1
@@ -428,8 +451,10 @@ class DocumentIntelligenceService:
                     {"job_id": job.id, "attachment_id": attachment.id, "counts": counts},
                 )
                 self.repository.persist()
+            return DocumentProcessResult(SUCCESS)
         except DocumentProcessingError as exc:
             self._fail(project_id, job_id, exc.code, exc.safe_message)
+            return self._result_for(exc.code, exc.safe_message)
         except (KeyError, FileNotFoundError):
             self._fail(
                 project_id,
@@ -437,6 +462,7 @@ class DocumentIntelligenceService:
                 "DOCUMENT_UNAVAILABLE",
                 "The stored document is unavailable for processing.",
             )
+            return self._result_for("DOCUMENT_UNAVAILABLE", "The stored document is unavailable for processing.")
         except Exception:  # noqa: BLE001 - boundary converts all failures to a safe job error
             self._fail(
                 project_id,
@@ -444,6 +470,12 @@ class DocumentIntelligenceService:
                 "DOCUMENT_PROCESSING_FAILED",
                 "Document processing failed safely.",
             )
+            return self._result_for("DOCUMENT_PROCESSING_FAILED", "Document processing failed safely.")
+
+    @staticmethod
+    def _result_for(code: str, message: str) -> DocumentProcessResult:
+        kind = RETRYABLE_FAILURE if code in RETRYABLE_CODES else PERMANENT_FAILURE
+        return DocumentProcessResult(kind, code, message)
 
     def _fail(self, project_id: str, job_id: str, code: str, message: str) -> None:
         try:
