@@ -17,6 +17,7 @@ from typing import Any
 import yaml
 from jsonschema import Draft202012Validator
 
+from evals.ctf_ai.calibration.compare import calibration_scorecard, generate_calibration_report
 from evals.ctf_ai.fixture_loader import EvaluationFixtureLoader
 from evals.ctf_ai.model_approval import approve_model, approve_operations, load_thresholds
 from evals.ctf_ai.report import write_report
@@ -460,7 +461,13 @@ def execute_suite(
         non_fabrication_guard=non_fabrication_guard,
     )
     results = [harness.run_scenario(item) for item in scenarios]
-    approval = approve_model(results, load_thresholds(), semantic=semantic)
+    calibration_report = generate_calibration_report() if semantic else None
+    approval = approve_model(
+        results,
+        load_thresholds(),
+        semantic=semantic,
+        calibration_report=calibration_report,
+    )
     op_cards = operation_scorecards(results, semantic=semantic)
     operation_approval = approve_operations(results, op_cards)
     failures = [item["diagnostics"] for item in results if not item.get("pass")]
@@ -498,6 +505,7 @@ def execute_suite(
         "human_review_artifacts": human_review,
         "results": results,
         "used_ai_execution_service": True,
+        "calibration": calibration_scorecard(calibration_report) if calibration_report else None,
     }
     if not semantic:
         report["semantic_evaluation"] = "NOT_APPLICABLE"

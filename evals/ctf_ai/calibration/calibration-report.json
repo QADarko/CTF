@@ -1,0 +1,71 @@
+{
+  "version": "1.1",
+  "cases": 9,
+  "overall_agreement": 1.0,
+  "critical_agreement": 1.0,
+  "precision": 1.0,
+  "recall": 1.0,
+  "false_positive_rate": 0.0,
+  "false_negative_rate": 0.0,
+  "by_scorer": {
+    "grounding": {
+      "agreement": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "fpr": 0.0,
+      "fnr": 0.0,
+      "n": 9
+    },
+    "non_fabrication": {
+      "agreement": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "fpr": 0.0,
+      "fnr": 0.0,
+      "n": 9
+    },
+    "methodology": {
+      "agreement": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "fpr": 0.0,
+      "fnr": 0.0,
+      "n": 9
+    },
+    "human_authority": {
+      "agreement": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "fpr": 0.0,
+      "fnr": 0.0,
+      "n": 9
+    },
+    "value_boundary": {
+      "agreement": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "fpr": 0.0,
+      "fnr": 0.0,
+      "n": 9
+    },
+    "attribution": {
+      "agreement": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "fpr": 0.0,
+      "fnr": 0.0,
+      "n": 9
+    },
+    "transformation": {
+      "agreement": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "fpr": 0.0,
+      "fnr": 0.0,
+      "n": 9
+    }
+  },
+  "threshold": 0.9,
+  "pass": true,
+  "passed": true
+}

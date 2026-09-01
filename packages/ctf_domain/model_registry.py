@@ -16,7 +16,11 @@ ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_PATH = ROOT / "evals" / "ctf_ai" / "registry" / "models.json"
 STATUSES = ("CANDIDATE", "VALIDATED", "APPROVED", "BLOCKED", "DEPRECATED")
 PRODUCTION_STATUSES = frozenset({"APPROVED"})
+EVALUATION_STATUSES = frozenset({"CANDIDATE", "VALIDATED", "APPROVED"})
+NEVER_EXECUTABLE = frozenset({"BLOCKED", "DEPRECATED"})
 ROUTE_ERROR = "AI_MODEL_ROUTE_NOT_APPROVED"
+PRODUCTION_ERROR = "AI_MODEL_NOT_PRODUCTION_APPROVED"
+DEVELOPMENT_OVERRIDE = "CTF_ALLOW_NONAPPROVED_MODELS"
 
 
 def _now() -> str:
@@ -174,7 +178,13 @@ class ModelRegistry:
         self.save()
         return stored
 
-    def is_allowed(
+    def has_approved_production_model(self) -> bool:
+        return any(
+            str(record.get("status") or "") == "APPROVED" and bool(normalize_routes(record))
+            for record in self.records.values()
+        )
+
+    def route_is_approved(
         self,
         model_id: str | None = None,
         operation: str = "",
@@ -190,15 +200,53 @@ class ModelRegistry:
             record = self.get(provider, model)
         if not record:
             return False
-        status = str(record.get("status") or "")
-        if status == "CANDIDATE" or status not in {"APPROVED", "VALIDATED"}:
-            return False
-        if status == "VALIDATED" and tier == "T3":
-            return False
         if operation in (record.get("blocked_operations") or []):
             return False
         routes = [ModelRouteApproval(item["operation"], item["tier"]) for item in normalize_routes(record)]
         return any(route.matches(operation, tier) for route in routes)
+
+    def _resolve_environment(self, environment: str | None) -> str:
+        if environment:
+            return str(environment).strip().lower()
+        if self.enforced:
+            return "production"
+        app_env = os.getenv("APP_ENV", "").strip().lower()
+        if app_env in {"production", "prod"}:
+            return "production"
+        return "production"
+
+    def is_allowed(
+        self,
+        model_id: str | None = None,
+        operation: str = "",
+        tier: str = "",
+        *,
+        provider: str | None = None,
+        model: str | None = None,
+        environment: str | None = None,
+    ) -> bool:
+        record = None
+        if model_id:
+            record = self.get_by_id(model_id)
+        elif provider and model:
+            record = self.get(provider, model)
+        if not record:
+            return False
+        status = str(record.get("status") or "")
+        if status in NEVER_EXECUTABLE:
+            return False
+        env = self._resolve_environment(environment)
+        if env == "evaluation":
+            return status in EVALUATION_STATUSES
+        if env == "development":
+            if os.getenv(DEVELOPMENT_OVERRIDE, "").strip().lower() not in {"1", "true", "yes"}:
+                return status == "APPROVED" and self.route_is_approved(
+                    model_id=model_id, operation=operation, tier=tier, provider=provider, model=model
+                )
+            return status in EVALUATION_STATUSES
+        return status == "APPROVED" and self.route_is_approved(
+            model_id=model_id, operation=operation, tier=tier, provider=provider, model=model
+        )
 
     def require_allowed(
         self,
@@ -208,17 +256,25 @@ class ModelRegistry:
         *,
         provider: str | None = None,
         model: str | None = None,
+        environment: str | None = None,
     ) -> None:
         if not self.enforced:
             return
         identity = model_id or identity_key(provider or "", model or "")
-        if self.is_allowed(identity, operation, tier, provider=provider, model=model):
-            return
-        raise DomainError(
-            ROUTE_ERROR,
-            f"{identity} is not approved for {operation} at {tier}.",
-            403,
-        )
+        record = self.get_by_id(identity) if identity else None
+        if record is None and provider and model:
+            record = self.get(provider, model)
+        if record is None:
+            raise DomainError(ROUTE_ERROR, f"{identity} is not approved for {operation} at {tier}.", 403)
+        status = str(record.get("status") or "")
+        if status in NEVER_EXECUTABLE or status != "APPROVED":
+            raise DomainError(
+                PRODUCTION_ERROR,
+                f"{identity} status {status or 'UNKNOWN'} is not production-approved.",
+                403,
+            )
+        if not self.route_is_approved(identity, operation, tier, provider=provider, model=model):
+            raise DomainError(ROUTE_ERROR, f"{identity} is not approved for {operation} at {tier}.", 403)
 
 
 def record_from_report(report: dict[str, Any], *, status: str = "CANDIDATE") -> dict[str, Any]:
@@ -235,9 +291,13 @@ def record_from_report(report: dict[str, Any], *, status: str = "CANDIDATE") -> 
         if approval.get(tier) != "APPROVED":
             continue
         routes.append({"operation": operation, "tier": tier})
-    derived_status = status
+    derived_status = "CANDIDATE"
+    if status in {"VALIDATED", "APPROVED"} and (approval.get("T1") == "APPROVED" or approval.get("T2") == "APPROVED"):
+        derived_status = "VALIDATED"
     if approval.get("T1") != "APPROVED" and approval.get("T2") != "APPROVED":
         derived_status = "CANDIDATE"
+    if derived_status == "APPROVED":
+        derived_status = "VALIDATED"
     return {
         "provider": report.get("provider"),
         "model": report.get("model"),

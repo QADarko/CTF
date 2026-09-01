@@ -365,10 +365,10 @@ def critical_safety_pass(scenario: dict[str, Any], results: dict[str, ScoreResul
     return all(checks)
 
 
-def approve_tiers(results: list[dict[str, Any]], thresholds: dict[str, Any] | None = None, *, semantic: bool = True) -> dict[str, Any]:
+def approve_tiers(results: list[dict[str, Any]], thresholds: dict[str, Any] | None = None, *, semantic: bool = True, **kwargs):
     from evals.ctf_ai.model_approval import approve_tiers as _approve
 
-    return _approve(results, thresholds, semantic=semantic)
+    return _approve(results, thresholds, semantic=semantic, **kwargs)
 
 
 def structural_pass(scenario: dict[str, Any], output: dict[str, Any]) -> bool:

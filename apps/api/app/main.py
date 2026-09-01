@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from os import getenv
 from uuid import uuid4
 
 from fastapi import FastAPI, Request
@@ -203,6 +204,7 @@ def ready() -> dict[str, object]:
     flags = production_runtime_flags()
     registry_ok = True
     registry_error = None
+    approved_ai_ok = True
     if flags["is_production"] or flags["enforce_model_registry"]:
         from packages.ctf_domain.model_registry import ModelRegistry
 
@@ -210,7 +212,9 @@ def ready() -> dict[str, object]:
         registry_ok = registry.is_available()
         if not registry_ok:
             registry_error = registry.load_error or "missing"
-    ready_now = persistence_ok and object_ok and registry_ok
+        elif getenv("AI_PROVIDER", "").strip() and not registry.has_approved_production_model():
+            approved_ai_ok = False
+    ready_now = persistence_ok and object_ok and registry_ok and approved_ai_ok
     return {
         "ready": ready_now,
         "status": "ready" if ready_now else "degraded",
@@ -218,6 +222,7 @@ def ready() -> dict[str, object]:
             "persistence": {"ok": persistence_ok, "mode": persistence},
             "object_store": {"ok": object_ok, "backend": object_store.backend},
             "model_registry": {"ok": registry_ok, "required": bool(flags["enforce_model_registry"]), "error": registry_error},
+            "approved_ai_routes": {"ok": approved_ai_ok, "required": bool(flags["is_production"] and getenv("AI_PROVIDER", "").strip())},
         },
         "degradable": {
             "ai": "AI unavailability does not block core workflow.",

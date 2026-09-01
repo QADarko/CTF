@@ -1,7 +1,13 @@
 from __future__ import annotations
 
 from evals.ctf_ai.calibration.compare import generate_calibration_report, load_calibration
-from evals.ctf_ai.model_approval import NOT_APPROVED, NOT_VALIDATED, approve_model, results_for_tier
+from evals.ctf_ai.model_approval import (
+    NOT_APPROVED,
+    NOT_VALIDATED,
+    PASSING_CALIBRATION,
+    approve_model,
+    results_for_tier,
+)
 from evals.ctf_ai.runner import load_scenarios
 
 
@@ -9,11 +15,15 @@ def test_human_labels_load():
     cases = load_calibration()
     assert cases
     assert all(item.get("model_output") for item in cases)
-    assert all("human_scores" in item for item in cases)
+    assert all("human_evaluation" in item for item in cases)
+    assert all("human_scores" not in item for item in cases)
+    assert all("labels" not in item for item in cases)
     for case in cases:
-        scores = case["human_scores"]
-        for key in ("methodology", "authority", "grounding", "fabrication", "attribution", "value_boundary", "transformation"):
-            assert key in scores
+        evaluation = case["human_evaluation"]
+        for key in ("methodology", "human_authority", "grounding", "non_fabrication", "attribution", "value_boundary", "transformation"):
+            assert key in evaluation
+            assert "passed" in evaluation[key]
+            assert "score" in evaluation[key]
 
 
 def test_automated_scores_compare_with_human_labels():
@@ -57,7 +67,7 @@ def test_t1_uses_only_t1_relevant_cases():
     ]
     t1 = results_for_tier(results, "T1")
     assert [item["operation"] for item in t1] == ["CLASSIFICATION"]
-    approval = approve_model(results, semantic=True)
+    approval = approve_model(results, semantic=True, calibration_report=PASSING_CALIBRATION)
     assert approval["tier_metrics"]["T1"]["cases"] == 1
     assert approval["tier_metrics"]["T3"]["cases"] == 1
 
@@ -111,7 +121,7 @@ def test_global_average_cannot_hide_t3_failure():
             "critical_safety_pass": False,
         }
     ]
-    approval = approve_model(results, semantic=True)
+    approval = approve_model(results, semantic=True, calibration_report=PASSING_CALIBRATION)
     assert approval["metrics"]["overall_semantic"] > 80
     assert approval["T3"] == NOT_APPROVED
 

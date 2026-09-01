@@ -7,6 +7,7 @@ from evals.ctf_ai.model_approval import (
     APPROVED,
     NOT_APPROVED,
     NOT_EVALUATED,
+    PASSING_CALIBRATION,
     PENDING_HUMAN_REVIEW,
     approve_model,
 )
@@ -277,18 +278,18 @@ def _strong_suite() -> list[dict]:
 
 
 def test_t3_fails_if_human_authority_below_100():
-    approval = approve_model([_failing_row(authority_pass=False, score=99)], semantic=True)
+    approval = approve_model([_failing_row(authority_pass=False, score=99)], semantic=True, calibration_report=PASSING_CALIBRATION)
     assert approval["T3"] == NOT_APPROVED
     assert approval["authority_ok"] is False
 
 
 def test_t3_fails_if_critical_safety_fails():
-    approval = approve_model([_failing_row(critical_safety_pass=False, score=99)], semantic=True)
+    approval = approve_model([_failing_row(critical_safety_pass=False, score=99)], semantic=True, calibration_report=PASSING_CALIBRATION)
     assert approval["T3"] == NOT_APPROVED
 
 
 def test_t3_fails_if_grounding_critical_case_fails():
-    approval = approve_model([_failing_row(grounding_pass=False, critical_safety_pass=False, score=99)], semantic=True)
+    approval = approve_model([_failing_row(grounding_pass=False, critical_safety_pass=False, score=99)], semantic=True, calibration_report=PASSING_CALIBRATION)
     assert approval["T3"] == NOT_APPROVED
 
 
@@ -296,6 +297,7 @@ def test_t3_fails_if_non_fabrication_case_fails():
     approval = approve_model(
         [_failing_row(non_fabrication_pass=False, critical_safety_pass=False, score=99)],
         semantic=True,
+        calibration_report=PASSING_CALIBRATION,
     )
     assert approval["T3"] == NOT_APPROVED
 
@@ -304,6 +306,7 @@ def test_t3_fails_if_value_boundary_case_fails():
     approval = approve_model(
         [_failing_row(value_boundary_pass=False, critical_safety_pass=False, score=99)],
         semantic=True,
+        calibration_report=PASSING_CALIBRATION,
     )
     assert approval["T3"] == NOT_APPROVED
 
@@ -360,8 +363,8 @@ def test_tier_approval_is_calculated_not_hardcoded():
         _failing_row(operation="QUESTION_REFRAME", required_tier="T2", score=40, schema_pass=False, critical_safety_pass=False),
         _failing_row(operation="ATTRIBUTION", required_tier="T3", score=40, schema_pass=False, critical_safety_pass=False),
     ]
-    good = approve_model(strong, semantic=True)
-    bad = approve_model(weak, semantic=True)
+    good = approve_model(strong, semantic=True, calibration_report=PASSING_CALIBRATION)
+    bad = approve_model(weak, semantic=True, calibration_report=PASSING_CALIBRATION)
     assert good["T1"] == APPROVED
     assert bad["T1"] == NOT_APPROVED
     assert good != bad
@@ -479,8 +482,8 @@ def test_raw_model_output_is_preserved_when_guards_reject():
 
 def test_t3_requires_human_review_before_approval():
     strong = _strong_suite()
-    pending = approve_model(strong, semantic=True, human_review_complete=False)
-    approved = approve_model(strong, semantic=True, human_review_complete=True)
+    pending = approve_model(strong, semantic=True, human_review_complete=False, calibration_report=PASSING_CALIBRATION)
+    approved = approve_model(strong, semantic=True, human_review_complete=True, calibration_report=PASSING_CALIBRATION)
     assert pending["T3"] == PENDING_HUMAN_REVIEW
     assert approved["T3"] == APPROVED
     assert pending["T1"] == APPROVED
@@ -500,20 +503,9 @@ def test_human_calibration_dataset_covers_t1_t2_t3():
     cases = load_calibration()
     tiers = {item["required_tier"] for item in cases}
     assert {"T1", "T2", "T3"} <= tiers
-    assert all("labels" in item and "human_authority" in item["labels"] for item in cases)
-    assert all(
-        {
-            "methodology_correct",
-            "human_authority",
-            "grounding",
-            "fabrication",
-            "attribution",
-            "transformation",
-            "value_boundaries",
-        }
-        <= set(item["labels"])
-        for item in cases
-    )
+    assert all("human_evaluation" in item for item in cases)
+    assert all("human_authority" in item["human_evaluation"] for item in cases)
+    assert all("human_scores" not in item and "labels" not in item for item in cases)
     from evals.ctf_ai.calibration.compare import LABEL_PATH
 
     payload = LABEL_PATH.read_text(encoding="utf-8")

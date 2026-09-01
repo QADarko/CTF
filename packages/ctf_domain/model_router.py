@@ -4,9 +4,20 @@ from dataclasses import asdict, dataclass
 from decimal import Decimal
 from typing import Any
 
-from .errors import DomainError, require
+from .errors import require
 from .models import new_id, now_iso
+from .operation_routes import canonical_routes, get_operation_route, required_tier_for_operation
 from .repository import InMemoryRepository
+
+__all__ = [
+    "ROUTES",
+    "AICostLedger",
+    "ContextCompiler",
+    "ModelRouter",
+    "Route",
+    "required_tier_for_operation",
+    "route_public",
+]
 
 
 @dataclass(frozen=True, slots=True)
@@ -20,44 +31,21 @@ class Route:
     allow_lower_capability_fallback: bool = False
 
 
+def _route_from_spec(spec: Any, operation: str) -> Route:
+    return Route(
+        operation,
+        spec.capability,
+        spec.base_capability_tier,
+        spec.reasoning_effort,
+        spec.max_input_tokens,
+        spec.max_output_tokens,
+        False,
+    )
+
+
 ROUTES: dict[str, Route] = {
-    "CLASSIFICATION": Route("CLASSIFICATION", "EFFICIENT_AI", "T1", "NONE", 4000, 250),
-    "CLAIM_EXTRACTION": Route("CLAIM_EXTRACTION", "EFFICIENT_AI", "T1", "LOW", 4000, 1000),
-    "FUNDING_ENTRY_ROUTING": Route("FUNDING_ENTRY_ROUTING", "EFFICIENT_AI", "T1", "NONE", 4000, 250),
-    "DOCUMENT_ENTRY_ROUTING": Route("DOCUMENT_ENTRY_ROUTING", "EFFICIENT_AI", "T1", "NONE", 4000, 250),
-    "DOCUMENT_EVIDENCE_EXTRACTION": Route(
-        "DOCUMENT_EVIDENCE_EXTRACTION", "EFFICIENT_AI", "T1", "LOW", 8000, 1500
-    ),
-    "REALITY_UPDATE": Route("REALITY_UPDATE", "STANDARD_REASONING", "T2", "LOW", 8000, 2000),
-    "QUESTION_REFRAME": Route("QUESTION_REFRAME", "STANDARD_REASONING", "T2", "MEDIUM", 16000, 1500),
-    "PERCEPTION_SYNTHESIS": Route("PERCEPTION_SYNTHESIS", "STANDARD_REASONING", "T2", "MEDIUM", 16000, 2000),
-    "OPPORTUNITY_GENERATION": Route("OPPORTUNITY_GENERATION", "STANDARD_REASONING", "T2", "MEDIUM", 8000, 1000),
-    "SPARK_GENERATION": Route("SPARK_GENERATION", "STANDARD_REASONING", "T2", "MEDIUM", 16000, 1200),
-    "IDEA_BLUEPRINT": Route("IDEA_BLUEPRINT", "STANDARD_REASONING", "T2", "MEDIUM", 16000, 1500),
-    "RED_TEAM": Route("RED_TEAM", "CRITICAL_REASONING", "T3", "HIGH", 24000, 2500),
-    "DECISION_RECOMMENDATION": Route("DECISION_RECOMMENDATION", "CRITICAL_REASONING", "T3", "HIGH", 18000, 2200),
-    "ROADMAP": Route("ROADMAP", "STANDARD_REASONING", "T2", "MEDIUM", 16000, 1800),
-    "ROADMAP_REPLAN": Route("ROADMAP_REPLAN", "STANDARD_REASONING", "T2", "MEDIUM", 16000, 1500),
-    "NBA": Route("NBA", "STANDARD_REASONING", "T2", "LOW", 8000, 600),
-    "NEXT_BEST_ACTION": Route("NEXT_BEST_ACTION", "STANDARD_REASONING", "T2", "LOW", 8000, 600),
-    "VALUE_ASSESSMENT": Route("VALUE_ASSESSMENT", "STANDARD_REASONING", "T2", "MEDIUM", 16000, 1800),
-    "ATTRIBUTION": Route("ATTRIBUTION", "CRITICAL_REASONING", "T3", "HIGH", 24000, 2500),
-    "TRANSFORMATION_ASSESSMENT": Route("TRANSFORMATION_ASSESSMENT", "CRITICAL_REASONING", "T3", "HIGH", 24000, 2500),
-    "TRANSFORMATION": Route("TRANSFORMATION", "CRITICAL_REASONING", "T3", "HIGH", 24000, 1800),
-    "REALIZED_VALUE": Route("REALIZED_VALUE", "STANDARD_REASONING", "T2", "MEDIUM", 16000, 1800),
-    "R1_GENERATION": Route("R1_GENERATION", "CRITICAL_REASONING", "T3", "MEDIUM", 24000, 2000),
+    operation: _route_from_spec(spec, operation) for operation, spec in canonical_routes().items()
 }
-
-
-def required_tier_for_operation(operation: str) -> str:
-    """Canonical capability tier for an operation; same source as ModelRouter.route()."""
-    key = str(operation or "").upper()
-    aliases = {"NEXT_BEST_ACTION": "NBA"}
-    key = aliases.get(key, key)
-    route = ROUTES.get(key)
-    if route is not None:
-        return route.tier
-    return "T2"
 
 
 class ModelRouter:
@@ -66,9 +54,7 @@ class ModelRouter:
 
     def route(self, operation: str, consequentiality: str = "MEDIUM") -> Route:
         operation = operation.upper()
-        route = ROUTES.get(operation)
-        if not route:
-            raise DomainError("MODEL_ROUTE_NOT_FOUND", f"No model capability route for {operation}.", 404)
+        route = _route_from_spec(get_operation_route(operation), operation)
         if consequentiality.upper() in {"HIGH", "CRITICAL"} and route.tier in {"T1", "T2"}:
             return Route(
                 route.operation,

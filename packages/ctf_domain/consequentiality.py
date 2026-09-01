@@ -8,6 +8,7 @@ from typing import Any
 
 from .errors import DomainError
 from .models import Project
+from .operation_routes import canonical_routes, get_operation_route, operation_aliases
 from .repository import InMemoryRepository
 from .risk_signals import RiskSignalExtractor, RiskSignals
 
@@ -33,66 +34,18 @@ TIER_FOR_LEVEL = {
     ConsequentialityLevel.CRITICAL: "T3",
 }
 
+def _floors() -> dict[str, ConsequentialityLevel]:
+    floors = {
+        operation: ConsequentialityLevel(spec.minimum_consequentiality)
+        for operation, spec in canonical_routes().items()
+    }
+    for alias, canonical in operation_aliases().items():
+        floors[alias] = floors[canonical]
+    return floors
+
+
 # Operation floor is the minimum consequentiality the system will accept.
-OPERATION_FLOORS: dict[str, ConsequentialityLevel] = {
-    "CLASSIFICATION": ConsequentialityLevel.LOW,
-    "FUNDING_ENTRY_ROUTING": ConsequentialityLevel.LOW,
-    "DOCUMENT_ENTRY_ROUTING": ConsequentialityLevel.LOW,
-    "DOCUMENT_EVIDENCE_EXTRACTION": ConsequentialityLevel.LOW,
-    "CLAIM_EXTRACTION": ConsequentialityLevel.LOW,
-    "QUESTION_REFRAME": ConsequentialityLevel.MEDIUM,
-    "REALITY_UPDATE": ConsequentialityLevel.MEDIUM,
-    "PERCEPTION_SYNTHESIS": ConsequentialityLevel.MEDIUM,
-    "CLAIM_EVIDENCE_ASSESSMENT": ConsequentialityLevel.MEDIUM,
-    "OPPORTUNITY_GENERATION": ConsequentialityLevel.MEDIUM,
-    "SPARK_GENERATION": ConsequentialityLevel.MEDIUM,
-    "IDEA_BLUEPRINT": ConsequentialityLevel.MEDIUM,
-    "IDEA_LOGIC_CHECK": ConsequentialityLevel.MEDIUM,
-    "ASSUMPTION_EXTRACTION": ConsequentialityLevel.MEDIUM,
-    "VALUE_BOUNDARY_SUGGESTION": ConsequentialityLevel.MEDIUM,
-    "VALIDATION_PLAN": ConsequentialityLevel.MEDIUM,
-    "COMMITMENT_READINESS": ConsequentialityLevel.MEDIUM,
-    "COMMITMENT_DRAFT": ConsequentialityLevel.MEDIUM,
-    "COMMITMENT_GAP": ConsequentialityLevel.MEDIUM,
-    "OUTCOME_GENERATION": ConsequentialityLevel.MEDIUM,
-    "MILESTONE_GENERATION": ConsequentialityLevel.MEDIUM,
-    "ACTION_GENERATION": ConsequentialityLevel.MEDIUM,
-    "ACTION_TRACE_RENDER": ConsequentialityLevel.MEDIUM,
-    "NEXT_BEST_ACTION": ConsequentialityLevel.MEDIUM,
-    "BLOCKER_ANALYSIS": ConsequentialityLevel.MEDIUM,
-    "EXECUTION_EVIDENCE_ASSESSMENT": ConsequentialityLevel.MEDIUM,
-    "MILESTONE_VERIFICATION": ConsequentialityLevel.MEDIUM,
-    "ROADMAP_REPLAN": ConsequentialityLevel.MEDIUM,
-    "COMMITMENT_DRIFT": ConsequentialityLevel.MEDIUM,
-    "CREATION_RECORD": ConsequentialityLevel.MEDIUM,
-    "STAKEHOLDER_DISCOVERY": ConsequentialityLevel.MEDIUM,
-    "VALUE_HYPOTHESIS": ConsequentialityLevel.MEDIUM,
-    "METRIC_BASELINE": ConsequentialityLevel.MEDIUM,
-    "VALUE_EVIDENCE": ConsequentialityLevel.MEDIUM,
-    "REALIZED_VALUE": ConsequentialityLevel.MEDIUM,
-    "NEGATIVE_EFFECT_SCAN": ConsequentialityLevel.MEDIUM,
-    "VALUE_DISTRIBUTION": ConsequentialityLevel.MEDIUM,
-    "NAVIGATION_ROUTER": ConsequentialityLevel.MEDIUM,
-    "KILL_ASSUMPTION_ASSESSMENT": ConsequentialityLevel.CRITICAL,
-    "RED_TEAM": ConsequentialityLevel.CRITICAL,
-    "PREMORTEM": ConsequentialityLevel.CRITICAL,
-    "STRONGEST_COUNTERARGUMENT": ConsequentialityLevel.CRITICAL,
-    "VALUE_BOUNDARY_TEST": ConsequentialityLevel.CRITICAL,
-    "CONSEQUENCE_ANALYSIS": ConsequentialityLevel.CRITICAL,
-    "DECISION_BRIEF": ConsequentialityLevel.CRITICAL,
-    "DECISION_RECOMMENDATION": ConsequentialityLevel.CRITICAL,
-    "REDESIGN_ROUTING": ConsequentialityLevel.CRITICAL,
-    "EXECUTION_MATERIALITY": ConsequentialityLevel.CRITICAL,
-    "REDECISION_TRIGGER": ConsequentialityLevel.CRITICAL,
-    "ATTRIBUTION": ConsequentialityLevel.CRITICAL,
-    "COUNTERFACTUAL": ConsequentialityLevel.CRITICAL,
-    "IMPACT_PATHWAY": ConsequentialityLevel.CRITICAL,
-    "TRANSFORMATION": ConsequentialityLevel.CRITICAL,
-    "SUSTAINABILITY": ConsequentialityLevel.CRITICAL,
-    "REALITY_DELTA": ConsequentialityLevel.CRITICAL,
-    "R1_GENERATION": ConsequentialityLevel.CRITICAL,
-    "CYCLE_REVIEW": ConsequentialityLevel.CRITICAL,
-}
+OPERATION_FLOORS: dict[str, ConsequentialityLevel] = _floors()
 
 
 @dataclass(frozen=True, slots=True)
@@ -136,7 +89,7 @@ class ConsequentialityEngine:
     ) -> ConsequentialityAssessment:
         del context  # Client context must never supply risk flags.
         operation = operation.upper()
-        floor = OPERATION_FLOORS.get(operation, ConsequentialityLevel.MEDIUM)
+        floor = ConsequentialityLevel(get_operation_route(operation).minimum_consequentiality)
         requested = parse_level(requested_level)
         reasons: list[str] = [f"OPERATION_FLOOR_{floor.value}"]
         level = floor

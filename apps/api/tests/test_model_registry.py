@@ -131,10 +131,7 @@ def test_candidate_model_cannot_execute_production_route(tmp_path: Path):
     project = repo.create_project(session, "CREATION", "PROBLEM", "x", {})
     with pytest.raises(DomainError) as caught:
         service.execute(repo.projects[project.id], operation="REALITY_UPDATE", user_input="hi")
-    assert caught.value.code == "AI_MODEL_ROUTE_NOT_APPROVED"
-
-
-def test_approved_model_route_executes(tmp_path: Path):
+    assert caught.value.code in {"AI_MODEL_NOT_PRODUCTION_APPROVED", "AI_MODEL_ROUTE_NOT_APPROVED"}
     registry = ModelRegistry(tmp_path / "models.json", enforced=True)
     registry.upsert(
         {

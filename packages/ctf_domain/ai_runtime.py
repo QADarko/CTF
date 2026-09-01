@@ -22,6 +22,7 @@ from .grounding import GroundingIndex, GroundingValidator, index_from_compiled
 from .model_router import AICostLedger, ModelRouter, Route
 from .models import Project, new_id, now_iso
 from .non_fabrication import NonFabricationGuard
+from .operation_routes import OPERATION_ALIASES, get_operation_route, validate_routing_consistency
 from .repository import InMemoryRepository
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -40,18 +41,6 @@ def _env_flag(name: str, default: bool = False) -> bool:
     if value is None:
         return default
     return value.strip().lower() in {"1", "true", "yes", "on"}
-OPERATION_ALIASES = {
-    "REALITY": "REALITY_UPDATE",
-    "QUESTION": "QUESTION_REFRAME",
-    "PERCEPTION": "PERCEPTION_SYNTHESIS",
-    "OPPORTUNITY": "OPPORTUNITY_GENERATION",
-    "SPARK": "SPARK_GENERATION",
-    "IDEA": "IDEA_BLUEPRINT",
-    "ROADMAP": "ROADMAP_REPLAN",
-    "NBA": "NEXT_BEST_ACTION",
-    "VALUE_ASSESSMENT": "REALIZED_VALUE",
-    "TRANSFORMATION_ASSESSMENT": "TRANSFORMATION",
-}
 
 
 @dataclass(frozen=True, slots=True)
@@ -187,7 +176,16 @@ class PromptRegistry:
                     methodology_version=self.methodology_version,
                 )
                 require(prompt.output_tokens > 0, "PROMPT_REGISTRY_INVALID", "Output budget must be positive.", 500)
+                route = get_operation_route(prompt.operation)
+                require(
+                    prompt.capability == route.base_capability_tier,
+                    "ROUTING_REGISTRY_MISMATCH",
+                    f"{prompt.operation} prompt capability {prompt.capability} does not match canonical {route.base_capability_tier}.",
+                    500,
+                )
                 self._by_operation.setdefault(prompt.operation, []).append(prompt)
+        if self.path == (ROOT / "prompts" / "registry.yaml").resolve():
+            validate_routing_consistency(prompt_operations=self._by_operation)
 
     def get(self, operation: str, version: str | None = None) -> PromptDefinition:
         canonical = OPERATION_ALIASES.get(operation.upper(), operation.upper())
@@ -554,6 +552,10 @@ class AIExecutionService:
         self.config = config or RuntimeConfig.from_env()
         self.context_registry = context_registry or ContextPolicyRegistry()
         self.context_registry.require_coverage(self.registry.operations())
+        validate_routing_consistency(
+            prompt_operations=self.registry.operations(),
+            context_operations=self.context_registry.operations(),
+        )
         self.compiler = context_compiler or ContextCompiler(repo, self.context_registry)
         self.consequentiality_engine = consequentiality_engine or ConsequentialityEngine()
         self.grounding_validator = grounding_validator or GroundingValidator()
@@ -601,9 +603,13 @@ class AIExecutionService:
         )
         limitations: list[str] = []
         registry_ready = True
+        production_models_ready = True
         if self.model_registry is not None and self.model_registry.enforced and not self.model_registry.is_available():
             registry_ready = False
             limitations.append("Model registry is required but unavailable.")
+        if self.model_registry is not None and self.model_registry.enforced and not self.model_registry.has_approved_production_model():
+            production_models_ready = False
+            limitations.append("No APPROVED model exists for a required production AI route.")
         if not self.provider:
             return {
                 "provider": provider_type,
@@ -628,7 +634,7 @@ class AIExecutionService:
                     f"Local {'/'.join(disabled)} execution is disabled until explicitly enabled and validated."
                 )
         status["limitations"] = limitations
-        ready = bool(status.get("reachable")) and all(status.get("models", {}).values()) and registry_ready
+        ready = bool(status.get("reachable")) and all(status.get("models", {}).values()) and registry_ready and production_models_ready
         return {
             "provider": provider_type,
             **status,
@@ -637,6 +643,9 @@ class AIExecutionService:
             "model_registry": {
                 "enforced": bool(self.model_registry and self.model_registry.enforced),
                 "available": bool(self.model_registry and self.model_registry.is_available()),
+                "approved_production_model": bool(
+                    self.model_registry and self.model_registry.has_approved_production_model()
+                ),
             },
         }
 
@@ -645,23 +654,7 @@ class AIExecutionService:
         return max(1, (len(json.dumps(value, separators=(",", ":"), ensure_ascii=False)) + 3) // 4)
 
     def _route(self, prompt: PromptDefinition, consequentiality: str) -> Route:
-        try:
-            route = self.router.route(prompt.operation, consequentiality)
-        except DomainError as exc:
-            if exc.code != "MODEL_ROUTE_NOT_FOUND":
-                raise
-            route = Route(
-                prompt.operation,
-                {"T1": "EFFICIENT_AI", "T2": "STANDARD_REASONING", "T3": "CRITICAL_REASONING", "T4": "INDEPENDENT_VERIFICATION"}[prompt.capability],
-                prompt.capability,
-                prompt.effort,
-                INPUT_BUDGETS[prompt.input_budget],
-                prompt.output_tokens,
-                False,
-            )
-            if consequentiality.upper() in {"HIGH", "CRITICAL"} and route.tier in {"T1", "T2"}:
-                route = Route(route.operation, "CRITICAL_REASONING", "T3", "HIGH", max(route.max_input_tokens, 16_000), max(route.max_output_tokens, 1_500), False)
-        return route
+        return self.router.route(prompt.operation, consequentiality)
 
     def _safe_authority_check(self, output: dict[str, Any]) -> None:
         require(output.get("status") in {"PROPOSED", "CANDIDATE"}, "AI_AUTHORITY_VIOLATION", "AI output must remain proposed.", 422)

@@ -1,0 +1,196 @@
+# Canonical routing registry for all 55 CTF AI operations (CTF-ROUTING-01).
+# Prompt Registry, ModelRouter, ConsequentialityEngine, evaluation, and Model Registry
+# must read from this file. Unknown operations fail closed: AI_OPERATION_ROUTE_NOT_DEFINED.
+version: "1.0"
+defaults:
+  T1:
+    capability: EFFICIENT_AI
+    minimum_consequentiality: LOW
+    reasoning_effort: NONE
+    max_input_tokens: 4000
+    max_output_tokens: 250
+    human_review_requirement: false
+  T2:
+    capability: STANDARD_REASONING
+    minimum_consequentiality: MEDIUM
+    reasoning_effort: MEDIUM
+    max_input_tokens: 16000
+    max_output_tokens: 1500
+    human_review_requirement: false
+  T3:
+    capability: CRITICAL_REASONING
+    minimum_consequentiality: CRITICAL
+    reasoning_effort: HIGH
+    max_input_tokens: 24000
+    max_output_tokens: 1800
+    human_review_requirement: true
+aliases:
+  CLASSIFICATION: DOCUMENT_ENTRY_ROUTING
+  CLAIM_EXTRACTION: DOCUMENT_EVIDENCE_EXTRACTION
+  REALITY: REALITY_UPDATE
+  QUESTION: QUESTION_REFRAME
+  PERCEPTION: PERCEPTION_SYNTHESIS
+  OPPORTUNITY: OPPORTUNITY_GENERATION
+  SPARK: SPARK_GENERATION
+  IDEA: IDEA_BLUEPRINT
+  ROADMAP: ROADMAP_REPLAN
+  NBA: NEXT_BEST_ACTION
+  VALUE_ASSESSMENT: REALIZED_VALUE
+  TRANSFORMATION_ASSESSMENT: TRANSFORMATION
+operations:
+  FUNDING_ENTRY_ROUTING:
+    base_capability_tier: T1
+  DOCUMENT_ENTRY_ROUTING:
+    base_capability_tier: T1
+  DOCUMENT_EVIDENCE_EXTRACTION:
+    base_capability_tier: T1
+    reasoning_effort: LOW
+    max_input_tokens: 24000
+    max_output_tokens: 1500
+  REALITY_UPDATE:
+    base_capability_tier: T2
+    reasoning_effort: LOW
+    max_output_tokens: 2000
+  QUESTION_REFRAME:
+    base_capability_tier: T2
+  PERCEPTION_SYNTHESIS:
+    base_capability_tier: T2
+    max_output_tokens: 2000
+  CLAIM_EVIDENCE_ASSESSMENT:
+    base_capability_tier: T2
+    max_output_tokens: 1200
+  OPPORTUNITY_GENERATION:
+    base_capability_tier: T2
+    max_output_tokens: 1200
+  SPARK_GENERATION:
+    base_capability_tier: T2
+    max_output_tokens: 1200
+  IDEA_BLUEPRINT:
+    base_capability_tier: T2
+    max_input_tokens: 24000
+  IDEA_LOGIC_CHECK:
+    base_capability_tier: T2
+    max_output_tokens: 1200
+  ASSUMPTION_EXTRACTION:
+    base_capability_tier: T2
+    max_input_tokens: 24000
+    max_output_tokens: 1800
+  VALUE_BOUNDARY_SUGGESTION:
+    base_capability_tier: T2
+    max_input_tokens: 24000
+    max_output_tokens: 1800
+  VALIDATION_PLAN:
+    base_capability_tier: T2
+    max_input_tokens: 24000
+    max_output_tokens: 1800
+  COMMITMENT_READINESS:
+    base_capability_tier: T2
+    max_input_tokens: 24000
+    max_output_tokens: 1800
+  COMMITMENT_DRAFT:
+    base_capability_tier: T2
+  COMMITMENT_GAP:
+    base_capability_tier: T2
+  OUTCOME_GENERATION:
+    base_capability_tier: T2
+  MILESTONE_GENERATION:
+    base_capability_tier: T2
+  ACTION_GENERATION:
+    base_capability_tier: T2
+  ACTION_TRACE_RENDER:
+    base_capability_tier: T2
+    reasoning_effort: LOW
+    max_output_tokens: 600
+  NEXT_BEST_ACTION:
+    base_capability_tier: T2
+    reasoning_effort: LOW
+    max_output_tokens: 600
+  BLOCKER_ANALYSIS:
+    base_capability_tier: T2
+  EXECUTION_EVIDENCE_ASSESSMENT:
+    base_capability_tier: T2
+  MILESTONE_VERIFICATION:
+    base_capability_tier: T2
+  ROADMAP_REPLAN:
+    base_capability_tier: T2
+  COMMITMENT_DRIFT:
+    base_capability_tier: T2
+  CREATION_RECORD:
+    base_capability_tier: T2
+  STAKEHOLDER_DISCOVERY:
+    base_capability_tier: T2
+    max_input_tokens: 24000
+    max_output_tokens: 1800
+  VALUE_HYPOTHESIS:
+    base_capability_tier: T2
+    max_input_tokens: 24000
+    max_output_tokens: 1800
+  METRIC_BASELINE:
+    base_capability_tier: T2
+    max_input_tokens: 24000
+    max_output_tokens: 1800
+  VALUE_EVIDENCE:
+    base_capability_tier: T2
+    max_input_tokens: 24000
+    max_output_tokens: 1800
+  REALIZED_VALUE:
+    base_capability_tier: T2
+    max_input_tokens: 24000
+    max_output_tokens: 1800
+  NEGATIVE_EFFECT_SCAN:
+    base_capability_tier: T2
+    max_input_tokens: 24000
+    max_output_tokens: 1800
+  VALUE_DISTRIBUTION:
+    base_capability_tier: T2
+    max_input_tokens: 24000
+    max_output_tokens: 1800
+  NAVIGATION_ROUTER:
+    base_capability_tier: T2
+    max_input_tokens: 24000
+    max_output_tokens: 1800
+  KILL_ASSUMPTION_ASSESSMENT:
+    base_capability_tier: T3
+  RED_TEAM:
+    base_capability_tier: T3
+    max_output_tokens: 2500
+  PREMORTEM:
+    base_capability_tier: T3
+  STRONGEST_COUNTERARGUMENT:
+    base_capability_tier: T3
+  VALUE_BOUNDARY_TEST:
+    base_capability_tier: T3
+  CONSEQUENCE_ANALYSIS:
+    base_capability_tier: T3
+    reasoning_effort: MEDIUM
+  DECISION_BRIEF:
+    base_capability_tier: T3
+  DECISION_RECOMMENDATION:
+    base_capability_tier: T3
+    max_output_tokens: 2200
+  REDESIGN_ROUTING:
+    base_capability_tier: T3
+  EXECUTION_MATERIALITY:
+    base_capability_tier: T3
+  REDECISION_TRIGGER:
+    base_capability_tier: T3
+  ATTRIBUTION:
+    base_capability_tier: T3
+    max_output_tokens: 2500
+  COUNTERFACTUAL:
+    base_capability_tier: T3
+  IMPACT_PATHWAY:
+    base_capability_tier: T3
+  TRANSFORMATION:
+    base_capability_tier: T3
+  SUSTAINABILITY:
+    base_capability_tier: T3
+  REALITY_DELTA:
+    base_capability_tier: T3
+  R1_GENERATION:
+    base_capability_tier: T3
+    reasoning_effort: HIGH
+    max_output_tokens: 2000
+  CYCLE_REVIEW:
+    base_capability_tier: T3
+    reasoning_effort: MEDIUM

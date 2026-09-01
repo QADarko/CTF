@@ -75,7 +75,7 @@ def test_unapproved_model_route_rejected(monkeypatch, tmp_path):
     registry.upsert({"provider": "OLLAMA", "model": "qwen2.5:3b", "approved_routes": [], "status": "CANDIDATE"})
     with pytest.raises(DomainError) as caught:
         registry.require_allowed("OLLAMA::qwen2.5:3b", "REALITY_UPDATE", "T2")
-    assert caught.value.code == "AI_MODEL_ROUTE_NOT_APPROVED"
+    assert caught.value.code == "AI_MODEL_NOT_PRODUCTION_APPROVED"
 
 
 def test_production_api_uses_postgres_document_queue(monkeypatch):

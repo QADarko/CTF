@@ -123,6 +123,11 @@ class ContextPolicyRegistry:
                 max_chunk_characters=int(merged.get("max_chunk_characters", 4000)),
                 require_explicit_chunk_refs=bool(merged.get("require_explicit_chunk_refs", True)),
             )
+        default_path = (ROOT / "prompts" / "context-policies.yaml").resolve()
+        if self.path == default_path:
+            from .operation_routes import validate_routing_consistency
+
+            validate_routing_consistency(prompt_operations=self._policies, context_operations=self._policies)
 
     def get(self, operation: str) -> ContextPolicy:
         policy = self._policies.get(operation.upper())
