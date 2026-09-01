@@ -1,9 +1,11 @@
-"""Coordinated PostgreSQL + object-store backup/restore (CTF-016A)."""
+"""Coordinated PostgreSQL + object-store backup/restore (CTF-016A / CTF-016C)."""
 
 from __future__ import annotations
 
 import hashlib
 import json
+import os
+import subprocess
 import tarfile
 from datetime import UTC, datetime
 from pathlib import Path
@@ -124,8 +126,7 @@ def restore_objects(store: ObjectStore, root: Path) -> list[dict[str, Any]]:
     archive = root / "ctf-objects.tar.gz"
     extract = root / "_restore_objects"
     extract.mkdir(exist_ok=True)
-    with tarfile.open(archive, "r:gz") as tar:
-        tar.extractall(extract)
+    safe_extract_tar(archive, extract)
     inventory_path = root / "objects.json"
     if not inventory_path.is_file():
         inventory_path = extract / "objects.json"
@@ -142,3 +143,125 @@ def restore_objects(store: ObjectStore, root: Path) -> list[dict[str, Any]]:
             raise DomainError("RESTORE_INTEGRITY_FAILED", f"Object checksum mismatch for {item['key']}.", 400)
         store.put(item["key"], payload, "application/octet-stream")
     return inventory
+
+
+def _reject_tar_member(member: tarfile.TarInfo, dest: Path) -> None:
+    name = member.name.replace("\\", "/")
+    if name.startswith(("/", "~")) or Path(name).is_absolute():
+        raise DomainError("BACKUP_PATH_TRAVERSAL", f"Absolute archive path rejected: {member.name}.", 400)
+    if ".." in Path(name).parts:
+        raise DomainError("BACKUP_PATH_TRAVERSAL", f"Archive path traversal rejected: {member.name}.", 400)
+    if member.issym() or member.islnk():
+        raise DomainError("BACKUP_SYMLINK_REJECTED", f"Archive symlink escape rejected: {member.name}.", 400)
+    target = (dest / name).resolve()
+    dest_resolved = dest.resolve()
+    if dest_resolved not in target.parents and target != dest_resolved:
+        raise DomainError("BACKUP_PATH_TRAVERSAL", f"Archive path escaped restore directory: {member.name}.", 400)
+
+
+def safe_extract_tar(archive: Path, dest: Path) -> None:
+    dest.mkdir(parents=True, exist_ok=True)
+    with tarfile.open(archive, "r:gz") as tar:
+        members = []
+        for member in tar.getmembers():
+            _reject_tar_member(member, dest)
+            members.append(member)
+        try:
+            tar.extractall(dest, members=members, filter="data")
+        except TypeError:
+            tar.extractall(dest, members=members)
+
+
+def destroy_object_store(store: ObjectStore) -> int:
+    inventory = list_objects(store)
+    for item in inventory:
+        store.delete(item["key"])
+    return len(inventory)
+
+
+def _postgres_url(database_url: str):
+    from sqlalchemy.engine import make_url
+
+    return make_url(database_url.replace("postgresql+psycopg://", "postgresql://"))
+
+
+def dump_postgres(database_url: str, path: Path) -> Path:
+    url = _postgres_url(database_url)
+    env = dict(os.environ)
+    if url.password:
+        env["PGPASSWORD"] = str(url.password)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    result = subprocess.run(
+        [
+            "pg_dump",
+            "--no-owner",
+            "--no-acl",
+            "-h",
+            str(url.host or "127.0.0.1"),
+            "-p",
+            str(url.port or 5432),
+            "-U",
+            str(url.username or "postgres"),
+            "-d",
+            str(url.database),
+            "-f",
+            str(path),
+        ],
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        raise DomainError("BACKUP_INTEGRITY_FAILED", result.stderr.strip() or "pg_dump failed.", 500)
+    return path
+
+
+def recreate_postgres_database(database_url: str) -> None:
+    from sqlalchemy import create_engine, text
+
+    url = _postgres_url(database_url)
+    admin = url.set(database="postgres")
+    engine = create_engine(admin.render_as_string(hide_password=False), isolation_level="AUTOCOMMIT")
+    db = url.database
+    with engine.connect() as connection:
+        connection.execute(
+            text(
+                "SELECT pg_terminate_backend(pid) FROM pg_stat_activity "
+                "WHERE datname = :d AND pid <> pg_backend_pid()"
+            ),
+            {"d": db},
+        )
+        connection.execute(text(f'DROP DATABASE IF EXISTS "{db}"'))
+        connection.execute(text(f'CREATE DATABASE "{db}"'))
+    engine.dispose()
+
+
+def restore_postgres(database_url: str, path: Path) -> None:
+    url = _postgres_url(database_url)
+    env = dict(os.environ)
+    if url.password:
+        env["PGPASSWORD"] = str(url.password)
+    result = subprocess.run(
+        [
+            "psql",
+            "-h",
+            str(url.host or "127.0.0.1"),
+            "-p",
+            str(url.port or 5432),
+            "-U",
+            str(url.username or "postgres"),
+            "-d",
+            str(url.database),
+            "-v",
+            "ON_ERROR_STOP=1",
+            "-f",
+            str(path),
+        ],
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        raise DomainError("RESTORE_INTEGRITY_FAILED", result.stderr.strip() or "psql restore failed.", 500)

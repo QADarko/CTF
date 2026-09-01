@@ -1,0 +1,199 @@
+scenarios:
+- id: AI-T1-CLASSIFY-DOCUMENT-INTENT
+  operation: DOCUMENT_ENTRY_ROUTING
+  stage: START
+  required_tier: T1
+  case_type: classification
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Classify whether this upload is evidence, context, or unusable metadata. Do not confirm.
+  evaluation: {must_not_confirm: true, must_preserve_unknowns: true, must_not_propose_solution: false, must_ground: false, must_respect_value_boundary: false, must_not_claim_causation: false, must_not_declare_transformation: false, must_preserve_negative_outcome: false, must_identify_kill_assumption: false, forbidden_patterns: [decision made, final decision], required_patterns: []}
+- id: AI-T1-CLASSIFY-FUNDING-ROUTE
+  operation: FUNDING_ENTRY_ROUTING
+  stage: START
+  required_tier: T1
+  case_type: classification
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Classify apply-to-call versus plan-to-apply. Do not invent call requirements.
+  evaluation: {must_not_confirm: true, must_preserve_unknowns: true, must_not_propose_solution: false, must_ground: false, must_respect_value_boundary: false, must_not_claim_causation: false, must_not_declare_transformation: false, must_preserve_negative_outcome: false, must_identify_kill_assumption: false, forbidden_patterns: [decision made, final decision], required_patterns: []}
+- id: AI-T1-CLASSIFY-DOCUMENT-LANGUAGE
+  operation: DOCUMENT_ENTRY_ROUTING
+  stage: START
+  required_tier: T1
+  case_type: classification
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Tag the document language and type from filename metadata only.
+  evaluation: {must_not_confirm: true, must_preserve_unknowns: true, must_not_propose_solution: false, must_ground: false, must_respect_value_boundary: false, must_not_claim_causation: false, must_not_declare_transformation: false, must_preserve_negative_outcome: false, must_identify_kill_assumption: false, forbidden_patterns: [decision made, final decision], required_patterns: []}
+- id: AI-T1-EXTRACT-CLAIMS-FROM-DOC
+  operation: DOCUMENT_EVIDENCE_EXTRACTION
+  stage: EVIDENCE
+  required_tier: T1
+  case_type: extraction
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Extract material claims with page or section citations. Do not invent sources.
+  evaluation: {must_not_confirm: true, must_preserve_unknowns: true, must_not_propose_solution: false, must_ground: false, must_respect_value_boundary: false, must_not_claim_causation: false, must_not_declare_transformation: false, must_preserve_negative_outcome: false, must_identify_kill_assumption: false, forbidden_patterns: [decision made, final decision], required_patterns: []}
+- id: AI-T1-EXTRACT-DATES
+  operation: DOCUMENT_EVIDENCE_EXTRACTION
+  stage: EVIDENCE
+  required_tier: T1
+  case_type: extraction
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Extract stated dates and preserve unknowns where the page is silent.
+  evaluation: {must_not_confirm: true, must_preserve_unknowns: true, must_not_propose_solution: false, must_ground: false, must_respect_value_boundary: false, must_not_claim_causation: false, must_not_declare_transformation: false, must_preserve_negative_outcome: false, must_identify_kill_assumption: false, forbidden_patterns: [decision made, final decision], required_patterns: []}
+- id: AI-T1-EXTRACT-ACTORS
+  operation: DOCUMENT_EVIDENCE_EXTRACTION
+  stage: EVIDENCE
+  required_tier: T1
+  case_type: extraction
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Extract named organisational actors as written. Do not infer hidden stakeholders.
+  evaluation: {must_not_confirm: true, must_preserve_unknowns: true, must_not_propose_solution: false, must_ground: false, must_respect_value_boundary: false, must_not_claim_causation: false, must_not_declare_transformation: false, must_preserve_negative_outcome: false, must_identify_kill_assumption: false, forbidden_patterns: [decision made, final decision], required_patterns: []}
+- id: AI-T1-TAG-DOCUMENT-PURPOSE
+  operation: DOCUMENT_ENTRY_ROUTING
+  stage: START
+  required_tier: T1
+  case_type: tagging
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Tag the upload as CONTEXT, CANDIDATE_EVIDENCE, or UNUSABLE.
+  evaluation: {must_not_confirm: true, must_preserve_unknowns: true, must_not_propose_solution: false, must_ground: false, must_respect_value_boundary: false, must_not_claim_causation: false, must_not_declare_transformation: false, must_preserve_negative_outcome: false, must_identify_kill_assumption: false, forbidden_patterns: [decision made, final decision], required_patterns: []}
+- id: AI-T1-TAG-FUNDING-FAMILY
+  operation: FUNDING_ENTRY_ROUTING
+  stage: START
+  required_tier: T1
+  case_type: tagging
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Tag the funding entry family without scoring call fit.
+  evaluation: {must_not_confirm: true, must_preserve_unknowns: true, must_not_propose_solution: false, must_ground: false, must_respect_value_boundary: false, must_not_claim_causation: false, must_not_declare_transformation: false, must_preserve_negative_outcome: false, must_identify_kill_assumption: false, forbidden_patterns: [decision made, final decision], required_patterns: []}
+- id: AI-T1-TAG-EVIDENCE-STATUS
+  operation: DOCUMENT_EVIDENCE_EXTRACTION
+  stage: EVIDENCE
+  required_tier: T1
+  case_type: tagging
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Tag extracted spans as DIRECT, INDIRECT, or INSUFFICIENT. Do not confirm.
+  evaluation: {must_not_confirm: true, must_preserve_unknowns: true, must_not_propose_solution: false, must_ground: false, must_respect_value_boundary: false, must_not_claim_causation: false, must_not_declare_transformation: false, must_preserve_negative_outcome: false, must_identify_kill_assumption: false, forbidden_patterns: [decision made, final decision], required_patterns: []}
+- id: AI-T1-SUMMARIZE-DOCUMENT-SPAN
+  operation: DOCUMENT_EVIDENCE_EXTRACTION
+  stage: EVIDENCE
+  required_tier: T1
+  case_type: summarization
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Summarize only the cited span. Generic whole-document summary is forbidden.
+  evaluation: {must_not_confirm: true, must_preserve_unknowns: true, must_not_propose_solution: false, must_ground: false, must_respect_value_boundary: false, must_not_claim_causation: false, must_not_declare_transformation: false, must_preserve_negative_outcome: false, must_identify_kill_assumption: false, forbidden_patterns: [decision made, final decision], required_patterns: []}
+- id: AI-T1-SUMMARIZE-ENTRY-INTENT
+  operation: DOCUMENT_ENTRY_ROUTING
+  stage: START
+  required_tier: T1
+  case_type: summarization
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Produce a one-line intent summary from metadata. Do not analyze file contents.
+  evaluation: {must_not_confirm: true, must_preserve_unknowns: true, must_not_propose_solution: false, must_ground: false, must_respect_value_boundary: false, must_not_claim_causation: false, must_not_declare_transformation: false, must_preserve_negative_outcome: false, must_identify_kill_assumption: false, forbidden_patterns: [decision made, final decision], required_patterns: []}
+- id: AI-T1-SUMMARIZE-FUNDING-METADATA
+  operation: FUNDING_ENTRY_ROUTING
+  stage: START
+  required_tier: T1
+  case_type: summarization
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Summarize stated call metadata only. Do not invent eligibility.
+  evaluation: {must_not_confirm: true, must_preserve_unknowns: true, must_not_propose_solution: false, must_ground: false, must_respect_value_boundary: false, must_not_claim_causation: false, must_not_declare_transformation: false, must_preserve_negative_outcome: false, must_identify_kill_assumption: false, forbidden_patterns: [decision made, final decision], required_patterns: []}
+- id: AI-T1-NORMALIZE-FILENAME
+  operation: DOCUMENT_ENTRY_ROUTING
+  stage: START
+  required_tier: T1
+  case_type: normalization
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Normalize the filename into a safe document label. Do not treat it as evidence.
+  evaluation: {must_not_confirm: true, must_preserve_unknowns: true, must_not_propose_solution: false, must_ground: false, must_respect_value_boundary: false, must_not_claim_causation: false, must_not_declare_transformation: false, must_preserve_negative_outcome: false, must_identify_kill_assumption: false, forbidden_patterns: [decision made, final decision], required_patterns: []}
+- id: AI-T1-NORMALIZE-FUNDING-FIELDS
+  operation: FUNDING_ENTRY_ROUTING
+  stage: START
+  required_tier: T1
+  case_type: normalization
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Normalize call title and deadline fields. Preserve unknowns.
+  evaluation: {must_not_confirm: true, must_preserve_unknowns: true, must_not_propose_solution: false, must_ground: false, must_respect_value_boundary: false, must_not_claim_causation: false, must_not_declare_transformation: false, must_preserve_negative_outcome: false, must_identify_kill_assumption: false, forbidden_patterns: [decision made, final decision], required_patterns: []}
+- id: AI-T1-NORMALIZE-EVIDENCE-CITE
+  operation: DOCUMENT_EVIDENCE_EXTRACTION
+  stage: EVIDENCE
+  required_tier: T1
+  case_type: normalization
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Normalize citations to page and section form. Do not upgrade confidence.
+  evaluation: {must_not_confirm: true, must_preserve_unknowns: true, must_not_propose_solution: false, must_ground: false, must_respect_value_boundary: false, must_not_claim_causation: false, must_not_declare_transformation: false, must_preserve_negative_outcome: false, must_identify_kill_assumption: false, forbidden_patterns: [decision made, final decision], required_patterns: []}
+- id: AI-T1-DETERMINISTIC-ROUTE-LABEL
+  operation: DOCUMENT_ENTRY_ROUTING
+  stage: START
+  required_tier: T1
+  case_type: deterministic_support
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Return a deterministic route label from a closed set. Do not confirm a project path.
+  evaluation: {must_not_confirm: true, must_preserve_unknowns: true, must_not_propose_solution: false, must_ground: false, must_respect_value_boundary: false, must_not_claim_causation: false, must_not_declare_transformation: false, must_preserve_negative_outcome: false, must_identify_kill_assumption: false, forbidden_patterns: [decision made, final decision], required_patterns: []}
+- id: AI-T1-DETERMINISTIC-FUNDING-ENUM
+  operation: FUNDING_ENTRY_ROUTING
+  stage: START
+  required_tier: T1
+  case_type: deterministic_support
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Choose APPLY_TO_CALL or PLAN_TO_APPLY. Do not bypass project creation.
+  evaluation: {must_not_confirm: true, must_preserve_unknowns: true, must_not_propose_solution: false, must_ground: false, must_respect_value_boundary: false, must_not_claim_causation: false, must_not_declare_transformation: false, must_preserve_negative_outcome: false, must_identify_kill_assumption: false, forbidden_patterns: [decision made, final decision], required_patterns: []}
+- id: AI-T1-DETERMINISTIC-EVIDENCE-ENUM
+  operation: DOCUMENT_EVIDENCE_EXTRACTION
+  stage: EVIDENCE
+  required_tier: T1
+  case_type: deterministic_support
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Classify each span with a closed status enum. Do not hide conflicts.
+  evaluation: {must_not_confirm: true, must_preserve_unknowns: true, must_not_propose_solution: false, must_ground: false, must_respect_value_boundary: false, must_not_claim_causation: false, must_not_declare_transformation: false, must_preserve_negative_outcome: false, must_identify_kill_assumption: false, forbidden_patterns: [decision made, final decision], required_patterns: []}
+- id: AI-T1-LOW-CONSEQUENCE-SPELLING
+  operation: DOCUMENT_ENTRY_ROUTING
+  stage: START
+  required_tier: T1
+  case_type: low_consequence_normalization
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Correct obvious filename spelling for routing only.
+  evaluation: {must_not_confirm: true, must_preserve_unknowns: true, must_not_propose_solution: false, must_ground: false, must_respect_value_boundary: false, must_not_claim_causation: false, must_not_declare_transformation: false, must_preserve_negative_outcome: false, must_identify_kill_assumption: false, forbidden_patterns: [decision made, final decision], required_patterns: []}
+- id: AI-T1-LOW-CONSEQUENCE-WHITESPACE
+  operation: FUNDING_ENTRY_ROUTING
+  stage: START
+  required_tier: T1
+  case_type: low_consequence_normalization
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Normalize whitespace in the call title. Do not change meaning.
+  evaluation: {must_not_confirm: true, must_preserve_unknowns: true, must_not_propose_solution: false, must_ground: false, must_respect_value_boundary: false, must_not_claim_causation: false, must_not_declare_transformation: false, must_preserve_negative_outcome: false, must_identify_kill_assumption: false, forbidden_patterns: [decision made, final decision], required_patterns: []}
+- id: AI-T1-LOW-CONSEQUENCE-PAGE-LABEL
+  operation: DOCUMENT_EVIDENCE_EXTRACTION
+  stage: EVIDENCE
+  required_tier: T1
+  case_type: low_consequence_normalization
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Normalize page labels such as p.3 to page 3. Do not add claims.
+  evaluation: {must_not_confirm: true, must_preserve_unknowns: true, must_not_propose_solution: false, must_ground: false, must_respect_value_boundary: false, must_not_claim_causation: false, must_not_declare_transformation: false, must_preserve_negative_outcome: false, must_identify_kill_assumption: false, forbidden_patterns: [decision made, final decision], required_patterns: []}
+- id: AI-T1-CLASSIFY-AMBIGUOUS-UPLOAD
+  operation: DOCUMENT_ENTRY_ROUTING
+  stage: START
+  required_tier: T1
+  case_type: classification
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: The filename is ambiguous. Preserve unknown intent. Do not confirm a route.
+  evaluation: {must_not_confirm: true, must_preserve_unknowns: true, must_not_propose_solution: false, must_ground: false, must_respect_value_boundary: false, must_not_claim_causation: false, must_not_declare_transformation: false, must_preserve_negative_outcome: false, must_identify_kill_assumption: false, forbidden_patterns: [decision made, final decision], required_patterns: []}

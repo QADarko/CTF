@@ -13,6 +13,10 @@ from fastapi.responses import JSONResponse
 from packages.ctf_domain.errors import DomainError
 from packages.ctf_domain.object_store import object_store
 from packages.ctf_domain.repository import SQLAlchemySnapshotRepository, repository
+from packages.ctf_domain.runtime_safety import (
+    assert_production_runtime_safety,
+    production_runtime_flags,
+)
 
 from .capabilities import load_manifest
 from .capabilities import router as capabilities_router
@@ -24,6 +28,7 @@ from .slices import router as slices_router
 
 @asynccontextmanager
 async def lifespan(application: FastAPI) -> AsyncIterator[None]:
+    assert_production_runtime_safety()
     application.state.capability_manifest = load_manifest()
     yield
 
@@ -195,13 +200,24 @@ def ready() -> dict[str, object]:
         _ = object_store.backend
     except Exception:  # noqa: BLE001
         object_ok = False
-    ready_now = persistence_ok and object_ok
+    flags = production_runtime_flags()
+    registry_ok = True
+    registry_error = None
+    if flags["is_production"] or flags["enforce_model_registry"]:
+        from packages.ctf_domain.model_registry import ModelRegistry
+
+        registry = ModelRegistry()
+        registry_ok = registry.is_available()
+        if not registry_ok:
+            registry_error = registry.load_error or "missing"
+    ready_now = persistence_ok and object_ok and registry_ok
     return {
         "ready": ready_now,
         "status": "ready" if ready_now else "degraded",
         "checks": {
             "persistence": {"ok": persistence_ok, "mode": persistence},
             "object_store": {"ok": object_ok, "backend": object_store.backend},
+            "model_registry": {"ok": registry_ok, "required": bool(flags["enforce_model_registry"]), "error": registry_error},
         },
         "degradable": {
             "ai": "AI unavailability does not block core workflow.",

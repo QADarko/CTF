@@ -193,3 +193,60 @@ def test_verify_restore_checks_every_project_not_only_the_first(tmp_path: Path):
     repo.persist()
     verify_restore(url)
     repo.close()
+
+
+def _malicious_tar(path: Path, name: str, *, symlink: str | None = None) -> None:
+    import tarfile
+
+    with tarfile.open(path, "w:gz") as tar:
+        info = tarfile.TarInfo(name)
+        if symlink is not None:
+            info.type = tarfile.SYMTYPE
+            info.linkname = symlink
+            tar.addfile(info)
+            return
+        payload = b"evil"
+        info.size = len(payload)
+        import io
+
+        tar.addfile(info, io.BytesIO(payload))
+
+
+def test_tar_path_traversal_rejected(tmp_path: Path):
+    from packages.ctf_domain.backup import safe_extract_tar
+
+    archive = tmp_path / "evil.tar.gz"
+    _malicious_tar(archive, "../outside.txt")
+    with pytest.raises(DomainError) as caught:
+        safe_extract_tar(archive, tmp_path / "restore")
+    assert caught.value.code == "BACKUP_PATH_TRAVERSAL"
+
+
+def test_absolute_tar_path_rejected(tmp_path: Path):
+    from packages.ctf_domain.backup import safe_extract_tar
+
+    archive = tmp_path / "abs.tar.gz"
+    _malicious_tar(archive, "/tmp/absolute.txt")
+    with pytest.raises(DomainError) as caught:
+        safe_extract_tar(archive, tmp_path / "restore")
+    assert caught.value.code == "BACKUP_PATH_TRAVERSAL"
+
+
+def test_symlink_escape_rejected(tmp_path: Path):
+    from packages.ctf_domain.backup import safe_extract_tar
+
+    archive = tmp_path / "link.tar.gz"
+    _malicious_tar(archive, "objects/link", symlink="../secret")
+    with pytest.raises(DomainError) as caught:
+        safe_extract_tar(archive, tmp_path / "restore")
+    assert caught.value.code == "BACKUP_SYMLINK_REJECTED"
+
+
+def test_valid_backup_archive_extracts(tmp_path: Path):
+    store = _local_store(tmp_path)
+    root = tmp_path / "backup"
+    root.mkdir()
+    backup_objects(store, root)
+    dest = LocalObjectStore(tmp_path / "ok-restore")
+    restore_objects(dest, root)
+    assert dest.get("tenant-a/att-1.bin") == b"attachment-bytes"

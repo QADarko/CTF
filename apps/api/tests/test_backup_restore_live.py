@@ -1,16 +1,19 @@
 from __future__ import annotations
 
-import gzip
 import hashlib
 import os
-from copy import deepcopy
+import shutil
 from pathlib import Path
 
 import pytest
 
 from packages.ctf_domain.backup import (
     backup_objects,
+    destroy_object_store,
+    dump_postgres,
+    recreate_postgres_database,
     restore_objects,
+    restore_postgres,
     verify_manifest,
     write_manifest,
 )
@@ -18,15 +21,21 @@ from packages.ctf_domain.object_store import S3ObjectStore
 from packages.ctf_domain.repository import SQLAlchemySnapshotRepository
 from scripts.restore.verify_restore import verify_restore
 
-pytestmark = pytest.mark.skipif(
-    (
-        not os.getenv("CTF_TEST_POSTGRES_URL")
-        or os.getenv("CTF_OBJECT_STORE", "local") not in {"minio", "s3"}
-        or not os.getenv("S3_ENDPOINT")
-    )
-    and not os.getenv("CTF_LIVE_BACKUP_TEST"),
-    reason="Set CTF_TEST_POSTGRES_URL and MinIO env to run live backup/restore tests.",
-)
+pytestmark = [
+    pytest.mark.integration,
+    pytest.mark.backup_restore,
+    pytest.mark.skipif(
+        (
+            not os.getenv("CTF_TEST_POSTGRES_URL")
+            or os.getenv("CTF_OBJECT_STORE", "local") not in {"minio", "s3"}
+            or not os.getenv("S3_ENDPOINT")
+            or shutil.which("pg_dump") is None
+            or shutil.which("psql") is None
+        )
+        and not os.getenv("CTF_LIVE_BACKUP_TEST"),
+        reason="Set PostgreSQL, MinIO, and pg_dump/psql to run live disaster-recovery tests.",
+    ),
+]
 
 
 def _store() -> S3ObjectStore:
@@ -43,10 +52,10 @@ def _seed(repo: SQLAlchemySnapshotRepository, store: S3ObjectStore, tenant: str,
     session = repo.create_session(tenant)
     project = repo.create_project(session, "CREATION", "PROBLEM", f"backup {tenant}", {})
     live = repo.projects[project.id]
-    r0 = repo.create_resource(live, "REALITY", {"text": "R0"}, status="CONFIRMED")
+    r0 = repo.create_resource(live, "REALITY", {"text": f"R0 {tenant}"}, status="CONFIRMED")
     evidence = repo.create_resource(live, "EVIDENCE", {"statement": "measured drop-off"}, status="CONFIRMED")
     snap = repo.create_resource(live, "REALITY_SNAPSHOT", {"label": "R1"}, status="CONFIRMED")
-    repo.create_resource(live, "CREATION_CYCLE", {"status": "OPEN"}, status="ACTIVE")
+    repo.create_resource(live, "CREATION_CYCLE", {"status": "COMPLETED"}, status="COMPLETED")
     store.put(key, body, "text/plain")
     repo.create_resource(
         live,
@@ -55,11 +64,13 @@ def _seed(repo: SQLAlchemySnapshotRepository, store: S3ObjectStore, tenant: str,
             "object_key": key,
             "checksum_sha256": hashlib.sha256(body).hexdigest(),
             "original_filename": "note.txt",
+            "size": len(body),
         },
         status="STORED",
     )
     repo.add_link(live, "REALITY", r0.id, "REALITY_SNAPSHOT", snap.id, "SUPERSEDES")
     repo.add_link(live, "EVIDENCE", evidence.id, "REALITY", r0.id, "SUPPORTS")
+    repo.audit(live.id, "gate_1_decided", "HUMAN", {"decision": "CONFIRMED"})
     repo.ai_runs.append(
         {"id": f"airun_{tenant}", "project_id": live.id, "operation": "REALITY_UPDATE", "outcome": "SUCCEEDED"}
     )
@@ -68,31 +79,39 @@ def _seed(repo: SQLAlchemySnapshotRepository, store: S3ObjectStore, tenant: str,
     return live.id
 
 
-def test_live_postgres_minio_backup_and_destructive_restore(tmp_path: Path):
+def test_complete_multi_project_disaster_recovery(tmp_path: Path):
     url = os.environ["CTF_TEST_POSTGRES_URL"]
     store = _store()
     repo = SQLAlchemySnapshotRepository(url)
     repo.reset()
-    first = _seed(repo, store, "tenant-a", "tenant-a/one.txt", b"one")
-    second = _seed(repo, store, "tenant-b", "tenant-b/two.txt", b"two")
-    assert first != second
-    payload = deepcopy(repo._payload())
+    ids = [
+        _seed(repo, store, "tenant-a", "tenant-a/one.txt", b"one"),
+        _seed(repo, store, "tenant-b", "tenant-b/two.txt", b"two"),
+        _seed(repo, store, "tenant-c", "tenant-c/three.txt", b"three"),
+    ]
+    assert len(set(ids)) == 3
     root = tmp_path / "backup"
     root.mkdir()
-    (root / "ctf.sql.gz").write_bytes(gzip.compress(b"snapshot-placeholder"))
+    dump = dump_postgres(url, root / "ctf.sql")
+    assert dump.is_file()
+    assert b"snapshot-placeholder" not in dump.read_bytes()
     meta = backup_objects(store, root)
-    write_manifest(root, database_file="ctf.sql.gz", object_meta=meta)
+    write_manifest(root, database_file="ctf.sql", object_meta=meta)
     verify_manifest(root / "backup-manifest.json")
 
-    store.delete("tenant-a/one.txt")
-    store.delete("tenant-b/two.txt")
-    repo.reset()
-    assert not repo.projects
-
+    destroy_object_store(store)
+    repo.close()
+    recreate_postgres_database(url)
+    restore_postgres(url, dump)
     restore_objects(store, root)
-    repo._restore(payload)
-    repo.persist()
     verify_restore(url, str(root), store=store)
     assert store.get("tenant-a/one.txt") == b"one"
     assert store.get("tenant-b/two.txt") == b"two"
-    repo.close()
+    assert store.get("tenant-c/three.txt") == b"three"
+    restored = SQLAlchemySnapshotRepository(url)
+    assert set(restored.projects) == set(ids)
+    for project in restored.projects.values():
+        assert restored.list_resources(project, "REALITY")
+        assert restored.list_resources(project, "REALITY_SNAPSHOT")
+        assert restored.memory_versions[project.id]
+    restored.close()

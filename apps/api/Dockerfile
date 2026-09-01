@@ -7,6 +7,8 @@ WORKDIR /app
 COPY pyproject.toml ./
 COPY apps ./apps
 COPY packages ./packages
+COPY evals ./evals
+COPY prompts ./prompts
 RUN python -m pip install --no-cache-dir .
 
 EXPOSE 8080

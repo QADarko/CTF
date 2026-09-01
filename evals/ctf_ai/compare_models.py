@@ -91,11 +91,29 @@ def compare_reports(reports: list[dict[str, Any]]) -> dict[str, Any]:
             if eligible
             else "No approved model; showing highest candidate score. Do not enable automatically.",
         }
+    route_recommendations = []
+    for operation, rows in by_operation.items():
+        for row in rows:
+            tier = row.get("required_tier")
+            status = "DO_NOT_APPROVE"
+            if row.get("approved") and tier != "T3":
+                status = "APPROVE_CANDIDATE_ROUTE"
+            if tier == "T3":
+                status = "PENDING_HUMAN_REVIEW"
+            route_recommendations.append(
+                {
+                    "model": row.get("model"),
+                    "operation": operation,
+                    "tier": tier,
+                    "recommendation": status,
+                }
+            )
     return {
         "models": models,
         "by_operation": dict(by_operation),
         "by_tier": dict(by_tier),
         "recommendations": recommendations,
+        "route_recommendations": route_recommendations,
     }
 
 

@@ -12,6 +12,7 @@ from packages.ctf_domain.document_intelligence import (
     DocumentIntelligenceService,
     DocumentProcessingError,
 )
+from packages.ctf_domain.errors import DomainError
 from packages.ctf_domain.job_queue import TRANSIENT_CODES, create_document_job_queue
 from packages.ctf_domain.object_store import object_store
 from packages.ctf_domain.repository import repository
@@ -24,6 +25,8 @@ def _heartbeat(queue, job_id: str, worker_id: str, stop: threading.Event, interv
 
 def run_once(queue=None, intelligence=None, *, worker_id: str | None = None, heartbeat_seconds: float | None = None) -> bool:
     repo = getattr(intelligence, "repository", None) or repository
+    if hasattr(repo, "enable_worker_merge_mode"):
+        repo.enable_worker_merge_mode()
     if hasattr(repo, "refresh"):
         repo.refresh()
     queue = queue or create_document_job_queue(repo)
@@ -51,6 +54,11 @@ def run_once(queue=None, intelligence=None, *, worker_id: str | None = None, hea
         else:
             queue.fail(job.job_id, result.code or "DOCUMENT_PROCESSING_FAILED")
     except DocumentProcessingError as exc:
+        if exc.code in TRANSIENT_CODES:
+            queue.retry(job.job_id, exc.code)
+        else:
+            queue.fail(job.job_id, exc.code)
+    except DomainError as exc:
         if exc.code in TRANSIENT_CODES:
             queue.retry(job.job_id, exc.code)
         else:

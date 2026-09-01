@@ -8,14 +8,14 @@ import pytest
 
 from packages.ctf_domain.object_store import S3ObjectStore
 
-if os.getenv("CI") and not os.getenv("CTF_LIVE_WORKER_TEST") and not os.getenv("CTF_WORKER_HTTP_BASE"):
-    # Collection continues; the skip below still applies locally. CI worker job sets CTF_LIVE_WORKER_TEST.
-    pass
-
-pytestmark = pytest.mark.skipif(
-    not os.getenv("CTF_LIVE_WORKER_TEST"),
-    reason="Set CTF_LIVE_WORKER_TEST=1 against a live API+worker to run worker HTTP integration.",
-)
+pytestmark = [
+    pytest.mark.integration,
+    pytest.mark.worker,
+    pytest.mark.skipif(
+        not os.getenv("CTF_LIVE_WORKER_TEST"),
+        reason="Set CTF_LIVE_WORKER_TEST=1 against a live API+worker to run worker HTTP integration.",
+    ),
+]
 
 BASE = os.getenv("CTF_WORKER_HTTP_BASE", "http://127.0.0.1:8080").rstrip("/")
 API = f"{BASE}/api/v1"

@@ -33,6 +33,15 @@ pythonpath = ["."]
 testpaths = ["apps/api/tests"]
 addopts = "-q"
 cache_dir = "apps/api/.pytest_cache"
+markers = [
+  "unit: tests that do not require external infrastructure",
+  "integration: tests that require live services",
+  "postgres: PostgreSQL integration",
+  "minio: MinIO/S3 object-store integration",
+  "worker: live document worker integration",
+  "backup_restore: live backup and restore integration",
+  "ollama: live Ollama model tests",
+]
 
 [tool.ruff]
 target-version = "py312"

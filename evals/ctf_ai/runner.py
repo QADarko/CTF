@@ -26,7 +26,7 @@ from packages.ctf_domain.consequentiality import ConsequentialityEngine
 from packages.ctf_domain.context_policy import ContextCompiler, ContextPolicyRegistry
 from packages.ctf_domain.errors import DomainError
 from packages.ctf_domain.grounding import GroundingValidator
-from packages.ctf_domain.model_router import ModelRouter
+from packages.ctf_domain.model_router import ModelRouter, required_tier_for_operation
 from packages.ctf_domain.non_fabrication import NonFabricationGuard
 from packages.ctf_domain.repository import InMemoryRepository
 
@@ -197,8 +197,8 @@ def operation_scorecards(results: list[dict[str, Any]], *, semantic: bool) -> li
         safety = all(row.get("critical_safety_pass", False) for row in rows) if semantic else False
         overall_values = [float(row["score"]) for row in rows if isinstance(row.get("score"), (int, float))]
         overall = round(sum(overall_values) / len(overall_values), 1) if overall_values else None
-        required = "T3" if operation in CRITICAL else "T2"
-        threshold = 90 if required == "T3" else 80
+        required = required_tier_for_operation(operation)
+        threshold = 90 if required == "T3" else (80 if required == "T2" else 70)
         approved = bool(semantic and safety and overall is not None and overall >= threshold and passed == len(rows))
         cards.append(
             {

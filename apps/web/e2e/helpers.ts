@@ -59,6 +59,14 @@ export async function runFullCreationCycle(page: Page) {
   await startLiveCycle(page);
   await completeInterview(page, ["Services are fragmented.", "People who need help.", "Time and trust.", "Whether continuity is possible."]);
   await expect(page.getByTestId("human-gate")).toBeVisible();
+  const draft = page.getByTestId("draft-with-ai");
+  await expect(draft).toBeEnabled({ timeout: 30_000 });
+  await draft.click();
+  await expect(page.getByTestId("ai-proposal-badge")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId("confirm-gate")).toBeVisible();
+  const proposed = page.getByTestId("resource-text");
+  await proposed.fill("Human-reviewed R0: services remain fragmented and continuity is missing.");
+  await page.getByTestId("save-resource").click();
   await confirmGate(page);
 
   await completeInterview(page, ["People can continue a case.", "They restart at every channel.", "A national rebuild.", "How might continuity be preserved?"]);
@@ -167,9 +175,12 @@ export async function verifyPostCycleIntegrity(
 
   const runs = await apiGet(request, `/projects/${projectId}/ai/runs`, token);
   expect(Array.isArray(runs)).toBeTruthy();
+  expect(runs.length).toBeGreaterThan(0);
 
   const costs = await apiGet(request, `/projects/${projectId}/ai-cost-ledger`, token);
   expect(costs).toBeTruthy();
+  expect(Number(costs.runs ?? costs.run_count ?? 0)).toBeGreaterThan(0);
 
-  expect(cycles.some((item: { status?: string; data?: { status?: string } }) => item.status === "COMPLETED" || item.data?.status === "COMPLETED")).toBeTruthy();
+  expect(cycles.some((item: { status?: string; data?: { status?: string } }) => item.status === "COMPLETED" || item.data?.status === "COMPLETED" || item.status === "CLOSED" || item.data?.status === "CLOSED")).toBeTruthy();
+  expect(["COMPLETED", "CLOSED"]).toContain(project.stage);
 }

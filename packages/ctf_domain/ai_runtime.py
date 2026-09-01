@@ -599,6 +599,11 @@ class AIExecutionService:
                 if self.config.models.get(tier)
             )
         )
+        limitations: list[str] = []
+        registry_ready = True
+        if self.model_registry is not None and self.model_registry.enforced and not self.model_registry.is_available():
+            registry_ready = False
+            limitations.append("Model registry is required but unavailable.")
         if not self.provider:
             return {
                 "provider": provider_type,
@@ -608,10 +613,14 @@ class AIExecutionService:
                 "required_models": required_models,
                 "models": {model: False for model in required_models},
                 "allowed_tiers": [],
-                "limitations": ["No AI provider is configured; manual workflows remain available."],
+                "limitations": ["No AI provider is configured; manual workflows remain available."] + limitations,
+                "model_registry": {
+                    "enforced": bool(self.model_registry and self.model_registry.enforced),
+                    "available": bool(self.model_registry and self.model_registry.is_available()),
+                },
             }
         status = self.provider.readiness(required_models)
-        limitations = list(status.get("limitations", []))
+        limitations.extend(list(status.get("limitations", [])))
         if provider_type == "OLLAMA":
             disabled = [tier for tier in ("T3", "T4") if tier not in allowed_tiers]
             if disabled:
@@ -619,12 +628,16 @@ class AIExecutionService:
                     f"Local {'/'.join(disabled)} execution is disabled until explicitly enabled and validated."
                 )
         status["limitations"] = limitations
+        ready = bool(status.get("reachable")) and all(status.get("models", {}).values()) and registry_ready
         return {
             "provider": provider_type,
             **status,
-            "ready": bool(status.get("reachable"))
-            and all(status.get("models", {}).values()),
+            "ready": ready,
             "allowed_tiers": allowed_tiers,
+            "model_registry": {
+                "enforced": bool(self.model_registry and self.model_registry.enforced),
+                "available": bool(self.model_registry and self.model_registry.is_available()),
+            },
         }
 
     @staticmethod

@@ -23,6 +23,11 @@ class Route:
 ROUTES: dict[str, Route] = {
     "CLASSIFICATION": Route("CLASSIFICATION", "EFFICIENT_AI", "T1", "NONE", 4000, 250),
     "CLAIM_EXTRACTION": Route("CLAIM_EXTRACTION", "EFFICIENT_AI", "T1", "LOW", 4000, 1000),
+    "FUNDING_ENTRY_ROUTING": Route("FUNDING_ENTRY_ROUTING", "EFFICIENT_AI", "T1", "NONE", 4000, 250),
+    "DOCUMENT_ENTRY_ROUTING": Route("DOCUMENT_ENTRY_ROUTING", "EFFICIENT_AI", "T1", "NONE", 4000, 250),
+    "DOCUMENT_EVIDENCE_EXTRACTION": Route(
+        "DOCUMENT_EVIDENCE_EXTRACTION", "EFFICIENT_AI", "T1", "LOW", 8000, 1500
+    ),
     "REALITY_UPDATE": Route("REALITY_UPDATE", "STANDARD_REASONING", "T2", "LOW", 8000, 2000),
     "QUESTION_REFRAME": Route("QUESTION_REFRAME", "STANDARD_REASONING", "T2", "MEDIUM", 16000, 1500),
     "PERCEPTION_SYNTHESIS": Route("PERCEPTION_SYNTHESIS", "STANDARD_REASONING", "T2", "MEDIUM", 16000, 2000),
@@ -42,6 +47,17 @@ ROUTES: dict[str, Route] = {
     "REALIZED_VALUE": Route("REALIZED_VALUE", "STANDARD_REASONING", "T2", "MEDIUM", 16000, 1800),
     "R1_GENERATION": Route("R1_GENERATION", "CRITICAL_REASONING", "T3", "MEDIUM", 24000, 2000),
 }
+
+
+def required_tier_for_operation(operation: str) -> str:
+    """Canonical capability tier for an operation; same source as ModelRouter.route()."""
+    key = str(operation or "").upper()
+    aliases = {"NEXT_BEST_ACTION": "NBA"}
+    key = aliases.get(key, key)
+    route = ROUTES.get(key)
+    if route is not None:
+        return route.tier
+    return "T2"
 
 
 class ModelRouter:
@@ -68,7 +84,8 @@ class ModelRouter:
     def authorize(self, route: Route, *, provider: str, model: str, operation: str) -> None:
         if self.registry is None:
             return
-        self.registry.require_allowed(provider=provider, model=model, operation=operation, tier=route.tier)
+        model_id = f"{provider}::{model}"
+        self.registry.require_allowed(model_id, operation, route.tier, provider=provider, model=model)
 
 
 class ContextCompiler:

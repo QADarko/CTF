@@ -81,6 +81,9 @@ class InMemoryRepository:
     def persist_worker_delta(self) -> None:
         self.persist()
 
+    def enable_worker_merge_mode(self) -> None:
+        """In-memory repositories have a single writer; merge mode is a no-op."""
+
     @contextmanager
     def transaction(self) -> Iterator[None]:
         with self._lock:
@@ -455,6 +458,11 @@ class SQLAlchemySnapshotRepository(InMemoryRepository):
         Base.metadata.create_all(self._engine)
         self._load()
         self._merge_on_flush = False
+        self._worker_merge = False
+
+    def enable_worker_merge_mode(self) -> None:
+        """All subsequent flushes merge document deltas; never overwrite the API snapshot."""
+        self._worker_merge = True
 
     def refresh(self) -> None:
         with self._lock:
@@ -462,11 +470,15 @@ class SQLAlchemySnapshotRepository(InMemoryRepository):
 
     def persist_worker_delta(self) -> None:
         with self._lock:
+            previous = self._merge_on_flush
             self._merge_on_flush = True
             try:
                 self._flush_locked()
             finally:
-                self._merge_on_flush = False
+                self._merge_on_flush = previous
+
+    def _worker_safe(self) -> bool:
+        return bool(self._worker_merge or self._merge_on_flush)
 
     def _payload(self) -> dict[str, Any]:
         payload = {
@@ -591,7 +603,14 @@ class SQLAlchemySnapshotRepository(InMemoryRepository):
                 session.add(row)
             else:
                 incoming = self._payload()
-                if self._merge_on_flush:
+                if self._worker_safe():
+                    conflicts = worker_version_conflicts(row.payload, incoming)
+                    if conflicts:
+                        raise DomainError(
+                            "WORKER_VERSION_CONFLICT",
+                            "Worker document state is stale relative to the latest snapshot.",
+                            409,
+                        )
                     incoming = merge_worker_snapshot(row.payload, incoming)
                     self._restore(incoming)
                 row.schema_version = self.SCHEMA_VERSION
@@ -612,17 +631,24 @@ class SQLAlchemySnapshotRepository(InMemoryRepository):
     @contextmanager
     def transaction(self) -> Iterator[None]:
         with self._lock:
-            snapshot = deepcopy(self._payload())
+            snapshot = None if self._worker_safe() else deepcopy(self._payload())
+            previous_merge = self._merge_on_flush
+            if self._worker_merge:
+                self._merge_on_flush = True
             self._transaction_depth += 1
             try:
                 yield
                 if self._transaction_depth == 1:
                     self._flush_locked()
             except Exception:
-                self._restore(snapshot)
+                if snapshot is None:
+                    self._load()
+                else:
+                    self._restore(snapshot)
                 raise
             finally:
                 self._transaction_depth -= 1
+                self._merge_on_flush = previous_merge
 
     def reset(self) -> None:
         with self._lock:
@@ -690,7 +716,39 @@ def merge_worker_snapshot(latest: dict[str, Any], incoming: dict[str, Any]) -> d
                     seen.add(item.get("id"))
             current_memory[key] = existing
     merged["projects"] = list(latest_projects.values())
+    seen_links = {item.get("id") for item in merged.get("creation_links") or []}
+    links = list(merged.get("creation_links") or [])
+    for link in incoming.get("creation_links") or []:
+        if link.get("id") not in seen_links:
+            links.append(link)
+            seen_links.add(link.get("id"))
+    merged["creation_links"] = links
+    latest_memory = dict(merged.get("memory_versions") or {})
+    for project_id, versions in (incoming.get("memory_versions") or {}).items():
+        existing = list(latest_memory.get(project_id) or [])
+        seen = {item.get("id") for item in existing if isinstance(item, dict)}
+        for item in versions or []:
+            if isinstance(item, dict) and item.get("id") not in seen:
+                existing.append(item)
+                seen.add(item.get("id"))
+        latest_memory[project_id] = existing
+    merged["memory_versions"] = latest_memory
     return merged
+
+
+def worker_version_conflicts(latest: dict[str, Any], incoming: dict[str, Any]) -> list[str]:
+    """Detect stale worker copies of document entities that would clobber a newer write."""
+    latest_resources = {item["id"]: item for item in latest.get("resources") or []}
+    conflicts: list[str] = []
+    for record in incoming.get("resources") or []:
+        if record.get("kind") not in WORKER_DELTA_KINDS:
+            continue
+        current = latest_resources.get(record["id"])
+        if current is None:
+            continue
+        if int(current.get("version") or 0) > int(record.get("version") or 0):
+            conflicts.append(record["id"])
+    return conflicts
 
 
 def create_repository(database_url: str | None = None) -> InMemoryRepository:

@@ -26,24 +26,49 @@ def verify_restore(
     if not repo.projects:
         raise SystemExit("RESTORE_INTEGRITY_FAILED: no projects restored")
     for project in repo.projects.values():
-        for kind in REQUIRED_KINDS:
-            if not repo.list_resources(project, kind):
-                raise SystemExit(f"RESTORE_INTEGRITY_FAILED: project {project.id} missing {kind}")
-        if not repo.memory_versions.get(project.id):
-            raise SystemExit(f"RESTORE_INTEGRITY_FAILED: project {project.id} missing memory history")
-        if not [link for link in repo.creation_links if link.get("project_id") == project.id]:
-            raise SystemExit(f"RESTORE_INTEGRITY_FAILED: project {project.id} missing genealogy")
-        if not [item for item in repo.ai_runs if item.get("project_id") == project.id]:
-            raise SystemExit(f"RESTORE_INTEGRITY_FAILED: project {project.id} missing AI runs")
-        if not [item for item in repo.cost_entries if item.get("project_id") == project.id]:
-            raise SystemExit(f"RESTORE_INTEGRITY_FAILED: project {project.id} missing cost ledger")
-        if not [item for item in repo.audit_events if getattr(item, "project_id", None) == project.id]:
-            raise SystemExit(f"RESTORE_INTEGRITY_FAILED: project {project.id} missing audit")
+        _verify_project(repo, project)
         if backup_root:
             _verify_attachments(project, repo.list_resources(project, "ATTACHMENT"), Path(backup_root), live_store)
     if backup_root:
         _verify_object_inventory(Path(backup_root), repo, live_store)
     print("PASS restore integrity")
+
+
+def _verify_project(repo, project) -> None:
+    for kind in REQUIRED_KINDS:
+        if not repo.list_resources(project, kind):
+            raise SystemExit(f"RESTORE_INTEGRITY_FAILED: project {project.id} missing {kind}")
+    r0 = repo.list_resources(project, "REALITY")
+    r1 = repo.list_resources(project, "REALITY_SNAPSHOT")
+    if not r0:
+        raise SystemExit(f"RESTORE_INTEGRITY_FAILED: project {project.id} missing R0")
+    if not r1:
+        raise SystemExit(f"RESTORE_INTEGRITY_FAILED: project {project.id} missing R1")
+    for record in repo.resources.values():
+        if record.project_id != project.id:
+            continue
+        if int(record.version or 0) < 1:
+            raise SystemExit(f"RESTORE_INTEGRITY_FAILED: project {project.id} resource {record.id} missing version")
+    if not repo.memory_versions.get(project.id):
+        raise SystemExit(f"RESTORE_INTEGRITY_FAILED: project {project.id} missing memory history")
+    if not [link for link in repo.creation_links if link.get("project_id") == project.id]:
+        raise SystemExit(f"RESTORE_INTEGRITY_FAILED: project {project.id} missing genealogy")
+    if not [item for item in repo.ai_runs if item.get("project_id") == project.id]:
+        raise SystemExit(f"RESTORE_INTEGRITY_FAILED: project {project.id} missing AI runs")
+    if not [item for item in repo.cost_entries if item.get("project_id") == project.id]:
+        raise SystemExit(f"RESTORE_INTEGRITY_FAILED: project {project.id} missing cost ledger")
+    if not [item for item in repo.audit_events if getattr(item, "project_id", None) == project.id]:
+        raise SystemExit(f"RESTORE_INTEGRITY_FAILED: project {project.id} missing audit")
+    gate_events = [
+        item
+        for item in repo.audit_events
+        if getattr(item, "project_id", None) == project.id and str(getattr(item, "event_type", "")).startswith("gate_")
+    ]
+    if not gate_events and project.active_gate is None:
+        raise SystemExit(f"RESTORE_INTEGRITY_FAILED: project {project.id} missing human gates")
+    cycles = repo.list_resources(project, "CREATION_CYCLE")
+    if not cycles:
+        raise SystemExit(f"RESTORE_INTEGRITY_FAILED: project {project.id} missing creation cycle")
 
 
 def _verify_attachments(project, attachments, backup_root: Path, store: ObjectStore) -> None:

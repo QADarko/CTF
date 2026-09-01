@@ -1,0 +1,710 @@
+CTF AI PLATFORM
+FINAL HARDENING TICKETS — PRE-PILOT
+CTF-012C
+Eliminate API / Worker Lost Updates
+Priority: P0 — Critical
+
+Tasks
+Remove full-snapshot overwrite behavior from document worker persistence.
+
+Ensure worker never writes an outdated complete repository snapshot.
+
+Make worker persistence delta-based or entity-level.
+
+Ensure worker reads fresh project/resource state immediately before processing.
+
+Ensure worker writes only document-processing-related changes.
+
+Prevent worker updates from deleting or overwriting concurrent API changes.
+
+Make all worker persistence transactions merge-safe.
+
+Add optimistic version/conflict checks where necessary.
+
+Required Test
+Scenario:
+
+1. Start worker repository
+2. Start API repository
+3. Worker begins document processing
+4. API creates new QUESTION
+5. Worker completes document processing
+6. Reload repository from PostgreSQL
+Expected:
+
+QUESTION still exists
+Document processing changes exist
+No unrelated project state is lost
+Required Tests
+test_worker_does_not_overwrite_concurrent_api_resource
+test_worker_preserves_concurrent_question
+test_worker_preserves_concurrent_evidence
+test_worker_preserves_concurrent_gate_decision
+test_worker_delta_persistence_updates_only_document_entities
+test_worker_detects_version_conflict
+CTF-012C-02
+Make Worker Processing Transactions Merge-Safe
+Priority: P0
+
+Tasks
+Review every repository.transaction() used inside document processing.
+
+Prevent standard snapshot flush from worker process.
+
+Introduce explicit worker-safe transaction mode.
+
+Ensure merge-safe persistence is used during the actual processing transaction, not only after processing completes.
+
+Ensure rollback cannot restore stale repository state.
+
+Required Tests
+test_worker_transaction_is_merge_safe
+test_worker_rollback_does_not_restore_stale_snapshot
+test_concurrent_api_write_survives_worker_commit
+CTF-MODEL-06
+Replace Model Registry Cartesian Approval with Exact Approved Routes
+Priority: P0 — Critical
+
+Problem to Remove
+Do not maintain independent lists such as:
+
+approved_tiers
+approved_operations
+that implicitly allow every combination.
+
+Required Model
+Store exact approved routes:
+
+{
+  "approved_routes": [
+    {
+      "operation": "CLASSIFICATION",
+      "tier": "T1"
+    },
+    {
+      "operation": "QUESTION_REFRAME",
+      "tier": "T2"
+    },
+    {
+      "operation": "ATTRIBUTION",
+      "tier": "T3"
+    }
+  ]
+}
+Tasks
+Introduce ModelRouteApproval.
+
+Change Model Registry schema.
+
+Update model registration.
+
+Update model certification import.
+
+Update ModelRegistry.is_allowed().
+
+Update ModelRouter.
+
+Remove Cartesian-product authorization logic.
+
+Migrate existing registry data.
+
+Required Interface
+is_allowed(
+    model_id: str,
+    operation: str,
+    tier: str,
+) -> bool
+Required Tests
+test_classification_t1_allowed
+test_classification_t2_blocked_when_not_explicitly_approved
+test_question_reframe_t2_allowed
+test_question_reframe_t1_blocked_when_not_approved
+test_unapproved_operation_blocked
+test_unapproved_tier_blocked
+test_model_router_uses_exact_route_approval
+CTF-MODEL-07
+Fix Operation-Level Tier Classification
+Priority: P0
+
+Tasks
+Remove logic equivalent to:
+
+critical operation → T3
+all other operations → T2
+Determine operation tier from actual CTF prompt/model routing policy.
+
+Use the same canonical capability/tier definition as ModelRouter.
+
+Ensure operation scorecards use real required tier.
+
+Expected Examples
+CLASSIFICATION → T1
+REALITY_UPDATE → appropriate configured tier
+QUESTION_REFRAME → T2
+RED_TEAM → T3
+ATTRIBUTION → T3
+TRANSFORMATION → T3
+Required Tests
+test_classification_scorecard_uses_t1
+test_question_reframe_scorecard_uses_t2
+test_red_team_scorecard_uses_t3
+test_attribution_scorecard_uses_t3
+test_scorecard_tier_matches_model_router_policy
+CTF-MODEL-08
+Enforce Exact Model Route Approval in Production
+Priority: P0
+
+Tasks
+Before provider execution verify:
+
+Model + Operation + Tier = APPROVED
+If not:
+
+FAIL CLOSED
+Required Error
+AI_MODEL_ROUTE_NOT_APPROVED
+Rules
+Never substitute an unapproved model automatically.
+
+Never downgrade tier.
+
+Never treat global model approval as operation approval.
+
+Candidate models must not execute production routes.
+
+Required Tests
+test_candidate_model_cannot_execute_production_route
+test_approved_model_route_executes
+test_wrong_tier_fails_closed
+test_wrong_operation_fails_closed
+test_no_approved_model_fails_closed
+CTF-CI-04
+Separate Unit and Integration Test Execution
+Priority: P0 — Critical CI Fix
+
+Tasks
+Introduce pytest markers:
+
+unit
+integration
+postgres
+minio
+worker
+backup_restore
+ollama
+Main CI Job
+Run:
+
+pytest -m "not integration"
+or equivalent.
+
+PostgreSQL Job
+Run:
+
+pytest -m "integration and postgres"
+MinIO Job
+Run:
+
+pytest -m "integration and minio"
+Worker Job
+Run:
+
+pytest -m "integration and worker"
+Rules
+Unit test collection must not require PostgreSQL.
+
+Unit test collection must not require MinIO.
+
+Integration modules must not throw RuntimeError during import.
+
+Dedicated integration jobs must fail if required infrastructure is unavailable.
+
+Local developer pytest must run without external services.
+
+Required Tests / CI Verification
+local pytest succeeds without postgres
+local pytest succeeds without minio
+postgres_ci_job_runs_postgres_tests
+minio_ci_job_runs_minio_tests
+worker_ci_job_runs_worker_tests
+CTF-CI-05
+Remove Environment Checks from Test Module Import
+Priority: P0
+
+Tasks
+Remove patterns such as:
+
+if CI and not ENV:
+    raise RuntimeError(...)
+from module-level test code.
+
+Use:
+
+pytest fixtures;
+
+markers;
+
+explicit integration configuration validation.
+
+Required Behavior
+Missing infrastructure in dedicated integration job:
+
+FAIL
+Missing infrastructure during ordinary local unit test run:
+
+integration test not selected
+CTF-SEC-01
+Propagate Production Environment to API Service
+Priority: P0 — Security
+
+Modify
+compose.yaml
+API Service Must Receive
+APP_ENV
+CTF_MALWARE_SCANNER
+CTF_ENFORCE_MODEL_REGISTRY
+CTF_DOCUMENT_QUEUE
+Recommended
+APP_ENV=production
+CTF_MALWARE_SCANNER=clamav
+CTF_ENFORCE_MODEL_REGISTRY=true
+CTF_DOCUMENT_QUEUE=postgres
+for production deployment.
+
+Required Tests
+test_production_api_detects_production_environment
+test_production_api_rejects_noop_malware_scanner
+test_production_api_enforces_model_registry
+test_production_api_uses_postgres_document_queue
+CTF-SEC-02
+Make ClamAV Mandatory in Production Deployment
+Priority: P0
+
+Tasks
+Ensure ClamAV service is started in production Compose profile.
+
+Add health check.
+
+API must wait for scanner readiness where appropriate.
+
+Production startup must fail if scanner is configured as noop.
+
+Scanner unavailable during upload must fail closed.
+
+Required Tests
+test_production_requires_clamav
+test_upload_fails_when_clamav_unavailable
+test_eicar_upload_quarantined
+test_noop_scanner_rejected_in_production
+CTF-SEC-03
+Enforce Production Model Registry
+Priority: P0
+
+Tasks
+Enable Model Registry automatically in production.
+
+Do not rely only on optional environment configuration.
+
+Require approved route before AI execution.
+
+Expose readiness failure if registry is required but unavailable.
+
+Required Tests
+test_production_model_registry_required
+test_missing_registry_causes_readiness_failure
+test_unapproved_model_route_rejected
+CTF-016C-01
+Implement Real PostgreSQL Backup/Restore Integration Test
+Priority: P0 / Pilot Blocker
+
+Required Flow
+Start PostgreSQL
+↓
+Create CTF data
+↓
+Run pg_dump
+↓
+Delete / recreate database
+↓
+Run psql restore
+↓
+Restart API
+↓
+Verify restored state
+Do Not Use
+snapshot-placeholder
+repository._restore(payload)
+in-memory repository backup
+as substitute for database restore testing.
+
+Required Tests
+test_real_pg_dump_created
+test_database_can_be_destroyed
+test_real_psql_restore_succeeds
+test_restored_database_matches_original
+CTF-016C-02
+Implement Real MinIO Destructive Restore Test
+Priority: P0 / Pilot Blocker
+
+Required Flow
+Upload objects
+↓
+Backup MinIO
+↓
+Delete bucket contents
+↓
+Restore objects
+↓
+Verify every object
+Verify
+object key
+
+size
+
+checksum
+
+ownership
+
+attachment metadata
+
+tenant/project relationship
+
+Required Tests
+test_real_minio_backup
+test_minio_bucket_destroyed
+test_real_minio_restore
+test_all_object_checksums_match
+CTF-016C-03
+Implement Full Multi-Project Disaster Recovery Test
+Priority: P0
+
+Create
+At least:
+
+Project A
+Project B
+Project C
+with:
+
+Creation Memory
+
+Evidence
+
+AI Runs
+
+Cost Ledger
+
+Genealogy
+
+attachments
+
+R0
+
+R1 where applicable
+
+Required Flow
+Create all data
+→ backup
+→ destroy PostgreSQL
+→ destroy MinIO
+→ restore PostgreSQL
+→ restore MinIO
+→ restart services
+→ verify everything
+Required Test
+test_complete_multi_project_disaster_recovery
+CTF-016C-04
+Verify Every Project During Restore
+Priority: P0
+
+Tasks
+Remove first-project-only validation such as:
+
+next(iter(repo.projects.values()))
+Validate all projects.
+
+Verify Per Project
+Creation Memory
+
+resources
+
+resource versions
+
+Human Gates
+
+Genealogy
+
+Evidence
+
+AI Runs
+
+Cost Ledger
+
+Audit
+
+R0
+
+R1
+
+Creation Cycle
+
+CTF-EVAL-01
+Complete Human / Automated Scorer Calibration
+Priority: P0 — AI Validation
+
+Tasks
+Create human-labelled reference outputs.
+
+For each calibration scenario store:
+
+model output
+human methodology score
+human authority score
+human grounding score
+human fabrication score
+human attribution score
+human value-boundary score
+human transformation score
+Calculate
+overall agreement
+
+precision
+
+recall
+
+false positive rate
+
+false negative rate
+
+for applicable automated scorers.
+
+Required Output
+Scorer Calibration Report
+Required Tests
+test_human_labels_load
+test_automated_scores_compare_with_human_labels
+test_calibration_metrics_generated
+CTF-EVAL-02
+Introduce Scorer Calibration Acceptance Threshold
+Priority: P0
+
+Tasks
+Define configurable minimum scorer/human agreement.
+
+Example initial target:
+
+≥ 90% agreement for critical safety classification
+Critical scorers:
+
+Human Authority
+
+Grounding
+
+Non-Fabrication
+
+Value Boundaries
+
+Attribution
+
+Rule
+Model certification must remain:
+
+NOT_VALIDATED
+if critical scorer calibration is below threshold.
+
+CTF-EVAL-03
+Calculate Certification by Tier-Relevant Scenarios
+Priority: P0
+
+Problem to Remove
+Do not certify T1/T2/T3 using one undifferentiated global scenario average.
+
+Required Calculation
+T1 score → T1-relevant operations/scenarios
+T2 score → T2-relevant operations/scenarios
+T3 score → T3-relevant operations/scenarios
+Required Tests
+test_t1_uses_only_t1_relevant_cases
+test_t2_uses_t1_t2_or_defined_t2_scope
+test_t3_uses_critical_t3_cases
+test_global_average_cannot_hide_t3_failure
+CTF-EVAL-04
+Expand T1 Benchmark Coverage
+Priority: P1
+
+Tasks
+Increase T1-specific scenarios substantially.
+
+Add cases for:
+
+classification
+
+simple extraction
+
+tagging
+
+summarization where permitted
+
+deterministic-support tasks
+
+low-consequence normalization
+
+Required Coverage
+Minimum recommended:
+
+20+ meaningful T1 scenarios
+before T1 model approval.
+
+CTF-E2E-06
+Add AI Execution to Full Browser Creation Cycle
+Priority: P1 / Pre-Pilot
+
+Tasks
+Inside the full browser:
+
+R0 → R1
+flow, execute at least one actual FakeProvider AI operation.
+
+Verify
+AI Proposal created
+Human reviews proposal
+Human accepts/edits/rejects
+Proposal does not auto-confirm
+AI Run exists
+Cost Ledger entry exists
+End Assertions
+Require:
+
+AI Runs count > 0
+Cost Ledger AI run count > 0
+CTF-E2E-07
+Strengthen Full Cycle API Integrity Assertions
+Priority: P1
+
+After browser Creation Cycle completion verify through API:
+
+19 Human Gates completed
+R0 exists
+R1 exists
+R0 unchanged
+Creation Memory valid
+Creation Genealogy valid
+Human Decisions exist
+AI Runs > 0
+Cost Ledger > 0
+Audit Trail exists
+Creation Cycle = CLOSED
+CTF-SEC-04
+Replace Unsafe Archive Extraction
+Priority: P1 — Security Hardening
+
+Problem
+Do not use unrestricted:
+
+tar.extractall(...)
+on backup archives.
+
+Tasks
+Validate every archive path.
+
+Reject absolute paths.
+
+Reject .. traversal.
+
+Reject symbolic-link escape.
+
+Extract only below intended restore directory.
+
+Validate expected backup structure.
+
+Required Tests
+test_tar_path_traversal_rejected
+test_absolute_tar_path_rejected
+test_symlink_escape_rejected
+test_valid_backup_archive_extracts
+CTF-MODEL-09
+Run Qwen 2.5 3B T1 Benchmark
+Priority: Next AI Validation Milestone
+
+Run:
+
+qwen2.5:3b
+after CTF-EVAL tickets are complete.
+
+Required Output
+full scorecard
+
+operation-level results
+
+exact route approvals
+
+safety results
+
+latency
+
+tokens
+
+Model Registry candidate entry
+
+Do not automatically approve T2/T3.
+
+CTF-MODEL-10
+Run Qwen 2.5 7B T2 Benchmark
+Priority: Next AI Validation Milestone
+
+Run:
+
+qwen2.5:7b
+Required Comparison
+Compare against qwen2.5:3b for:
+
+T1 operations
+
+T2 operations
+
+methodology quality
+
+grounding
+
+fabrication
+
+latency
+
+tokens
+
+resource requirements
+
+Generate exact:
+
+Model × Operation × Tier
+approval recommendations.
+
+IMPLEMENTATION ORDER
+Block 1 — Critical Correctness
+CTF-012C
+CTF-012C-02
+CTF-MODEL-06
+CTF-MODEL-07
+CTF-MODEL-08
+CTF-CI-04
+CTF-CI-05
+Block 2 — Production Safety
+CTF-SEC-01
+CTF-SEC-02
+CTF-SEC-03
+CTF-016C-01
+CTF-016C-02
+CTF-016C-03
+CTF-016C-04
+Block 3 — AI Certification Accuracy
+CTF-EVAL-01
+CTF-EVAL-02
+CTF-EVAL-03
+CTF-EVAL-04
+Block 4 — Full System Validation
+CTF-E2E-06
+CTF-E2E-07
+CTF-SEC-04
+Block 5 — Real Model Campaign
+CTF-MODEL-09
+CTF-MODEL-10

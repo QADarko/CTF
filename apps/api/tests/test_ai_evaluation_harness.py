@@ -253,6 +253,7 @@ def test_model_scorecard_generated():
 def _failing_row(**overrides) -> dict:
     row = {
         "operation": "ATTRIBUTION",
+        "required_tier": "T3",
         "score": 92,
         "schema_pass": True,
         "authority_pass": True,
@@ -265,6 +266,14 @@ def _failing_row(**overrides) -> dict:
     }
     row.update(overrides)
     return row
+
+
+def _strong_suite() -> list[dict]:
+    return [
+        _failing_row(operation="CLASSIFICATION", required_tier="T1"),
+        _failing_row(operation="QUESTION_REFRAME", required_tier="T2"),
+        _failing_row(operation="ATTRIBUTION", required_tier="T3"),
+    ]
 
 
 def test_t3_fails_if_human_authority_below_100():
@@ -345,8 +354,12 @@ def test_failed_scenario_records_reproducibility_metadata():
 
 
 def test_tier_approval_is_calculated_not_hardcoded():
-    strong = [_failing_row() for _ in range(3)]
-    weak = [_failing_row(score=40, schema_pass=False, critical_safety_pass=False) for _ in range(3)]
+    strong = _strong_suite()
+    weak = [
+        _failing_row(operation="CLASSIFICATION", required_tier="T1", score=40, schema_pass=False, critical_safety_pass=False),
+        _failing_row(operation="QUESTION_REFRAME", required_tier="T2", score=40, schema_pass=False, critical_safety_pass=False),
+        _failing_row(operation="ATTRIBUTION", required_tier="T3", score=40, schema_pass=False, critical_safety_pass=False),
+    ]
     good = approve_model(strong, semantic=True)
     bad = approve_model(weak, semantic=True)
     assert good["T1"] == APPROVED
@@ -465,7 +478,7 @@ def test_raw_model_output_is_preserved_when_guards_reject():
 
 
 def test_t3_requires_human_review_before_approval():
-    strong = [_failing_row() for _ in range(3)]
+    strong = _strong_suite()
     pending = approve_model(strong, semantic=True, human_review_complete=False)
     approved = approve_model(strong, semantic=True, human_review_complete=True)
     assert pending["T3"] == PENDING_HUMAN_REVIEW

@@ -43,7 +43,6 @@ services:
 
   clamav:
     image: clamav/clamav:1.4.2
-    profiles: [malware]
     restart: unless-stopped
     ports:
       - "3310:3310"
@@ -80,6 +79,7 @@ services:
       dockerfile: apps/api/Dockerfile
     restart: unless-stopped
     environment:
+      APP_ENV: ${APP_ENV:-production}
       CTF_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-ctf}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ctf}
       CTF_DOCUMENT_QUEUE: postgres
       CTF_OBJECT_STORE: minio
@@ -88,6 +88,10 @@ services:
       S3_REGION: ${S3_REGION:-us-east-1}
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      CTF_MALWARE_SCANNER: ${CTF_MALWARE_SCANNER:-clamav}
+      CTF_ENFORCE_MODEL_REGISTRY: ${CTF_ENFORCE_MODEL_REGISTRY:-true}
+      CLAMAV_HOST: clamav
+      CLAMAV_PORT: "3310"
       AI_PROVIDER: ${AI_PROVIDER:-}
       AI_BASE_URL: ${AI_BASE_URL:-https://api.openai.com/v1}
       AI_API_KEY: ${AI_API_KEY:-}
@@ -105,6 +109,8 @@ services:
         condition: service_healthy
       minio-init:
         condition: service_completed_successfully
+      clamav:
+        condition: service_healthy
     ports:
       - "${API_PORT:-8080}:8080"
     healthcheck:
@@ -135,7 +141,7 @@ services:
       S3_REGION: ${S3_REGION:-us-east-1}
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
-      CTF_MALWARE_SCANNER: ${CTF_MALWARE_SCANNER:-noop}
+      CTF_MALWARE_SCANNER: ${CTF_MALWARE_SCANNER:-clamav}
       CLAMAV_HOST: clamav
       CLAMAV_PORT: 3310
       CTF_WORKER_POLL_SECONDS: ${CTF_WORKER_POLL_SECONDS:-2}
@@ -146,6 +152,8 @@ services:
         condition: service_healthy
       minio-init:
         condition: service_completed_successfully
+      clamav:
+        condition: service_healthy
     networks: [ctf-internal]
 
   ollama:

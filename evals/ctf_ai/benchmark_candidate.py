@@ -39,6 +39,7 @@ def candidate_record(model: str, *, reason: str, status: str = "CANDIDATE") -> d
         "provider": "OLLAMA",
         "model": model,
         "exact_version": model,
+        "approved_routes": [],
         "approved_tiers": [],
         "approved_operations": [],
         "blocked_operations": [],
@@ -62,9 +63,10 @@ def run_benchmark(model: str) -> dict[str, Any]:
 
     report = execute_suite("ollama", model=model)
     record = record_from_report(report, status="CANDIDATE")
-    record["approved_tiers"] = [tier for tier in record.get("approved_tiers") or [] if tier in {"T1", "T2"}]
-    if "T3" in record.get("approved_tiers", []):
-        record["approved_tiers"].remove("T3")
+    record["approved_routes"] = [
+        item for item in (record.get("approved_routes") or []) if item.get("tier") in {"T1", "T2"}
+    ]
+    record["approved_tiers"] = sorted({item["tier"] for item in record["approved_routes"]})
     return record
 
 

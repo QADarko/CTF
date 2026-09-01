@@ -23,3 +23,11 @@ T3:
   human_review_required: true
 T4:
   evaluated: false
+calibration:
+  critical_agreement: 90
+  critical_scorers:
+    - authority
+    - grounding
+    - non_fabrication
+    - value_boundary
+    - attribution

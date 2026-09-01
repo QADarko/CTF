@@ -27,7 +27,7 @@ jobs:
       - name: Ruff
         run: ruff check .
       - name: Pytest
-        run: pytest --junitxml=golden/pytest.xml
+        run: pytest -m "not integration" --junitxml=golden/pytest.xml
       - name: SQLite persistence suite
         run: pytest apps/api/tests/test_persistence.py --junitxml=golden/persistence.xml
       - name: Execute golden release gate
@@ -65,7 +65,9 @@ jobs:
           python-version: "3.12"
           cache: pip
       - run: python -m pip install --disable-pip-version-check -e ".[test]"
-      - run: pytest apps/api/tests/test_postgres_integration.py apps/api/tests/test_postgres_job_queue.py -q
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - run: pytest -m "integration and postgres" -q
 
   minio-integration:
     runs-on: ubuntu-latest
@@ -106,7 +108,7 @@ jobs:
       - name: Create private bucket
         run: |
           docker run --rm --network host minio/mc:latest sh -ec "mc alias set ctf http://localhost:9000 ctf ctf-test-password && mc mb --ignore-existing ctf/ctf-private && mc anonymous set none ctf/ctf-private"
-      - run: pytest apps/api/tests/test_object_store_integration.py -q
+      - run: pytest -m "integration and minio" -q
       - name: Upload Python and golden reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -229,6 +231,8 @@ jobs:
           python-version: "3.12"
           cache: pip
       - run: python -m pip install --disable-pip-version-check -e ".[test]"
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
       - name: Wait for MinIO
         run: |
           for i in $(seq 1 30); do
@@ -257,9 +261,9 @@ jobs:
           echo "API did not become ready" >&2
           exit 1
       - name: Worker HTTP integration
-        run: pytest apps/api/tests/test_worker_http_integration.py -q
+        run: pytest -m "integration and worker" -q
       - name: Live backup and restore
-        run: pytest apps/api/tests/test_backup_restore_live.py -q
+        run: pytest -m "integration and backup_restore" -q
 
   compose:
     runs-on: ubuntu-latest
