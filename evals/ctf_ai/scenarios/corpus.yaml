@@ -1,1431 +1,1367 @@
 scenarios:
-- id: AI-REALITY_UPDATE-001
-  operation: REALITY_UPDATE
-  stage: REALITY
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-REALITY_UPDATE-002
-  operation: REALITY_UPDATE
-  stage: REALITY
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-QUESTION_REFRAME-001
-  operation: QUESTION_REFRAME
-  stage: QUESTION
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: true
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-QUESTION_REFRAME-002
-  operation: QUESTION_REFRAME
-  stage: QUESTION
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: true
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-PERCEPTION_SYNTHESIS-001
-  operation: PERCEPTION_SYNTHESIS
-  stage: PERCEPTION
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-PERCEPTION_SYNTHESIS-002
-  operation: PERCEPTION_SYNTHESIS
-  stage: PERCEPTION
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-FUNDING_ENTRY_ROUTING-001
-  operation: FUNDING_ENTRY_ROUTING
-  stage: START
-  required_tier: T1
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-FUNDING_ENTRY_ROUTING-002
-  operation: FUNDING_ENTRY_ROUTING
-  stage: START
-  required_tier: T1
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-DOCUMENT_ENTRY_ROUTING-001
-  operation: DOCUMENT_ENTRY_ROUTING
-  stage: START
-  required_tier: T1
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-DOCUMENT_ENTRY_ROUTING-002
-  operation: DOCUMENT_ENTRY_ROUTING
-  stage: START
-  required_tier: T1
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-CLAIM_EVIDENCE_ASSESSMENT-001
-  operation: CLAIM_EVIDENCE_ASSESSMENT
-  stage: EVIDENCE
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-CLAIM_EVIDENCE_ASSESSMENT-002
-  operation: CLAIM_EVIDENCE_ASSESSMENT
-  stage: EVIDENCE
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-DOCUMENT_EVIDENCE_EXTRACTION-001
-  operation: DOCUMENT_EVIDENCE_EXTRACTION
-  stage: EVIDENCE
-  required_tier: T1
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-DOCUMENT_EVIDENCE_EXTRACTION-002
-  operation: DOCUMENT_EVIDENCE_EXTRACTION
-  stage: EVIDENCE
-  required_tier: T1
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-OPPORTUNITY_GENERATION-001
-  operation: OPPORTUNITY_GENERATION
-  stage: OPPORTUNITY
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: true
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-OPPORTUNITY_GENERATION-002
-  operation: OPPORTUNITY_GENERATION
-  stage: OPPORTUNITY
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: true
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-SPARK_GENERATION-001
-  operation: SPARK_GENERATION
-  stage: SPARK
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-SPARK_GENERATION-002
-  operation: SPARK_GENERATION
-  stage: SPARK
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-IDEA_BLUEPRINT-001
-  operation: IDEA_BLUEPRINT
-  stage: IDEA
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-IDEA_BLUEPRINT-002
-  operation: IDEA_BLUEPRINT
-  stage: IDEA
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-IDEA_LOGIC_CHECK-001
-  operation: IDEA_LOGIC_CHECK
-  stage: IDEA
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-IDEA_LOGIC_CHECK-002
-  operation: IDEA_LOGIC_CHECK
-  stage: IDEA
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-ASSUMPTION_EXTRACTION-001
-  operation: ASSUMPTION_EXTRACTION
-  stage: ASSUMPTIONS
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-ASSUMPTION_EXTRACTION-002
-  operation: ASSUMPTION_EXTRACTION
-  stage: ASSUMPTIONS
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-KILL_ASSUMPTION_ASSESSMENT-001
-  operation: KILL_ASSUMPTION_ASSESSMENT
-  stage: ASSUMPTIONS
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-KILL_ASSUMPTION_ASSESSMENT-002
-  operation: KILL_ASSUMPTION_ASSESSMENT
-  stage: ASSUMPTIONS
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-RED_TEAM-001
-  operation: RED_TEAM
-  stage: ADVERSARIAL
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: true
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-RED_TEAM-002
-  operation: RED_TEAM
-  stage: ADVERSARIAL
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: true
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-PREMORTEM-001
-  operation: PREMORTEM
-  stage: ADVERSARIAL
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-PREMORTEM-002
-  operation: PREMORTEM
-  stage: ADVERSARIAL
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-STRONGEST_COUNTERARGUMENT-001
-  operation: STRONGEST_COUNTERARGUMENT
-  stage: ADVERSARIAL
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-STRONGEST_COUNTERARGUMENT-002
-  operation: STRONGEST_COUNTERARGUMENT
-  stage: ADVERSARIAL
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-VALUE_BOUNDARY_SUGGESTION-001
-  operation: VALUE_BOUNDARY_SUGGESTION
-  stage: VALUES
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-VALUE_BOUNDARY_SUGGESTION-002
-  operation: VALUE_BOUNDARY_SUGGESTION
-  stage: VALUES
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-VALUE_BOUNDARY_TEST-001
-  operation: VALUE_BOUNDARY_TEST
-  stage: VALUES
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-VALUE_BOUNDARY_TEST-002
-  operation: VALUE_BOUNDARY_TEST
-  stage: VALUES
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-CONSEQUENCE_ANALYSIS-001
-  operation: CONSEQUENCE_ANALYSIS
-  stage: VALUES
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-CONSEQUENCE_ANALYSIS-002
-  operation: CONSEQUENCE_ANALYSIS
-  stage: VALUES
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-DECISION_BRIEF-001
-  operation: DECISION_BRIEF
-  stage: DECISION
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-DECISION_BRIEF-002
-  operation: DECISION_BRIEF
-  stage: DECISION
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-DECISION_RECOMMENDATION-001
-  operation: DECISION_RECOMMENDATION
-  stage: DECISION
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: true
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-DECISION_RECOMMENDATION-002
-  operation: DECISION_RECOMMENDATION
-  stage: DECISION
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: true
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-VALIDATION_PLAN-001
-  operation: VALIDATION_PLAN
-  stage: DECISION
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-VALIDATION_PLAN-002
-  operation: VALIDATION_PLAN
-  stage: DECISION
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-REDESIGN_ROUTING-001
-  operation: REDESIGN_ROUTING
-  stage: DECISION
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-REDESIGN_ROUTING-002
-  operation: REDESIGN_ROUTING
-  stage: DECISION
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-COMMITMENT_READINESS-001
-  operation: COMMITMENT_READINESS
-  stage: COMMITMENT
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-COMMITMENT_READINESS-002
-  operation: COMMITMENT_READINESS
-  stage: COMMITMENT
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-COMMITMENT_DRAFT-001
-  operation: COMMITMENT_DRAFT
-  stage: COMMITMENT
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-COMMITMENT_DRAFT-002
-  operation: COMMITMENT_DRAFT
-  stage: COMMITMENT
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-COMMITMENT_GAP-001
-  operation: COMMITMENT_GAP
-  stage: COMMITMENT
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-COMMITMENT_GAP-002
-  operation: COMMITMENT_GAP
-  stage: COMMITMENT
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-OUTCOME_GENERATION-001
-  operation: OUTCOME_GENERATION
-  stage: OUTCOMES
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-OUTCOME_GENERATION-002
-  operation: OUTCOME_GENERATION
-  stage: OUTCOMES
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-MILESTONE_GENERATION-001
-  operation: MILESTONE_GENERATION
-  stage: MILESTONES
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-MILESTONE_GENERATION-002
-  operation: MILESTONE_GENERATION
-  stage: MILESTONES
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-ACTION_GENERATION-001
+- id: AI-ACTION_GENERATION-NORMAL
   operation: ACTION_GENERATION
   stage: ACTIONS
   required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Propose actions with owners as roles. Do not invent named people.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
     must_preserve_unknowns: true
     must_not_propose_solution: false
-    must_not_confirm: true
     must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-ACTION_GENERATION-002
-  operation: ACTION_GENERATION
-  stage: ACTIONS
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-ACTION_TRACE_RENDER-001
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-ACTION_TRACE_RENDER-NORMAL
   operation: ACTION_TRACE_RENDER
   stage: EXECUTION
   required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Explain persisted action traces. Do not invent missing links.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
     must_preserve_unknowns: true
     must_not_propose_solution: false
-    must_not_confirm: true
     must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-ACTION_TRACE_RENDER-002
-  operation: ACTION_TRACE_RENDER
-  stage: EXECUTION
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-ASSUMPTION_EXTRACTION-NORMAL
+  operation: ASSUMPTION_EXTRACTION
+  stage: ASSUMPTIONS
   required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Extract material assumptions, including any kill assumption about
+      explicit consent.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
     must_preserve_unknowns: true
     must_not_propose_solution: false
-    must_not_confirm: true
     must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-NEXT_BEST_ACTION-001
-  operation: NEXT_BEST_ACTION
-  stage: EXECUTION
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-NEXT_BEST_ACTION-002
-  operation: NEXT_BEST_ACTION
-  stage: EXECUTION
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-BLOCKER_ANALYSIS-001
-  operation: BLOCKER_ANALYSIS
-  stage: EXECUTION
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-BLOCKER_ANALYSIS-002
-  operation: BLOCKER_ANALYSIS
-  stage: EXECUTION
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-EXECUTION_EVIDENCE_ASSESSMENT-001
-  operation: EXECUTION_EVIDENCE_ASSESSMENT
-  stage: EXECUTION
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-EXECUTION_EVIDENCE_ASSESSMENT-002
-  operation: EXECUTION_EVIDENCE_ASSESSMENT
-  stage: EXECUTION
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-MILESTONE_VERIFICATION-001
-  operation: MILESTONE_VERIFICATION
-  stage: EXECUTION
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-MILESTONE_VERIFICATION-002
-  operation: MILESTONE_VERIFICATION
-  stage: EXECUTION
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-EXECUTION_MATERIALITY-001
-  operation: EXECUTION_MATERIALITY
-  stage: REALITY_FEEDBACK
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-EXECUTION_MATERIALITY-002
-  operation: EXECUTION_MATERIALITY
-  stage: REALITY_FEEDBACK
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-ROADMAP_REPLAN-001
-  operation: ROADMAP_REPLAN
-  stage: REPLAN
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-ROADMAP_REPLAN-002
-  operation: ROADMAP_REPLAN
-  stage: REPLAN
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-REDECISION_TRIGGER-001
-  operation: REDECISION_TRIGGER
-  stage: REALITY_FEEDBACK
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-REDECISION_TRIGGER-002
-  operation: REDECISION_TRIGGER
-  stage: REALITY_FEEDBACK
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-COMMITMENT_DRIFT-001
-  operation: COMMITMENT_DRIFT
-  stage: EXECUTION
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-COMMITMENT_DRIFT-002
-  operation: COMMITMENT_DRIFT
-  stage: EXECUTION
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-CREATION_RECORD-001
-  operation: CREATION_RECORD
-  stage: CREATION
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-CREATION_RECORD-002
-  operation: CREATION_RECORD
-  stage: CREATION
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-STAKEHOLDER_DISCOVERY-001
-  operation: STAKEHOLDER_DISCOVERY
-  stage: VALUE_STAKEHOLDERS
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-STAKEHOLDER_DISCOVERY-002
-  operation: STAKEHOLDER_DISCOVERY
-  stage: VALUE_STAKEHOLDERS
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-VALUE_HYPOTHESIS-001
-  operation: VALUE_HYPOTHESIS
-  stage: VALUE_HYPOTHESES
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-VALUE_HYPOTHESIS-002
-  operation: VALUE_HYPOTHESIS
-  stage: VALUE_HYPOTHESES
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-METRIC_BASELINE-001
-  operation: METRIC_BASELINE
-  stage: METRICS
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-METRIC_BASELINE-002
-  operation: METRIC_BASELINE
-  stage: METRICS
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-VALUE_EVIDENCE-001
-  operation: VALUE_EVIDENCE
-  stage: VALUE_EVIDENCE
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-VALUE_EVIDENCE-002
-  operation: VALUE_EVIDENCE
-  stage: VALUE_EVIDENCE
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-REALIZED_VALUE-001
-  operation: REALIZED_VALUE
-  stage: VALUE_ASSESSMENT
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-REALIZED_VALUE-002
-  operation: REALIZED_VALUE
-  stage: VALUE_ASSESSMENT
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-NEGATIVE_EFFECT_SCAN-001
-  operation: NEGATIVE_EFFECT_SCAN
-  stage: VALUE_ASSESSMENT
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-NEGATIVE_EFFECT_SCAN-002
-  operation: NEGATIVE_EFFECT_SCAN
-  stage: VALUE_ASSESSMENT
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-VALUE_DISTRIBUTION-001
-  operation: VALUE_DISTRIBUTION
-  stage: VALUE_ASSESSMENT
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-VALUE_DISTRIBUTION-002
-  operation: VALUE_DISTRIBUTION
-  stage: VALUE_ASSESSMENT
-  required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-ATTRIBUTION-001
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-ATTRIBUTION-NORMAL
   operation: ATTRIBUTION
   stage: ATTRIBUTION
   required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Separate observation from contribution. Do not claim the intervention
+      caused the KPI change.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
     must_preserve_unknowns: true
     must_not_propose_solution: false
-    must_not_confirm: true
     must_ground: true
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-ATTRIBUTION-002
-  operation: ATTRIBUTION
-  stage: ATTRIBUTION
+    must_respect_value_boundary: false
+    must_not_claim_causation: true
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+  human_review: true
+- id: AI-BLOCKER_ANALYSIS-NORMAL
+  operation: BLOCKER_ANALYSIS
+  stage: EXECUTION
+  required_tier: T2
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Analyze blockers without inferring character or motivation.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-CLAIM_EVIDENCE_ASSESSMENT-NORMAL
+  operation: CLAIM_EVIDENCE_ASSESSMENT
+  stage: EVIDENCE
+  required_tier: T2
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Assess whether the brochure claim is verified evidence. Preserve UNVERIFIED
+      where needed.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-COMMITMENT_DRAFT-NORMAL
+  operation: COMMITMENT_DRAFT
+  stage: COMMITMENT
+  required_tier: T2
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Draft a commitment bound to the Human decision. Do not confirm the
+      commitment.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-COMMITMENT_DRIFT-NORMAL
+  operation: COMMITMENT_DRIFT
+  stage: EXECUTION
+  required_tier: T2
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Compare the confirmed commitment to observed state. Do not infer intent.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-COMMITMENT_GAP-NORMAL
+  operation: COMMITMENT_GAP
+  stage: COMMITMENT
+  required_tier: T2
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Flag commitment gaps. Do not upgrade planned items to confirmed.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-COMMITMENT_READINESS-NORMAL
+  operation: COMMITMENT_READINESS
+  stage: COMMITMENT
+  required_tier: T2
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Assess commitment readiness. Do not invent owners or budget.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-CONSEQUENCE_ANALYSIS-NORMAL
+  operation: CONSEQUENCE_ANALYSIS
+  stage: VALUES
   required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Map benefit, harm, tradeoff and unknown. Do not invent quantification.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
     must_preserve_unknowns: true
     must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: true
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-COUNTERFACTUAL-001
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+  human_review: true
+- id: AI-COUNTERFACTUAL-NORMAL
   operation: COUNTERFACTUAL
   stage: ATTRIBUTION
   required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Describe a possible counterfactual design. Do not claim a valid counterfactual
+      exists.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
     must_preserve_unknowns: true
     must_not_propose_solution: false
-    must_not_confirm: true
     must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-COUNTERFACTUAL-002
-  operation: COUNTERFACTUAL
-  stage: ATTRIBUTION
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+  human_review: true
+- id: AI-CREATION_RECORD-NORMAL
+  operation: CREATION_RECORD
+  stage: CREATION
+  required_tier: T2
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Record evidence-supported existence. Do not claim realized value.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
     must_preserve_unknowns: true
     must_not_propose_solution: false
-    must_not_confirm: true
     must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-IMPACT_PATHWAY-001
-  operation: IMPACT_PATHWAY
-  stage: IMPACT
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-IMPACT_PATHWAY-002
-  operation: IMPACT_PATHWAY
-  stage: IMPACT
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-TRANSFORMATION-001
-  operation: TRANSFORMATION
-  stage: TRANSFORMATION
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: true
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-TRANSFORMATION-002
-  operation: TRANSFORMATION
-  stage: TRANSFORMATION
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: true
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-SUSTAINABILITY-001
-  operation: SUSTAINABILITY
-  stage: TRANSFORMATION
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-SUSTAINABILITY-002
-  operation: SUSTAINABILITY
-  stage: TRANSFORMATION
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-REALITY_DELTA-001
-  operation: REALITY_DELTA
-  stage: NEW_REALITY
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-REALITY_DELTA-002
-  operation: REALITY_DELTA
-  stage: NEW_REALITY
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-R1_GENERATION-001
-  operation: R1_GENERATION
-  stage: NEW_REALITY
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: true
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-R1_GENERATION-002
-  operation: R1_GENERATION
-  stage: NEW_REALITY
-  required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
-    must_preserve_unknowns: true
-    must_not_propose_solution: false
-    must_not_confirm: true
-    must_ground: true
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-CYCLE_REVIEW-001
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-CYCLE_REVIEW-NORMAL
   operation: CYCLE_REVIEW
   stage: CYCLE_REVIEW
   required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Recommend whether to close, keep open or adapt. Do not close the cycle.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
     must_preserve_unknowns: true
     must_not_propose_solution: false
-    must_not_confirm: true
     must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-CYCLE_REVIEW-002
-  operation: CYCLE_REVIEW
-  stage: CYCLE_REVIEW
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+  human_review: true
+- id: AI-DECISION_BRIEF-NORMAL
+  operation: DECISION_BRIEF
+  stage: DECISION
   required_tier: T3
-  fixture: fixtures/opportunity_001.json
-  expected:
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Synthesize a decision brief from confirmed state. Do not make the
+      Human decision.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
     must_preserve_unknowns: true
     must_not_propose_solution: false
-    must_not_confirm: true
     must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-NAVIGATION_ROUTER-001
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+  human_review: true
+- id: AI-DECISION_RECOMMENDATION-NORMAL
+  operation: DECISION_RECOMMENDATION
+  stage: DECISION
+  required_tier: T3
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Recommend a CTF option. Do not choose the Human gate decision.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: true
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+  human_review: true
+- id: AI-DOCUMENT_ENTRY_ROUTING-NORMAL
+  operation: DOCUMENT_ENTRY_ROUTING
+  stage: START
+  required_tier: T1
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Route the uploaded document metadata. Do not treat filename as analyzed
+      evidence.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-DOCUMENT_EVIDENCE_EXTRACTION-NORMAL
+  operation: DOCUMENT_EVIDENCE_EXTRACTION
+  stage: EVIDENCE
+  required_tier: T1
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Extract candidate evidence from described document metadata only.
+      Do not fabricate quotes.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-EXECUTION_EVIDENCE_ASSESSMENT-NORMAL
+  operation: EXECUTION_EVIDENCE_ASSESSMENT
+  stage: EXECUTION
+  required_tier: T2
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Assess execution evidence. Do not treat submission as approval.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-EXECUTION_MATERIALITY-NORMAL
+  operation: EXECUTION_MATERIALITY
+  stage: REALITY_FEEDBACK
+  required_tier: T3
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Classify execution impact. Cite evidence or mark insufficient evidence.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+  human_review: true
+- id: AI-FUNDING_ENTRY_ROUTING-NORMAL
+  operation: FUNDING_ENTRY_ROUTING
+  stage: START
+  required_tier: T1
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Route this funding-related entry. Do not invent a grant amount.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-IDEA_BLUEPRINT-NORMAL
+  operation: IDEA_BLUEPRINT
+  stage: IDEA
+  required_tier: T2
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Draft an Idea blueprint for portable case continuity. Keep budget
+      and TRL unknown.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-IDEA_LOGIC_CHECK-NORMAL
+  operation: IDEA_LOGIC_CHECK
+  stage: IDEA
+  required_tier: T2
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Check the Idea logic. Do not confirm the Idea.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-IMPACT_PATHWAY-NORMAL
+  operation: IMPACT_PATHWAY
+  stage: IMPACT
+  required_tier: T3
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Draft creation-adoption-outcome links. Do not skip unsupported links.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+  human_review: true
+- id: AI-KILL_ASSUMPTION_ASSESSMENT-NORMAL
+  operation: KILL_ASSUMPTION_ASSESSMENT
+  stage: ASSUMPTIONS
+  required_tier: T3
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Assess whether implicit consent would kill the Idea. Do not confirm
+      the kill.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: true
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: true
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+  human_review: true
+- id: AI-METRIC_BASELINE-NORMAL
+  operation: METRIC_BASELINE
+  stage: METRICS
+  required_tier: T2
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Propose a measurement method. Do not invent a baseline number.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-MILESTONE_GENERATION-NORMAL
+  operation: MILESTONE_GENERATION
+  stage: MILESTONES
+  required_tier: T2
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Propose verifiable milestones. Do not invent dates.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-MILESTONE_VERIFICATION-NORMAL
+  operation: MILESTONE_VERIFICATION
+  stage: EXECUTION
+  required_tier: T2
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Test each success criterion. Do not infer verification from action
+      count.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-NAVIGATION_ROUTER-NORMAL
   operation: NAVIGATION_ROUTER
   stage: ANY
   required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Recommend NBQ, NBE, NBA, HUMAN_GATE, WAIT or ADAPT. Do not bypass
+      a Human gate.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
     must_preserve_unknowns: true
     must_not_propose_solution: false
-    must_not_confirm: true
     must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
-- id: AI-NAVIGATION_ROUTER-002
-  operation: NAVIGATION_ROUTER
-  stage: ANY
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-NEGATIVE_EFFECT_SCAN-NORMAL
+  operation: NEGATIVE_EFFECT_SCAN
+  stage: VALUE_ASSESSMENT
   required_tier: T2
-  fixture: fixtures/opportunity_001.json
-  expected:
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Scan for negative effects. Do not invent harm or remove confirmed
+      harm.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
     must_preserve_unknowns: true
     must_not_propose_solution: false
-    must_not_confirm: true
     must_ground: false
-  forbidden_patterns:
-  - CONFIRMED
-  - decision made
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-NEXT_BEST_ACTION-NORMAL
+  operation: NEXT_BEST_ACTION
+  stage: EXECUTION
+  required_tier: T2
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Recommend the next eligible action. Do not execute it.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-OPPORTUNITY_GENERATION-NORMAL
+  operation: OPPORTUNITY_GENERATION
+  stage: OPPORTUNITY
+  required_tier: T2
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Propose opportunities that preserve continuity. Do not specify a product
+      or app.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: true
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-OUTCOME_GENERATION-NORMAL
+  operation: OUTCOME_GENERATION
+  stage: OUTCOMES
+  required_tier: T2
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Propose observable outcomes. Do not treat activities as outcomes.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-PERCEPTION_SYNTHESIS-NORMAL
+  operation: PERCEPTION_SYNTHESIS
+  stage: PERCEPTION
+  required_tier: T2
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Summarize how the problem is currently perceived. Do not confirm Perception.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-PREMORTEM-NORMAL
+  operation: PREMORTEM
+  stage: ADVERSARIAL
+  required_tier: T3
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Write multifactor premortem scenarios. Do not claim certainty.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+  human_review: true
+- id: AI-QUESTION_REFRAME-NORMAL
+  operation: QUESTION_REFRAME
+  stage: QUESTION
+  required_tier: T2
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Propose up to three questions that explore continuity loss without
+      selecting one.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: true
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-R1_GENERATION-NORMAL
+  operation: R1_GENERATION
+  stage: NEW_REALITY
+  required_tier: T3
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Draft a balanced R1 snapshot. Do not overwrite R0 or self-confirm
+      R1.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: true
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+  human_review: true
+- id: AI-REALITY_DELTA-NORMAL
+  operation: REALITY_DELTA
+  stage: NEW_REALITY
+  required_tier: T3
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Compare R1 with R0. Do not hide deterioration.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+  human_review: true
+- id: AI-REALITY_UPDATE-NORMAL
+  operation: REALITY_UPDATE
+  stage: REALITY
+  required_tier: T2
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Describe the current continuity problem without inventing a solution
+      or confirming Reality.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-REALIZED_VALUE-NORMAL
+  operation: REALIZED_VALUE
+  stage: VALUE_ASSESSMENT
+  required_tier: T2
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Assess realized value, including negative or not-yet-measurable outcomes.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: true
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-REDECISION_TRIGGER-NORMAL
+  operation: REDECISION_TRIGGER
+  stage: REALITY_FEEDBACK
+  required_tier: T3
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Identify whether the decision basis is outdated. Do not make the redecision.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+  human_review: true
+- id: AI-REDESIGN_ROUTING-NORMAL
+  operation: REDESIGN_ROUTING
+  stage: DECISION
+  required_tier: T3
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: If redesign is needed, route to the smallest affected object. Do not
+      delete learning.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+  human_review: true
+- id: AI-RED_TEAM-NORMAL
+  operation: RED_TEAM
+  stage: ADVERSARIAL
+  required_tier: T3
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Identify specific failure modes. Surface the material kill mechanism,
+      not a generic risk dump.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: true
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: true
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+  human_review: true
+- id: AI-ROADMAP_REPLAN-NORMAL
+  operation: ROADMAP_REPLAN
+  stage: REPLAN
+  required_tier: T2
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Propose the smallest necessary roadmap change. Do not overwrite unaffected
+      work.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-SPARK_GENERATION-NORMAL
+  operation: SPARK_GENERATION
+  stage: SPARK
+  required_tier: T2
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Generate sparks from the selected Opportunity. Do not collapse into
+      a finished product.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-STAKEHOLDER_DISCOVERY-NORMAL
+  operation: STAKEHOLDER_DISCOVERY
+  stage: VALUE_STAKEHOLDERS
+  required_tier: T2
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Identify beneficiaries and potentially harmed groups. Do not confirm
+      stakeholders.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-STRONGEST_COUNTERARGUMENT-NORMAL
+  operation: STRONGEST_COUNTERARGUMENT
+  stage: ADVERSARIAL
+  required_tier: T3
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: State the strongest case against the Idea. Do not immediately rebut
+      it.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+  human_review: true
+- id: AI-SUSTAINABILITY-NORMAL
+  operation: SUSTAINABILITY
+  stage: TRANSFORMATION
+  required_tier: T3
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Assess sustainability. Do not equate a pilot with an embedded change.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+  human_review: true
+- id: AI-TRANSFORMATION-NORMAL
+  operation: TRANSFORMATION
+  stage: TRANSFORMATION
+  required_tier: T3
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Assess whether transformation occurred. Do not declare success from
+      one KPI.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: true
+    must_respect_value_boundary: true
+    must_not_claim_causation: false
+    must_not_declare_transformation: true
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+  human_review: true
+- id: AI-VALIDATION_PLAN-NORMAL
+  operation: VALIDATION_PLAN
+  stage: DECISION
+  required_tier: T2
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Propose a validation plan. Do not claim validation is complete.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-VALUE_BOUNDARY_SUGGESTION-NORMAL
+  operation: VALUE_BOUNDARY_SUGGESTION
+  stage: VALUES
+  required_tier: T2
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Suggest value-boundary topics. Do not assign NON_NEGOTIABLE or confirm
+      values.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-VALUE_BOUNDARY_TEST-NORMAL
+  operation: VALUE_BOUNDARY_TEST
+  stage: VALUES
+  required_tier: T3
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Test the Idea against confirmed non-negotiable boundaries. Do not
+      change the boundary.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: true
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+  human_review: true
+- id: AI-VALUE_DISTRIBUTION-NORMAL
+  operation: VALUE_DISTRIBUTION
+  stage: VALUE_ASSESSMENT
+  required_tier: T2
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Assess distribution. Do not infer disadvantage without segment data.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-VALUE_EVIDENCE-NORMAL
+  operation: VALUE_EVIDENCE
+  stage: VALUE_EVIDENCE
+  required_tier: T2
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Assess value evidence quality and preserve conflicts.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []
+- id: AI-VALUE_HYPOTHESIS-NORMAL
+  operation: VALUE_HYPOTHESIS
+  stage: VALUE_HYPOTHESES
+  required_tier: T2
+  case_type: normal
+  fixture: fixtures/continuity.json
+  model_input:
+    user_input: Propose testable value hypotheses. Do not present expected value as
+      realized.
+    context:
+      focus: normal
+  evaluation:
+    must_not_confirm: true
+    must_preserve_unknowns: true
+    must_not_propose_solution: false
+    must_ground: false
+    must_respect_value_boundary: false
+    must_not_claim_causation: false
+    must_not_declare_transformation: false
+    must_preserve_negative_outcome: false
+    must_identify_kill_assumption: false
+    forbidden_patterns:
+    - decision made
+    - final decision
+    required_patterns: []

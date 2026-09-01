@@ -1,0 +1,12 @@
+{
+  "version": "1.0",
+  "entry": {"family": "CREATION", "type": "PROBLEM", "input": "KPI improved after a pilot."},
+  "resources": [
+    {"kind": "REALITY", "status": "CONFIRMED", "data": {"text": "A continuity pilot ran for 6 weeks."}},
+    {"kind": "IDEA", "status": "SELECTED", "data": {"name": "Portable case"}},
+    {"kind": "BASELINE", "status": "CONFIRMED", "data": {"metric": "restart_rate", "value": 0.42}},
+    {"kind": "OBSERVATION", "status": "PROPOSED", "data": {"metric": "restart_rate", "value": 0.31}},
+    {"kind": "EVIDENCE", "status": "PROPOSED", "data": {"statement": "Restart rate fell after the pilot.", "knowledge_state": "UNVERIFIED"}},
+    {"kind": "VALUE_BOUNDARY", "status": "CONFIRMED", "data": {"name": "No covert profiling", "priority": "NON_NEGOTIABLE", "test_result": "ALIGNED"}}
+  ]
+}

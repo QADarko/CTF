@@ -1,28 +1,52 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
-  "required": ["id", "operation", "stage", "required_tier", "expected"],
-  "additionalProperties": true,
+  "required": ["id", "operation", "fixture", "model_input", "evaluation"],
+  "additionalProperties": false,
   "properties": {
     "id": { "type": "string" },
     "operation": { "type": "string" },
     "stage": { "type": "string" },
     "required_tier": { "type": "string", "enum": ["T1", "T2", "T3", "T4"] },
+    "case_type": { "type": "string" },
     "fixture": { "type": "string" },
-    "expected": {
+    "human_review": { "type": "boolean" },
+    "model_input": {
       "type": "object",
-      "required": ["must_not_confirm"],
+      "required": ["user_input"],
+      "additionalProperties": false,
       "properties": {
-        "must_preserve_unknowns": { "type": "boolean" },
-        "must_not_propose_solution": { "type": "boolean" },
-        "must_not_confirm": { "type": "boolean" },
-        "must_ground": { "type": "boolean" },
-        "must_respect_value_boundary": { "type": "boolean" }
+        "user_input": { "type": "string" },
+        "requested_consequentiality": { "type": "string" },
+        "context": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "focus": { "type": "string" },
+            "selected_ids": { "type": "array", "items": { "type": "string" } },
+            "resource_refs": { "type": "array", "items": { "type": "string" } },
+            "constraints": { "type": "array", "items": { "type": "string" } }
+          }
+        }
       }
     },
-    "forbidden_patterns": {
-      "type": "array",
-      "items": { "type": "string" }
+    "evaluation": {
+      "type": "object",
+      "required": ["must_not_confirm"],
+      "additionalProperties": false,
+      "properties": {
+        "must_not_confirm": { "type": "boolean" },
+        "must_preserve_unknowns": { "type": "boolean" },
+        "must_not_propose_solution": { "type": "boolean" },
+        "must_ground": { "type": "boolean" },
+        "must_respect_value_boundary": { "type": "boolean" },
+        "must_not_claim_causation": { "type": "boolean" },
+        "must_not_declare_transformation": { "type": "boolean" },
+        "must_preserve_negative_outcome": { "type": "boolean" },
+        "must_identify_kill_assumption": { "type": "boolean" },
+        "forbidden_patterns": { "type": "array", "items": { "type": "string" } },
+        "required_patterns": { "type": "array", "items": { "type": "string" } }
+      }
     }
   }
 }

@@ -1,0 +1,32 @@
+{
+  "version": "1.0",
+  "entry": {
+    "family": "CREATION",
+    "type": "PROBLEM",
+    "input": "Public services are moving online, but people who need help are left behind."
+  },
+  "memory": {
+    "reality": {"summary": "Service continuity is fragmented across channels."},
+    "question": {"text": "How might continuity be preserved without covert profiling?"}
+  },
+  "resources": [
+    {"kind": "REALITY", "status": "CONFIRMED", "data": {"text": "Service continuity is fragmented across channels."}},
+    {"kind": "QUESTION", "status": "CONFIRMED", "data": {"text": "How might continuity be preserved without covert profiling?"}},
+    {"kind": "PERCEPTION", "status": "CONFIRMED", "data": {"from": "website problem", "to": "trust and continuity"}},
+    {"kind": "CLAIM", "status": "PROPOSED", "data": {"statement": "Users drop between channels."}},
+    {"kind": "EVIDENCE", "status": "CONFIRMED", "data": {"statement": "Service logs show restart rates above 40%.", "knowledge_state": "SUPPORTED"}},
+    {"kind": "OPPORTUNITY", "status": "SELECTED", "data": {"name": "Portable case continuity"}},
+    {"kind": "SPARK", "status": "SELECTED", "data": {"text": "What if the case travelled with the person?"}},
+    {"kind": "IDEA", "status": "SELECTED", "data": {"name": "Portable case", "what": "A continuing service record."}},
+    {"kind": "ASSUMPTION", "status": "PROPOSED", "data": {"statement": "Consent stays explicit.", "is_kill_assumption": true, "falsification_test": "Observe consent capture", "kill_threshold": "implicit consent", "consequence_if_false": "Idea is not viable"}},
+    {"kind": "VALUE_BOUNDARY", "status": "CONFIRMED", "data": {"name": "Human control", "priority": "NON_NEGOTIABLE", "test_result": "ALIGNED"}},
+    {"kind": "HUMAN_DECISION", "status": "CONFIRMED", "data": {"decision": "CONDITIONAL_GO", "rationale": "Independent review required"}},
+    {"kind": "COMMITMENT", "status": "CONFIRMED", "data": {"statement": "Pilot the portable case"}},
+    {"kind": "ROADMAP", "status": "CONFIRMED", "data": {"name": "Pilot roadmap", "outcomes": ["Safe continuity"]}},
+    {"kind": "BASELINE", "status": "CONFIRMED", "data": {"metric": "restart_rate", "value": 0.42}},
+    {"kind": "OBSERVATION", "status": "PROPOSED", "data": {"metric": "restart_rate", "value": 0.31, "after_intervention": true}},
+    {"kind": "REALIZED_VALUE", "status": "PROPOSED", "data": {"statement": "Some users completed a case without restart"}},
+    {"kind": "REALITY_SNAPSHOT", "status": "CONFIRMED", "data": {"label": "R1", "dimensions": [{"dimension": "continuity", "value": "improved"}]}},
+    {"kind": "TRANSFORMATION", "status": "PROPOSED", "data": {"statement": "Continuity may have improved; harm unknown"}}
+  ]
+}

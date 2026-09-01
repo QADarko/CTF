@@ -1,0 +1,11 @@
+{
+  "version": "1.0",
+  "entry": {"family": "CREATION", "type": "PROBLEM", "input": "Generic risks are listed, but one kill mechanism is buried."},
+  "resources": [
+    {"kind": "REALITY", "status": "CONFIRMED", "data": {"text": "A continuity idea depends on explicit consent remaining possible."}},
+    {"kind": "IDEA", "status": "SELECTED", "data": {"name": "Portable case"}},
+    {"kind": "ASSUMPTION", "status": "PROPOSED", "data": {"statement": "Consent stays explicit and reversible.", "is_kill_assumption": true, "falsification_test": "Observe whether consent can be withheld without losing the service.", "kill_threshold": "service continues only if consent is implicit", "consequence_if_false": "The idea is not viable under CTF values."}},
+    {"kind": "ASSUMPTION", "status": "PROPOSED", "data": {"statement": "Staff may need extra training.", "is_kill_assumption": false}},
+    {"kind": "VALUE_BOUNDARY", "status": "CONFIRMED", "data": {"name": "No covert profiling", "priority": "NON_NEGOTIABLE", "test_result": "ALIGNED"}}
+  ]
+}

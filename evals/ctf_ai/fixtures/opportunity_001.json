@@ -1,8 +1,18 @@
 {
-  "stage": "OPPORTUNITY",
+  "version": "1.0",
+  "entry": {
+    "family": "CREATION",
+    "type": "PROBLEM",
+    "input": "Public services are moving online, but people who need help are left behind."
+  },
   "memory": {
     "reality": {"summary": "Service continuity is fragmented."},
     "question": {"text": "How might continuity be preserved?"}
   },
-  "unknowns": ["budget", "market_size"]
+  "unknowns": ["budget", "market_size"],
+  "resources": [
+    {"kind": "REALITY", "status": "CONFIRMED", "data": {"text": "Service continuity is fragmented across channels."}},
+    {"kind": "QUESTION", "status": "CONFIRMED", "data": {"text": "How might continuity be preserved without covert profiling?"}},
+    {"kind": "OPPORTUNITY", "status": "PROPOSED", "data": {"name": "Portable case continuity"}}
+  ]
 }

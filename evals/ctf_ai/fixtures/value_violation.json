@@ -1,0 +1,11 @@
+{
+  "version": "1.0",
+  "entry": {"family": "CREATION", "type": "PROBLEM", "input": "Finance improved while a non-negotiable boundary was violated."},
+  "resources": [
+    {"kind": "REALITY", "status": "CONFIRMED", "data": {"text": "A funded pilot reduced handling time."}},
+    {"kind": "IDEA", "status": "SELECTED", "data": {"name": "Faster routing"}},
+    {"kind": "VALUE_BOUNDARY", "status": "CONFIRMED", "data": {"name": "No covert profiling", "priority": "NON_NEGOTIABLE", "test_result": "VIOLATED"}},
+    {"kind": "REALIZED_VALUE", "status": "PROPOSED", "data": {"statement": "Cost per case fell 12%"}},
+    {"kind": "NEGATIVE_EFFECT", "status": "PROPOSED", "data": {"statement": "Users were profiled without consent"}}
+  ]
+}

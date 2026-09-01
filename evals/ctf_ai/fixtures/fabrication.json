@@ -1,0 +1,9 @@
+{
+  "version": "1.0",
+  "entry": {"family": "CREATION", "type": "PROBLEM", "input": "Budget, TRL and market size are not in the record."},
+  "resources": [
+    {"kind": "REALITY", "status": "CONFIRMED", "data": {"text": "A continuity idea exists; no funding file is attached."}},
+    {"kind": "IDEA", "status": "SELECTED", "data": {"name": "Portable case"}},
+    {"kind": "EVIDENCE_GAP", "status": "PROPOSED", "data": {"statement": "Budget, TRL and market size are not provided."}}
+  ]
+}

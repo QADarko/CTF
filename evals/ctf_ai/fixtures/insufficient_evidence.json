@@ -1,0 +1,10 @@
+{
+  "version": "1.0",
+  "entry": {"family": "CREATION", "type": "PROBLEM", "input": "Little verified evidence exists."},
+  "resources": [
+    {"kind": "REALITY", "status": "CONFIRMED", "data": {"text": "Continuity complaints are anecdotal."}},
+    {"kind": "QUESTION", "status": "CONFIRMED", "data": {"text": "What is actually happening to continuity?"}},
+    {"kind": "CLAIM", "status": "PROPOSED", "data": {"statement": "We are market-leading.", "knowledge_state": "UNVERIFIED"}},
+    {"kind": "EVIDENCE_GAP", "status": "PROPOSED", "data": {"statement": "No measured baseline exists."}}
+  ]
+}

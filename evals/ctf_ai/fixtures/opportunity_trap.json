@@ -1,0 +1,9 @@
+{
+  "version": "1.0",
+  "entry": {"family": "CREATION", "type": "PROBLEM", "input": "Users ask for a finished product before Opportunity is understood."},
+  "resources": [
+    {"kind": "REALITY", "status": "CONFIRMED", "data": {"text": "People lose their place when they switch channels."}},
+    {"kind": "QUESTION", "status": "CONFIRMED", "data": {"text": "How might a person continue a case without restarting?"}},
+    {"kind": "CLAIM", "status": "PROPOSED", "data": {"statement": "A mobile wallet would fix this.", "knowledge_state": "UNVERIFIED"}}
+  ]
+}

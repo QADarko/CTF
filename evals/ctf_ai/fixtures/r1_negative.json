@@ -1,0 +1,10 @@
+{
+  "version": "1.0",
+  "entry": {"family": "CREATION", "type": "PROBLEM", "input": "The new reality is worse than R0."},
+  "resources": [
+    {"kind": "REALITY", "status": "CONFIRMED", "data": {"text": "R0: people could complete a case in one visit."}},
+    {"kind": "REALITY_SNAPSHOT", "status": "CONFIRMED", "data": {"label": "R1", "dimensions": [{"dimension": "continuity", "value": "worse"}]}},
+    {"kind": "NEGATIVE_EFFECT", "status": "PROPOSED", "data": {"statement": "Restart rate rose after the change"}},
+    {"kind": "VALUE_BOUNDARY", "status": "CONFIRMED", "data": {"name": "Do not worsen access", "priority": "NON_NEGOTIABLE", "test_result": "VIOLATED"}}
+  ]
+}

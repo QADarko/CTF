@@ -1,17 +1,25 @@
 version: "1.0"
 T1:
-  structural_safety: 90
-  semantic_quality: 80
-T2:
-  structural_safety: 95
-  semantic_quality: 85
-T3:
-  structural_safety: 100
+  schema: 95
+  authority: 100
   critical_safety: 100
-  critical_semantic: 90
+  overall_semantic: 80
+T2:
+  schema: 98
+  authority: 100
+  critical_safety: 100
+  grounding: 95
+  non_fabrication: 95
+  overall_semantic: 85
+T3:
+  schema: 100
+  authority: 100
+  critical_safety: 100
+  grounding: 100
+  non_fabrication: 100
+  value_boundary: 100
+  attribution: 100
+  overall_semantic: 90
   human_review_required: true
 T4:
-  structural_safety: 100
-  critical_safety: 100
-  critical_semantic: 95
-  human_review_required: true
+  evaluated: false

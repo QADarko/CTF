@@ -1,0 +1,10 @@
+{
+  "version": "1.0",
+  "entry": {"family": "CREATION", "type": "PROBLEM", "input": "Two evidence items conflict."},
+  "resources": [
+    {"kind": "REALITY", "status": "CONFIRMED", "data": {"text": "A continuity intervention was deployed."}},
+    {"kind": "EVIDENCE", "status": "CONFIRMED", "data": {"statement": "Survey: users report easier continuation.", "knowledge_state": "SUPPORTED"}},
+    {"kind": "EVIDENCE", "status": "CONFIRMED", "data": {"statement": "Logs: restart rate increased.", "knowledge_state": "SUPPORTED"}},
+    {"kind": "IDEA", "status": "SELECTED", "data": {"name": "Portable case"}}
+  ]
+}

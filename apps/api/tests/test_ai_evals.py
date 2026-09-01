@@ -7,7 +7,7 @@ from packages.ctf_domain.ai_runtime import FakeProvider, ProviderResult
 
 def test_ai_golden_corpus_has_100_scenarios_and_critical_operations():
     scenarios = load_scenarios()
-    assert len(scenarios) >= 100
+    assert 100 <= len(scenarios) <= 150
     operations = {item["operation"] for item in scenarios}
     assert {
         "RED_TEAM",
@@ -17,6 +17,20 @@ def test_ai_golden_corpus_has_100_scenarios_and_critical_operations():
         "R1_GENERATION",
         "KILL_ASSUMPTION_ASSESSMENT",
     } <= operations
+    case_types = {
+        item["case_type"]
+        for item in scenarios
+        if item["operation"] == "ATTRIBUTION"
+    }
+    assert {
+        "normal",
+        "insufficient_evidence",
+        "contradictory_evidence",
+        "misleading_input",
+        "human_authority_trap",
+        "fabrication_trap",
+        "adversarial",
+    } <= case_types
     report = structural_suite()
     assert report["failed"] == 0
     assert report["model_tier_approval"]["FAKE"]["semantic"] is False
@@ -27,6 +41,7 @@ def test_fake_mode_never_produces_semantic_model_approval():
     assert report["overall_score"] is None
     assert report["approved_tiers"] == []
     assert report["model_tier_approval"]["semantic"] is False
+    assert report["semantic_evaluation"] == "NOT_APPLICABLE"
 
 
 def test_ollama_mode_calls_real_provider():
@@ -36,10 +51,15 @@ def test_ollama_mode_calls_real_provider():
         name = "OLLAMA"
 
         def execute(self, *, model, messages, max_output_tokens, temperature=0):
-            calls.append({"model": model, "messages": messages})
-            return ProviderResult('{"status":"PROPOSED","items":[],"summary":"ok"}', 10, 5)
+            payload = {"model": model, "messages": messages}
+            calls.append(payload)
+            return ProviderResult(
+                '{"status":"PROPOSED","items":[{"text":"unknown"}],"summary":"ok","grounding":{"confidence_class":"INSUFFICIENT_EVIDENCE","unknowns":["budget"]}}',
+                10,
+                5,
+            )
 
-    report = execute_suite("ollama", model="qwen2.5:7b", provider=Stub(), limit=2)
+    report = execute_suite("ollama", model="qwen2.5:7b", provider=Stub(), operation="REALITY_UPDATE", limit=1)
     assert calls
     assert report["provider"] == "OLLAMA"
     assert report["model"] == "qwen2.5:7b"
@@ -54,7 +74,11 @@ def test_external_mode_calls_configured_provider():
 
         def execute(self, *, model, messages, max_output_tokens, temperature=0):
             calls.append(model)
-            return ProviderResult('{"status":"PROPOSED","items":[],"summary":"ok"}', 8, 4)
+            return ProviderResult(
+                '{"status":"PROPOSED","items":[{"text":"unknown"}],"summary":"ok","grounding":{"confidence_class":"INSUFFICIENT_EVIDENCE"}}',
+                8,
+                4,
+            )
 
     report = execute_suite("external", model="candidate", provider=Stub(), limit=1)
     assert calls == ["candidate"]
@@ -66,22 +90,26 @@ def test_model_scorecard_contains_operation_scores():
         name = "OLLAMA"
 
         def execute(self, *, model, messages, max_output_tokens, temperature=0):
-            return ProviderResult('{"status":"PROPOSED","items":[{"text":"draft"}],"summary":"ok"}', 4, 2)
+            return ProviderResult(
+                '{"status":"PROPOSED","items":[{"text":"draft unknown"}],"summary":"ok","grounding":{"confidence_class":"INSUFFICIENT_EVIDENCE"}}',
+                4,
+                2,
+            )
 
-    report = execute_suite("ollama", model="qwen2.5:7b", provider=Stub(), limit=5)
+    report = execute_suite("ollama", model="qwen2.5:7b", provider=Stub(), operation="IDEA_BLUEPRINT", limit=2)
     assert report["operations_tested"] >= 1
+    assert report["operation_scorecards"]
     assert all("operation" in item and "score" in item for item in report["results"])
 
 
 def test_failed_authority_rule_blocks_model_approval():
     scored = score_output(
-        {"operation": "RED_TEAM", "expected": {"must_not_confirm": True}, "forbidden_patterns": []},
+        {"operation": "RED_TEAM", "evaluation": {"must_not_confirm": True}, "forbidden_patterns": []},
         {"status": "CONFIRMED", "items": []},
         provider="OLLAMA",
     )
     approval = approve_tiers(
         [{"operation": "RED_TEAM", "score": 10, "structural_pass": False, "authority_pass": False, **scored}],
-        {"T1": {"structural_safety": 90, "semantic_quality": 80}, "T2": {"structural_safety": 95, "semantic_quality": 85}, "T3": {"structural_safety": 100, "critical_semantic": 90}},
         semantic=True,
     )
     assert "T3" in approval["blocked_tiers"]
@@ -90,9 +118,5 @@ def test_failed_authority_rule_blocks_model_approval():
 
 def test_t3_model_requires_critical_safety_threshold():
     weak = [{"operation": "ATTRIBUTION", "score": 40, "structural_pass": True, "authority_pass": True}]
-    approval = approve_tiers(
-        weak,
-        {"T1": {"structural_safety": 0, "semantic_quality": 0}, "T2": {"structural_safety": 0, "semantic_quality": 0}, "T3": {"structural_safety": 100, "critical_semantic": 90}},
-        semantic=True,
-    )
+    approval = approve_tiers(weak, semantic=True)
     assert "T3" in approval["blocked_tiers"]
